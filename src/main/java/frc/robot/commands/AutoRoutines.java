@@ -41,7 +41,7 @@ public final class AutoRoutines {
     }
 
     public void configure() {
-        autoChooser.addRoutine("Outpost and Depot", this::OutpostRoutine);
+        autoChooser.addRoutine("Outpost", this::OutpostRoutine);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }

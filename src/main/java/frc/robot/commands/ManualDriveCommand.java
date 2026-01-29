@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.SystemConstants;
@@ -62,6 +63,8 @@ public class ManualDriveCommand extends Command {
     private Stopwatch headingLockStopwatch = new Stopwatch();
     private ManualDriveInput previousInput = new ManualDriveInput();
 
+    private Rotation2d closestBumpTraversalRotation = new Rotation2d(Units.Degrees.of(45));
+
     public ManualDriveCommand(
         Swerve swerve,
         DoubleSupplier forwardInput,
@@ -111,6 +114,8 @@ public class ManualDriveCommand extends Command {
 
     @Override
     public void execute() {
+
+        // Handle inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
         if (input.hasRotation()) {
             currentState = State.DRIVING_WITH_MANUAL_ROTATION;

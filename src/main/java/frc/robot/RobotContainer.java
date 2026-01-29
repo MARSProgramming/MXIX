@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
@@ -51,6 +52,14 @@ public class RobotContainer {
         backLimelight.setDefaultCommand(updateBackVision());
 
         pilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric())); // Re-seeds field-centric heading when 'back' button is pressed
+
+        // Locks the heading to our nearest "diamond orientation."
+        // Disables upon first rotational input from joystick.
+        pilot.leftBumper().onTrue(Commands.runOnce(
+          () -> manualDriveCommand.setLockedHeading(
+            FieldConstants.Orientations.getClosestDiamond(swervebase.getState().Pose))
+            )
+        ); 
     }
 
     // Update the robot's pose estimate using vision measurements from a Limelight
