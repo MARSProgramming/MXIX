@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.List;
+
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -10,7 +12,9 @@ import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
@@ -21,6 +25,8 @@ public class Flywheel extends SubsystemBase {
     private TalonFX rf;
     private TalonFX lm;
     private TalonFX lf;
+    private final List<TalonFX> motors;
+
 
     private final IntegerSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 2000);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
@@ -46,20 +52,28 @@ public class Flywheel extends SubsystemBase {
 
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
         lf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
+
+        motors = List.of(rm, rf, lm, lf);
+
     }
 
 
-    public Command setVelocity(double velocityRPM) {
-        return runEnd(() -> {
+    public void setRPM(double velocityRPM) {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
-        }, () -> {
-            rm.set(0);
-            rf.set(0);
-        });
     }
 
-    public Command setPercentOut(double percentOut) {
+    /**
+     * Spins up flywheels and keeps them at target state, ending when tolerance for velocity is reached.
+     * Useful in auto for timing purposes.
+     * @param velocityRPM
+     */
+    public Command spinUp(double velocityRPM) {
+        return runOnce(() -> setRPM(velocityRPM))
+        .andThen(Commands.waitUntil(this::isVelocityWithinTolerance));
+    }
+
+    public Command set(double percentOut) {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
@@ -109,5 +123,18 @@ public class Flywheel extends SubsystemBase {
         DogLog.log("Shooter/RightFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftMaster/Temperature", rm.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
+    }
+
+
+    /**
+     * Helper method to check if all motors are at the desired velocity setpoint.
+    **/
+    public boolean isVelocityWithinTolerance() {
+        return motors.stream().allMatch(motor -> {
+            final boolean isInVelocityMode = motor.getAppliedControl().equals(flywheelVelocityOut);
+            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
+            final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
+            return isInVelocityMode && currentVelocity.isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+        });
     }
 }
