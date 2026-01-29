@@ -201,24 +201,24 @@ public class SystemConstants {
         public static final double kFlipClimberReduction = 80 / 1; // TODO: Find out
         private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFlipClimberReduction);
         
-        public static TalonFXConfiguration fastClimberConfig = new TalonFXConfiguration();
+        public static TalonFXConfiguration flipClimberConfig = new TalonFXConfiguration();
 
         static {
             // position control (if needed)
-            fastClimberConfig.Slot0.kP = 1; // definitely too low if we need position control
-            fastClimberConfig.Slot0.kI = 0;
-            fastClimberConfig.Slot0.kD = 0;
-            fastClimberConfig.Slot0.kV = 12.0 / kMaxFastClimberSpeed.in(Units.RotationsPerSecond);
+            flipClimberConfig.Slot0.kP = 1; // definitely too low if we need position control
+            flipClimberConfig.Slot0.kI = 0;
+            flipClimberConfig.Slot0.kD = 0;
+            flipClimberConfig.Slot0.kV = 12.0 / kMaxFastClimberSpeed.in(Units.RotationsPerSecond);
 
-            fastClimberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            fastClimberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
+            flipClimberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            flipClimberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
 
-            fastClimberConfig.Feedback.SensorToMechanismRatio = kFlipClimberReduction; 
+            flipClimberConfig.Feedback.SensorToMechanismRatio = kFlipClimberReduction; 
 
-            fastClimberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            fastClimberConfig.CurrentLimits.SupplyCurrentLimit = 70;
-            fastClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            fastClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
+            flipClimberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+            flipClimberConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            flipClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+            flipClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
         }
     }
 }
