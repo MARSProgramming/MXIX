@@ -34,7 +34,6 @@ public class Flywheel extends SubsystemBase {
 
     double sTunableRpm = shooterRpmTunable.get();
     double sTunablePercentOut = shooterPercentOutTunable.get(); 
-    double sTunableCowlPosition = cowlPositionTunable.get(); 
 
     VoltageOut flywheelVoltageOut = new VoltageOut(0);
     VelocityVoltage flywheelVelocityOut = new VelocityVoltage(0).withSlot(0);
@@ -108,7 +107,6 @@ public class Flywheel extends SubsystemBase {
         // Update tunables
         sTunableRpm = shooterRpmTunable.get();
         sTunablePercentOut = shooterPercentOutTunable.get();
-        sTunableCowlPosition = cowlPositionTunable.get();
 
         // Logging
         DogLog.log("Shooter/RightMaster/VelocityRPM", Units.RotationsPerSecond.of(rm.getVelocity().getValueAsDouble()).in(Units.RPM));
