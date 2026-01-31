@@ -51,7 +51,7 @@ public class SystemConstants {
     }
 
     public static class Cowl {
-        public static final double kCowlReduction = 24.0 / 18.0;
+        public static final double kCowlReduction = (24.0 / 12.0) * (260.0 / 17.0);
         private static final AngularVelocity kMaxCowlSpeed = KrakenX44.kFreeSpeed.div(kCowlReduction);
         public static final double kCowlStallCurrent = 1; // Configure with testing, this is way too low
 
@@ -75,8 +75,11 @@ public class SystemConstants {
     }
     
     public static class Intake {
-        public static final double kIntakeReduction = 1.0; // Same for both pivot and rollers
-        private static final AngularVelocity kMaxIntakeSpeed = KrakenX44.kFreeSpeed.div(kIntakeReduction); // same for both pivot and rollers
+        public static final double kIntakePivotReduction = 4 / 1; // Same for both pivot and rollers
+        public static final double kIntakeRollerReduction = 1.0; // Same for both pivot and rollers
+
+        private static final AngularVelocity kMaxIntakePivotSpeed = KrakenX44.kFreeSpeed.div(kIntakePivotReduction); // same for both pivot and rollers
+        private static final AngularVelocity kMaxIntakeRollerSpeed = KrakenX44.kFreeSpeed.div(kIntakeRollerReduction); // same for both pivot and rollers
         public static final double kIntakePivotStallCurrent = 1; // Configure with testing, this is way too low
 
         public static TalonFXConfiguration pivotConfig = new TalonFXConfiguration();
@@ -87,11 +90,11 @@ public class SystemConstants {
             pivotConfig.Slot0.kP = 1;
             pivotConfig.Slot0.kI = 0;
             pivotConfig.Slot0.kD = 0;
-            pivotConfig.Slot0.kV = 12.0 / kMaxIntakeSpeed.in(Units.RotationsPerSecond);
+            pivotConfig.Slot0.kV = 12.0 / kMaxIntakePivotSpeed.in(Units.RotationsPerSecond);
 
             pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-            pivotConfig.Feedback.SensorToMechanismRatio = kIntakeReduction; // Gear ratio
+            pivotConfig.Feedback.SensorToMechanismRatio = kIntakePivotReduction; // Gear ratio
 
             pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             pivotConfig.CurrentLimits.SupplyCurrentLimit = 70;
@@ -104,12 +107,12 @@ public class SystemConstants {
             rollerConfig.Slot0.kP = 0.5;
             rollerConfig.Slot0.kI = 2;
             rollerConfig.Slot0.kD = 0;
-            rollerConfig.Slot0.kV = 12.0 / kMaxIntakeSpeed.in(Units.RotationsPerSecond);
+            rollerConfig.Slot0.kV = 12.0 / kMaxIntakeRollerSpeed.in(Units.RotationsPerSecond);
 
             rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
             rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-            rollerConfig.Feedback.SensorToMechanismRatio = kIntakeReduction; 
+            rollerConfig.Feedback.SensorToMechanismRatio = kIntakeRollerReduction; 
 
             rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             rollerConfig.CurrentLimits.SupplyCurrentLimit = 70;
