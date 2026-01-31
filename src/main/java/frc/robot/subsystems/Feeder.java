@@ -22,7 +22,7 @@ public class Feeder extends SubsystemBase {
     VelocityVoltage feederVelocityOut = new VelocityVoltage(0).withSlot(0);
 
     public Feeder() {
-        m_feeder = new TalonFX(Ports.Floor.kFloorRollers);
+        m_feeder = new TalonFX(Ports.Feeder.kFeederMotor);
 
         m_feeder.getConfigurator().apply(SystemConstants.Floor.floorConfig);
     }
