@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.subsystems.Swerve;
 
 public class FieldConstants {
 
@@ -42,6 +43,15 @@ public class FieldConstants {
 
             return closest;
         }
+
+        public static Rotation2d getDirectionToHub(Swerve sw) {
+        final Translation2d hubPosition = Locations.hubPosition();
+        final Translation2d robotPosition = sw.getState().Pose.getTranslation();
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(sw.getOperatorForwardDirection());
+        return hubDirectionInOperatorPerspective;
+        }
+
     }
 
     public static class Locations {
