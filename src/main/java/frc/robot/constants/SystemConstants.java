@@ -26,7 +26,7 @@ public class SystemConstants {
     }
 
     public static class Flywheel {
-        public static final double kFlywheelReduction = 18.0 / 17.0;
+        public static final double kFlywheelReduction = 1.0;
         public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
         private static final AngularVelocity kMaxFlywheelSpeed = KrakenX60.kFreeSpeed.div(kFlywheelReduction);
 
@@ -75,7 +75,7 @@ public class SystemConstants {
     }
     
     public static class Intake {
-        public static final double kIntakeReduction = 18.0 / 17.0; // Same for both pivot and rollers
+        public static final double kIntakeReduction = 1.0; // Same for both pivot and rollers
         private static final AngularVelocity kMaxIntakeSpeed = KrakenX44.kFreeSpeed.div(kIntakeReduction); // same for both pivot and rollers
         public static final double kIntakePivotStallCurrent = 1; // Configure with testing, this is way too low
 
@@ -119,7 +119,7 @@ public class SystemConstants {
     }
 
     public static class Floor {
-        public static final double kFloorReduction = 1; // TODO: Find out
+        public static final double kFloorReduction = 1.0; // TODO: Find out
         private static final AngularVelocity kMaxFloorSpeed = KrakenX44.kFreeSpeed.div(kFloorReduction);
         
         public static TalonFXConfiguration floorConfig = new TalonFXConfiguration();

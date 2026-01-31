@@ -30,7 +30,6 @@ public class Flywheel extends SubsystemBase {
 
     private final IntegerSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 2000);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
 
     double sTunableRpm = shooterRpmTunable.get();
     double sTunablePercentOut = shooterPercentOutTunable.get(); 
@@ -50,7 +49,7 @@ public class Flywheel extends SubsystemBase {
         rf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
 
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
-        lf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
+        lf.setControl(new Follower(Ports.Flywheel.kLeftFlywheelMaster, MotorAlignmentValue.Opposed));
 
         motors = List.of(rm, rf, lm, lf);
 
@@ -78,7 +77,7 @@ public class Flywheel extends SubsystemBase {
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
         }, () -> {
             rm.set(0);
-            rf.set(0);
+            lm.set(0);
         });
     }
 
@@ -88,7 +87,7 @@ public class Flywheel extends SubsystemBase {
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
         }, () -> {
             rm.set(0);
-            rf.set(0);
+            lm.set(0);
         });
     }
 
@@ -98,7 +97,7 @@ public class Flywheel extends SubsystemBase {
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
         }, () -> {
             rm.set(0);
-            rf.set(0);
+            lm.set(0);
         });
     }
 
