@@ -124,7 +124,7 @@ public class SystemConstants {
     public static class Floor {
         public static final double kFloorReduction = 1.0; // TODO: Find out
         private static final AngularVelocity kMaxFloorSpeed = KrakenX44.kFreeSpeed.div(kFloorReduction);
-        
+
         public static TalonFXConfiguration floorConfig = new TalonFXConfiguration();
 
         static {
@@ -150,7 +150,7 @@ public class SystemConstants {
     public static class Feeder {
         public static final double kFloorReduction = 1; // TODO: Find out
         private static final AngularVelocity kMaxFeederSpeed = KrakenX60.kFreeSpeed.div(kFloorReduction);
-        
+        public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
         public static TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
         static {

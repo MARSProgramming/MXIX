@@ -14,7 +14,7 @@ import frc.robot.constants.SystemConstants;
 
 public class Floor extends SubsystemBase {
 
-    private TalonFX m_floor;
+    private TalonFX mFloor;
 
     private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.1);
 
@@ -23,31 +23,32 @@ public class Floor extends SubsystemBase {
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
     public Floor() {
-        m_floor = new TalonFX(Ports.Floor.kFloorRollers);
-
-        m_floor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
+        mFloor = new TalonFX(Ports.Floor.kFloorRollers);
+        mFloor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
     }
 
     public Command set(double percentOut) {
         return runEnd(() -> {
-            m_floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
+            mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
         }, () -> {
-            m_floor.set(0);
+            mFloor.set(0);
         });
     }
 
     public Command setPercentOutTunable() {
         return runEnd(() -> {
-            m_floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
+            mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
         }, () -> {
-            m_floor.set(0);
+            mFloor.set(0);
         });
     }
 
     @Override
     public void periodic() {
         sTunablePercentOut = floorPercentOutTunable.get();
-
-        DogLog.log("Floor/TunableFloorOutput", m_floor.getMotorVoltage().getValueAsDouble());
+        DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
+        DogLog.log("Floor/AppliedVoltage", mFloor.getMotorVoltage().getValueAsDouble());
+        DogLog.log("Floor/Temperature", mFloor.getDeviceTemp().getValueAsDouble());
+        DogLog.log("Floor/TunableFeederVelocity", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
     }
 }

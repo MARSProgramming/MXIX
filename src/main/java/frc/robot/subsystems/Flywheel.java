@@ -101,6 +101,19 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
+        /**
+     * Helper method to check if all motors are at the desired velocity setpoint.
+    **/
+    public boolean isVelocityWithinTolerance() {
+        return motors.stream().allMatch(motor -> {
+            final boolean isInVelocityMode = motor.getAppliedControl().equals(flywheelVelocityOut);
+            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
+            final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
+            return isInVelocityMode && currentVelocity.isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+        });
+    }
+
+
     @Override
     public void periodic() {
         // Update tunables
@@ -120,18 +133,5 @@ public class Flywheel extends SubsystemBase {
         DogLog.log("Shooter/RightFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftMaster/Temperature", rm.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
-    }
-
-
-    /**
-     * Helper method to check if all motors are at the desired velocity setpoint.
-    **/
-    public boolean isVelocityWithinTolerance() {
-        return motors.stream().allMatch(motor -> {
-            final boolean isInVelocityMode = motor.getAppliedControl().equals(flywheelVelocityOut);
-            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
-            final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
-            return isInVelocityMode && currentVelocity.isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
-        });
     }
 }
