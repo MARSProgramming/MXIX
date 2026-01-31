@@ -14,7 +14,7 @@ import frc.robot.constants.SystemConstants;
 
 public class Floor extends SubsystemBase {
 
-    private TalonFX floor;
+    private TalonFX m_floor;
 
     private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.1);
 
@@ -23,24 +23,31 @@ public class Floor extends SubsystemBase {
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
     public Floor() {
-         floor = new TalonFX(Ports.Floor.kFloorRollers);
+        m_floor = new TalonFX(Ports.Floor.kFloorRollers);
 
-        floor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
+        m_floor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
     }
-    
+
     public Command set(double percentOut) {
         return runEnd(() -> {
-            floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
+            m_floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
         }, () -> {
-            floor.set(0);
+            m_floor.set(0);
         });
     }
 
-        public Command setPercentOutTunable() {
+    public Command setPercentOutTunable() {
         return runEnd(() -> {
-            floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
+            m_floor.setControl(floorVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
         }, () -> {
-            floor.set(0);
+            m_floor.set(0);
         });
+    }
+
+    @Override
+    public void periodic() {
+        sTunablePercentOut = floorPercentOutTunable.get();
+
+        DogLog.log("Floor/TunableFloorOutput", m_floor.getMotorVoltage().getValueAsDouble());
     }
 }
