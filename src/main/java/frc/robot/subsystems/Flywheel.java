@@ -30,7 +30,6 @@ public class Flywheel extends SubsystemBase {
 
     private final IntegerSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 2000);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
 
     double sTunableRpm = shooterRpmTunable.get();
     double sTunablePercentOut = shooterPercentOutTunable.get(); 
