@@ -65,6 +65,14 @@ public class ManualDriveCommand extends Command {
 
     private Rotation2d closestBumpTraversalRotation = new Rotation2d(Units.Degrees.of(45));
 
+    /**
+     * Constructs a new ManualDriveCommand.
+     *
+     * @param swerve The swerve subsystem.
+     * @param forwardInput Supplier for forward/backward translation input (-1 to 1).
+     * @param leftInput Supplier for left/right translation input (-1 to 1).
+     * @param rotationInput Supplier for rotational input (-1 to 1).
+     */
     public ManualDriveCommand(
         Swerve swerve,
         DoubleSupplier forwardInput,
@@ -76,28 +84,51 @@ public class ManualDriveCommand extends Command {
         addRequirements(swerve);
     }
 
+    /**
+     * Resets the field-centric heading of the robot to the current facing direction.
+     * Useful if the gyro drifts or the driver wants to re-orient "forward".
+     */
     public void seedFieldCentric() {
         initialize();
         swerve.seedFieldCentric();
     }
 
+    /**
+     * Sets a specific heading to lock onto.
+     * Overrides manual rotation and forces the robot to face this direction while translating.
+     *
+     * @param heading The target heading in Operator Perspective.
+     */
     public void setLockedHeading(Rotation2d heading) {
         lockedHeading = Optional.of(heading);
         currentState = State.DRIVING_WITH_LOCKED_HEADING;
     }
 
+    /**
+     * Captures the current robot heading and sets it as the locked heading.
+     * Converts from Blue Alliance perspective (Pose) to Operator Perspective.
+     */
     private void setLockedHeadingToCurrent() {
         final Rotation2d headingInBlueAlliancePerspective = swerve.getState().Pose.getRotation();
         final Rotation2d headingInOperatorPerspective = headingInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
         setLockedHeading(headingInOperatorPerspective);
     }
 
+    /**
+     * Logic to automatically lock the heading if the driver stops rotating for a set duration.
+     * This provides a "heading hold" feature.
+     *
+     * @param input The current drive inputs.
+     */
     private void lockHeadingIfRotationStopped(ManualDriveInput input) {
         if (input.hasRotation()) {
+            // If rotating, reset the timer and clear locked heading
             headingLockStopwatch.reset();
             lockedHeading = Optional.empty();
         } else {
+            // If not rotating, start timer
             headingLockStopwatch.startIfNotRunning();
+            // If timer exceeds delay, lock the current heading
             if (headingLockStopwatch.elapsedTime().gt(kHeadingLockDelay)) {
                 setLockedHeadingToCurrent();
             }
@@ -118,8 +149,10 @@ public class ManualDriveCommand extends Command {
         // Handle inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
         if (input.hasRotation()) {
+            // If driver is rotating, prioritize manual rotation
             currentState = State.DRIVING_WITH_MANUAL_ROTATION;
         } else if (input.hasTranslation()) {
+            // If translating, check if we should be in locked heading mode
             currentState = lockedHeading.isPresent() ? State.DRIVING_WITH_LOCKED_HEADING : State.DRIVING_WITH_MANUAL_ROTATION;
         } else if (previousInput.hasRotation() || previousInput.hasTranslation()) {
             currentState = State.IDLING;

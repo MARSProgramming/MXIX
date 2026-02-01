@@ -19,6 +19,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
 
+/**
+ * Subsystem representing the Flywheel (Shooter) mechanism.
+ * Controls the four motors (2 masters, 2 followers) used to launch game pieces.
+ */
 public class Flywheel extends SubsystemBase {
 
     private TalonFX rm;
@@ -27,16 +31,21 @@ public class Flywheel extends SubsystemBase {
     private TalonFX lf;
     private final List<TalonFX> motors;
 
-
+    // Tunable values for testing velocity and percent output via NetworkTables
     private final IntegerSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 2000);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
 
     double sTunableRpm = shooterRpmTunable.get();
     double sTunablePercentOut = shooterPercentOutTunable.get(); 
 
+    // Control requests
     VoltageOut flywheelVoltageOut = new VoltageOut(0);
     VelocityVoltage flywheelVelocityOut = new VelocityVoltage(0).withSlot(0);
 
+    /**
+     * Creates a new Flywheel subsystem.
+     * Initializes motors, applies configurations, and sets up follower relationships.
+     */
     public Flywheel() {
         rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster);
         rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower);
@@ -48,6 +57,7 @@ public class Flywheel extends SubsystemBase {
         lf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         rf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
 
+        // Configure followers to oppose the masters (since they are on opposite sides/gearing)
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
         lf.setControl(new Follower(Ports.Flywheel.kLeftFlywheelMaster, MotorAlignmentValue.Opposed));
 
@@ -55,22 +65,35 @@ public class Flywheel extends SubsystemBase {
 
     }
 
-
+    /**
+     * Sets the target velocity for the flywheels in RPM.
+     * This method sets the control request but does not manage the command lifecycle.
+     *
+     * @param velocityRPM The target velocity in Rotations Per Minute.
+     */
     public void setRPM(double velocityRPM) {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
     }
 
     /**
-     * Spins up flywheels and keeps them at target state, ending when tolerance for velocity is reached.
-     * Useful in auto for timing purposes.
-     * @param velocityRPM
+     * Command to spin up the flywheels and wait until they reach the target velocity.
+     * Useful in autonomous modes to ensure the shooter is ready before feeding.
+     *
+     * @param velocityRPM The target velocity in RPM.
+     * @return A Command that sets the RPM and waits for the flywheel to be within tolerance.
      */
     public Command spinUp(double velocityRPM) {
         return runOnce(() -> setRPM(velocityRPM))
         .andThen(Commands.waitUntil(this::isVelocityWithinTolerance));
     }
 
+    /**
+     * Sets the flywheel motors to a percentage of output voltage.
+     *
+     * @param percentOut The percentage of output (0.0 to 1.0).
+     * @return A Command that runs the flywheels at the specified percent output.
+     */
     public Command set(double percentOut) {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
@@ -81,6 +104,12 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
+    /**
+     * Sets the flywheels to the velocity specified by the tunable NetworkTable value.
+     * Useful for tuning RPM without redeploying code.
+     *
+     * @return A Command that runs the flywheels at the tunable velocity.
+     */
     public Command setVelocityTunable() {
         return runEnd(() -> {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
@@ -91,6 +120,12 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
+    /**
+     * Sets the flywheels to the percent output specified by the tunable NetworkTable value.
+     * Useful for tuning voltage feedforward without redeploying code.
+     *
+     * @return A Command that runs the flywheels at the tunable percent output.
+     */
     public Command setPercentOutTunable() {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
@@ -101,9 +136,11 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
-        /**
-     * Helper method to check if all motors are at the desired velocity setpoint.
-    **/
+    /**
+     * Checks if all flywheel motors are within the configured velocity tolerance of the target.
+     *
+     * @return true if all motors are in velocity mode and near the target velocity.
+     */
     public boolean isVelocityWithinTolerance() {
         return motors.stream().allMatch(motor -> {
             final boolean isInVelocityMode = motor.getAppliedControl().equals(flywheelVelocityOut);
@@ -116,7 +153,7 @@ public class Flywheel extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Update tunables
+        // Update local tunable variables from NetworkTables
         sTunableRpm = shooterRpmTunable.get();
         sTunablePercentOut = shooterPercentOutTunable.get();
 

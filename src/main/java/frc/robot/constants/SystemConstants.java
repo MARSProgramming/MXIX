@@ -10,21 +10,37 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import frc.robot.generated.TunerConstants;
 
+/**
+ * Contains system-wide constants and hardware configurations for subsystems.
+ * This includes physical constants (gear ratios, max speeds) and CTRE Phoenix 6 configurations.
+ */
 public class SystemConstants {
+    /**
+     * Drivetrain constants not handled by Tuner X generation.
+     */
     public static class Drive {
         public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxRotationalRate = Units.RotationsPerSecond.of(1);
         public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.005);
     }
 
+    /**
+     * Constants for the Kraken X60 motor.
+     */
     public static class KrakenX60 {
         public static final AngularVelocity kFreeSpeed = Units.RPM.of(6000);
     }
 
+    /**
+     * Constants for the Kraken X44 motor.
+     */
     public static class KrakenX44 {
         public static final AngularVelocity kFreeSpeed = Units.RPM.of(7530);
     }
 
+    /**
+     * Constants and configuration for the Flywheel (Shooter) subsystem.
+     */
     public static class Flywheel {
         public static final double kFlywheelReduction = 1.0;
         public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
@@ -32,16 +48,19 @@ public class SystemConstants {
 
         public static TalonFXConfiguration masterConfig = new TalonFXConfiguration();        
         static {
+            // Velocity PID constants
             masterConfig.Slot0.kP = 0.5;
             masterConfig.Slot0.kI = 2;
             masterConfig.Slot0.kD = 0;
             masterConfig.Slot0.kV = 12.0 / kMaxFlywheelSpeed.in(Units.RotationsPerSecond);
 
+            // Motor output configuration
             masterConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
             masterConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             masterConfig.Feedback.SensorToMechanismRatio = kFlywheelReduction; 
 
+            // Current limits
             masterConfig.Voltage.PeakReverseVoltage = 0; // Software lock reversal of flywheel 
             masterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             masterConfig.CurrentLimits.SupplyCurrentLimit = 70;
@@ -50,6 +69,9 @@ public class SystemConstants {
         }
     }
 
+    /**
+     * Constants and configuration for the Cowl subsystem.
+     */
     public static class Cowl {
         public static final double kCowlReduction = (24.0 / 12.0) * (260.0 / 17.0);
         private static final AngularVelocity kMaxCowlSpeed = KrakenX44.kFreeSpeed.div(kCowlReduction);
@@ -74,6 +96,9 @@ public class SystemConstants {
         }
     }
     
+    /**
+     * Constants and configuration for the Intake subsystem (Pivot and Rollers).
+     */
     public static class Intake {
         public static final double kIntakePivotReduction = 4 / 1; // Same for both pivot and rollers
         public static final double kIntakeRollerReduction = 1.0; // Same for both pivot and rollers
@@ -86,7 +111,7 @@ public class SystemConstants {
         public static TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
 
         static {
-            // Position Control pid (requires tuning)
+            // Pivot Position Control PID (requires tuning)
             pivotConfig.Slot0.kP = 1;
             pivotConfig.Slot0.kI = 0;
             pivotConfig.Slot0.kD = 0;
@@ -103,7 +128,7 @@ public class SystemConstants {
         }
 
         static {
-            // Velocity control PID (if needed)
+            // Roller Velocity control PID (if needed)
             rollerConfig.Slot0.kP = 0.5;
             rollerConfig.Slot0.kI = 2;
             rollerConfig.Slot0.kD = 0;
@@ -121,6 +146,9 @@ public class SystemConstants {
         }
     }
 
+    /**
+     * Constants and configuration for the Floor Intake subsystem.
+     */
     public static class Floor {
         public static final double kFloorReduction = 1.0; // TODO: Find out
         private static final AngularVelocity kMaxFloorSpeed = KrakenX44.kFreeSpeed.div(kFloorReduction);
@@ -147,6 +175,9 @@ public class SystemConstants {
     }
 
     
+    /**
+     * Constants and configuration for the Feeder subsystem.
+     */
     public static class Feeder {
         public static final double kFloorReduction = 1; // TODO: Find out
         private static final AngularVelocity kMaxFeederSpeed = KrakenX60.kFreeSpeed.div(kFloorReduction);
@@ -173,7 +204,9 @@ public class SystemConstants {
     }
 
     
-    
+    /**
+     * Constants and configuration for the Fast Climber subsystem.
+     */
     public static class FastClimber {
         public static final double kFastClimberReduction = 80 / 1; // TODO: Find out
         private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFastClimberReduction);
@@ -200,7 +233,9 @@ public class SystemConstants {
     }
 
     
-    
+    /**
+     * Constants and configuration for the Flip Climber subsystem.
+     */
     public static class FlipClimber {
         public static final double kFlipClimberReduction = 80 / 1; // TODO: Find out
         private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFlipClimberReduction);
