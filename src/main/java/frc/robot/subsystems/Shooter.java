@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.List;
 
+import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -20,38 +21,51 @@ import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
 
 /**
- * Subsystem representing the Flywheel (Shooter) mechanism.
- * Controls the four motors (2 masters, 2 followers) used to launch game pieces.
+ * Subsystem representing the Shooter mechanism, which includes the Flywheel and Cowl.
+ * Controls the four motors for the flywheel (2 masters, 2 followers) used to launch game pieces,
+ * and one motor for positioning the cowl.
  */
-public class Flywheel extends SubsystemBase {
+public class Shooter extends SubsystemBase {
 
+    // Flywheel motors
     private TalonFX rm;
     private TalonFX rf;
     private TalonFX lm;
     private TalonFX lf;
     private final List<TalonFX> motors;
 
-    // Tunable values for testing velocity and percent output via NetworkTables
+    // Cowl motor
+    TalonFX m_cowl;
+
+    // Tunable values for flywheel
     private final IntegerSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 2000);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.1);
-
     double sTunableRpm = shooterRpmTunable.get();
     double sTunablePercentOut = shooterPercentOutTunable.get(); 
 
-    // Control requests
+    // Tunable value for cowl
+    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Shooter/Cowl/TunableCowlOutput", 0.1);
+    double cTunablePosition = cowlPositionTunable.get();
+
+    // Control requests for flywheel
     VoltageOut flywheelVoltageOut = new VoltageOut(0);
     VelocityVoltage flywheelVelocityOut = new VelocityVoltage(0).withSlot(0);
 
+    // Control request for cowl
+    PositionVoltage cowlPositionOut = new PositionVoltage(0);
+
     /**
-     * Creates a new Flywheel subsystem.
-     * Initializes motors, applies configurations, and sets up follower relationships.
+     * Creates a new Shooter subsystem.
+     * Initializes flywheel and cowl motors, applies configurations, and sets up follower relationships for the flywheel.
      */
-    public Flywheel() {
+    public Shooter() {
+        // Flywheel motor initialization
         rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster);
         rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower);
         lm = new TalonFX(Ports.Flywheel.kLeftFlywheelMaster);
         lf = new TalonFX(Ports.Flywheel.kLeftFlywheelFollower);
 
+        // Apply flywheel motor configurations
         rm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         lm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         lf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
@@ -63,6 +77,10 @@ public class Flywheel extends SubsystemBase {
 
         motors = List.of(rm, rf, lm, lf);
 
+        // Cowl motor initialization and configuration
+        m_cowl = new TalonFX(Ports.Cowl.kCowlMotor);
+        m_cowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
+
     }
 
     /**
@@ -71,7 +89,7 @@ public class Flywheel extends SubsystemBase {
      *
      * @param velocityRPM The target velocity in Rotations Per Minute.
      */
-    public void setRPM(double velocityRPM) {
+    public void setShooterRPM(double velocityRPM) {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
     }
@@ -83,8 +101,8 @@ public class Flywheel extends SubsystemBase {
      * @param velocityRPM The target velocity in RPM.
      * @return A Command that sets the RPM and waits for the flywheel to be within tolerance.
      */
-    public Command spinUp(double velocityRPM) {
-        return runOnce(() -> setRPM(velocityRPM))
+    public Command spinUpShooter(double velocityRPM) {
+        return runOnce(() -> setShooterRPM(velocityRPM))
         .andThen(Commands.waitUntil(this::isVelocityWithinTolerance));
     }
 
@@ -94,7 +112,7 @@ public class Flywheel extends SubsystemBase {
      * @param percentOut The percentage of output (0.0 to 1.0).
      * @return A Command that runs the flywheels at the specified percent output.
      */
-    public Command set(double percentOut) {
+    public Command setShooterPercentOut(double percentOut) {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
@@ -110,7 +128,7 @@ public class Flywheel extends SubsystemBase {
      *
      * @return A Command that runs the flywheels at the tunable velocity.
      */
-    public Command setVelocityTunable() {
+    public Command setShooterVelocityTunable() {
         return runEnd(() -> {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
@@ -126,13 +144,42 @@ public class Flywheel extends SubsystemBase {
      *
      * @return A Command that runs the flywheels at the tunable percent output.
      */
-    public Command setPercentOutTunable() {
+    public Command setShooterPercentOutTunable() {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
         }, () -> {
             rm.set(0);
             lm.set(0);
+        });
+    }
+
+    /**
+     * Sets the cowl to a specific position.
+     * The command runs until interrupted or finished, stopping the motor on end.
+     *
+     * @param position The target position in rotations.
+     * @return A Command that moves the cowl to the specified position.
+     */
+    public Command setCowlPosition(double position) {
+        return runEnd(() -> {
+            m_cowl.setControl(cowlPositionOut.withPosition(position));
+        }, () -> {
+            m_cowl.set(0);
+        });
+    }
+
+    /**
+     * Sets the cowl to the position specified by the tunable NetworkTable value.
+     * Useful for tuning the position setpoint without redeploying code.
+     *
+     * @return A Command that moves the cowl to the tunable position.
+     */
+    public Command setCowlPositionTunable() {
+        return runEnd(() -> {
+            m_cowl.setControl(cowlPositionOut.withPosition(cTunablePosition));
+        }, () -> {
+            m_cowl.set(0);
         });
     }
 
@@ -156,8 +203,9 @@ public class Flywheel extends SubsystemBase {
         // Update local tunable variables from NetworkTables
         sTunableRpm = shooterRpmTunable.get();
         sTunablePercentOut = shooterPercentOutTunable.get();
+        cTunablePosition = cowlPositionTunable.get();
 
-        // Logging
+        // Flywheel Logging
         DogLog.log("Shooter/RightMaster/VelocityRPM", Units.RotationsPerSecond.of(rm.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Shooter/RightFollower/VelocityRPM", Units.RotationsPerSecond.of(rf.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Shooter/LeftMaster/VelocityRPM", Units.RotationsPerSecond.of(lm.getVelocity().getValueAsDouble()).in(Units.RPM));
@@ -170,5 +218,8 @@ public class Flywheel extends SubsystemBase {
         DogLog.log("Shooter/RightFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftMaster/Temperature", rm.getDeviceTemp().getValueAsDouble());
         DogLog.log("Shooter/LeftFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
+
+        // Cowl Logging
+        DogLog.log("Shooter/Colw/Position", m_cowl.getPosition().getValueAsDouble());
     }
 }
