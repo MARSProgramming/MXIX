@@ -76,6 +76,7 @@ public class SystemConstants {
         public static final double kCowlReduction = (24.0 / 12.0) * (260.0 / 17.0);
         private static final AngularVelocity kMaxCowlSpeed = KrakenX44.kFreeSpeed.div(kCowlReduction);
         public static final double kCowlStallCurrent = 1; // Configure with testing, this is way too low
+        public static final double kCowlHomingOutput = -0.1; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
         static {
@@ -150,7 +151,7 @@ public class SystemConstants {
      * Constants and configuration for the Floor Intake subsystem.
      */
     public static class Floor {
-        public static final double kFloorReduction = 1.0; // TODO: Find out
+        public static final double kFloorReduction = 1.0;
         private static final AngularVelocity kMaxFloorSpeed = KrakenX44.kFreeSpeed.div(kFloorReduction);
 
         public static TalonFXConfiguration floorConfig = new TalonFXConfiguration();
@@ -162,8 +163,8 @@ public class SystemConstants {
             floorConfig.Slot0.kD = 0;
             floorConfig.Slot0.kV = 12.0 / kMaxFloorSpeed.in(Units.RotationsPerSecond);
 
-            floorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast; // TODO: Should this be in brake mode? Should the feeder be either?
-            floorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
+            floorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+            floorConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             floorConfig.Feedback.SensorToMechanismRatio = kFloorReduction; 
 
@@ -179,7 +180,7 @@ public class SystemConstants {
      * Constants and configuration for the Feeder subsystem.
      */
     public static class Feeder {
-        public static final double kFloorReduction = 1; // TODO: Find out
+        public static final double kFloorReduction = 1.0; 
         private static final AngularVelocity kMaxFeederSpeed = KrakenX60.kFreeSpeed.div(kFloorReduction);
         public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
         public static TalonFXConfiguration feederConfig = new TalonFXConfiguration();
@@ -192,7 +193,7 @@ public class SystemConstants {
             feederConfig.Slot0.kV = 12.0 / kMaxFeederSpeed.in(Units.RotationsPerSecond);
 
             feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-            feederConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
+            feederConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             feederConfig.Feedback.SensorToMechanismRatio = kFloorReduction; 
 
@@ -208,7 +209,7 @@ public class SystemConstants {
      * Constants and configuration for the Fast Climber subsystem.
      */
     public static class FastClimber {
-        public static final double kFastClimberReduction = 80 / 1; // TODO: Find out
+        public static final double kFastClimberReduction = 80 / 1;
         private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFastClimberReduction);
         
         public static TalonFXConfiguration fastClimberConfig = new TalonFXConfiguration();
@@ -221,7 +222,7 @@ public class SystemConstants {
             fastClimberConfig.Slot0.kV = 12.0 / kMaxFastClimberSpeed.in(Units.RotationsPerSecond);
 
             fastClimberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            fastClimberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
+            fastClimberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
             fastClimberConfig.Feedback.SensorToMechanismRatio = kFastClimberReduction; 
 
@@ -237,7 +238,7 @@ public class SystemConstants {
      * Constants and configuration for the Flip Climber subsystem.
      */
     public static class FlipClimber {
-        public static final double kFlipClimberReduction = 80 / 1; // TODO: Find out
+        public static final double kFlipClimberReduction = 80 / 1;
         private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFlipClimberReduction);
         
         public static TalonFXConfiguration flipClimberConfig = new TalonFXConfiguration();

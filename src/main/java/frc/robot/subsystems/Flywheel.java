@@ -66,17 +66,6 @@ public class Flywheel extends SubsystemBase {
     }
 
     /**
-     * Sets the target velocity for the flywheels in RPM.
-     * This method sets the control request but does not manage the command lifecycle.
-     *
-     * @param velocityRPM The target velocity in Rotations Per Minute.
-     */
-    public void setRPM(double velocityRPM) {
-            rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
-            lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
-    }
-
-    /**
      * Command to spin up the flywheels and wait until they reach the target velocity.
      * Useful in autonomous modes to ensure the shooter is ready before feeding.
      *
@@ -89,12 +78,23 @@ public class Flywheel extends SubsystemBase {
     }
 
     /**
+     * Sets the target velocity for the flywheels in RPM.
+     * This method sets the control request but does not manage the command lifecycle.
+     *
+     * @param velocityRPM The target velocity in Rotations Per Minute.
+     */
+    public void setRPM(double velocityRPM) {
+            rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+            lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+    }
+
+    /**
      * Sets the flywheel motors to a percentage of output voltage.
      *
      * @param percentOut The percentage of output (0.0 to 1.0).
      * @return A Command that runs the flywheels at the specified percent output.
      */
-    public Command set(double percentOut) {
+    public Command setPercentOut(double percentOut) {
         return runEnd(() -> {
             rm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
             lm.setControl(flywheelVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));

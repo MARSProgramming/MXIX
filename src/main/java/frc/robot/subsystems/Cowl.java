@@ -62,6 +62,14 @@ public class Cowl extends SubsystemBase {
         });
     }
 
+    public Command home() {
+        return run(() -> {
+            m_cowl.set(SystemConstants.Cowl.kCowlHomingOutput);
+        }).until(
+            () -> m_cowl.getSupplyCurrent().getValueAsDouble() < SystemConstants.Cowl.kCowlStallCurrent
+        );
+    }
+
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables

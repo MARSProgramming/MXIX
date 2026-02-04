@@ -74,7 +74,7 @@ public class Feeder extends SubsystemBase {
      * @param percentOut The percentage of output (0.0 to 1.0).
      * @return A Command that runs the feeder at the specified percent output.
      */
-    public Command set(double percentOut) {
+    public Command setPercentOut(double percentOut) {
         return runEnd(() -> {
             // Convert percent output to voltage (assuming 12V nominal)
             mFeeder.setControl(feederVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));

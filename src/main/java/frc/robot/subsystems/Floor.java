@@ -56,7 +56,7 @@ public class Floor extends SubsystemBase {
      *
      * @return A Command that runs the floor rollers at the tunable percent output.
      */
-    public Command setPercentOutTunable() {
+    public Command setTunable() {
         return runEnd(() -> {
             mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(sTunablePercentOut * 12.0)));
         }, () -> {
