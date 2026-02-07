@@ -67,9 +67,8 @@ public class Ports {
      * CAN IDs for the Flip Climber subsystem.
      */
     public static class FlipClimber {
-        public static final int kTopClimber = 17;
-        public static final int kBottomClimber = 18;
-        public static final int kLinearActuator = 0; // TODO: Find out
+        public static final int kClimbMaster = 17;
+        public static final int kClimbFollower = 18;
     }
 
     /**

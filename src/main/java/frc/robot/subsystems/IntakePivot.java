@@ -5,7 +5,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
@@ -15,23 +14,23 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Cowl mechanism.
  * This subsystem controls the position of the cowl using a TalonFX motor.
  */
-public class Cowl extends SubsystemBase {
-    TalonFX mCowl;
+public class IntakePivot extends SubsystemBase {
+    TalonFX mIntakePivot;
 
     // Control request for position control using voltage
     PositionVoltage cowlPositionOut = new PositionVoltage(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlOutput", 0.1);
+    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Intake/TunablePosition", 0.1);
     double cTunablePosition = cowlPositionTunable.get();
 
     /**
      * Creates a new Cowl subsystem.
      * Initializes the motor and applies the configuration.
      */
-    public Cowl() {
-        mCowl = new TalonFX(Ports.Cowl.kCowlMotor);
-        mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
+    public IntakePivot() {
+        mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot);
+        mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
     }
 
     /**
@@ -43,9 +42,9 @@ public class Cowl extends SubsystemBase {
      */
     public Command setPosition(double position) {
         return runEnd(() -> {
-            mCowl.setControl(cowlPositionOut.withPosition(position));
+            mIntakePivot.setControl(cowlPositionOut.withPosition(position));
         }, () -> {
-            mCowl.set(0);
+            mIntakePivot.set(0);
         });
     }
 
@@ -57,17 +56,17 @@ public class Cowl extends SubsystemBase {
      */
     public Command setPositionTunable() {
         return runEnd(() -> {
-            mCowl.setControl(cowlPositionOut.withPosition(cTunablePosition));
+            mIntakePivot.setControl(cowlPositionOut.withPosition(cTunablePosition));
         }, () -> {
-            mCowl.set(0);
+            mIntakePivot.set(0);
         });
     }
 
     public Command home() {
         return run(() -> {
-            mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
+            mIntakePivot.set(SystemConstants.Cowl.kCowlHomingOutput);
         }).until(
-            () -> mCowl.getSupplyCurrent().getValueAsDouble() < SystemConstants.Cowl.kCowlStallCurrent
+            () -> mIntakePivot.getSupplyCurrent().getValueAsDouble() < SystemConstants.Intake.kIntakePivotStallCurrent
         );
     }
 
@@ -77,10 +76,9 @@ public class Cowl extends SubsystemBase {
         cTunablePosition = cowlPositionTunable.get();
 
         // Log current position
-        DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());
-        DogLog.log("Cowl/AppliedVoltage", mCowl.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Cowl/Temperature", mCowl.getDeviceTemp().getValueAsDouble());
+        DogLog.log("Cowl/Position", mIntakePivot.getPosition().getValueAsDouble());
+        DogLog.log("Cowl/AppliedVoltage", mIntakePivot.getMotorVoltage().getValueAsDouble());
+        DogLog.log("Cowl/Temperature", mIntakePivot.getDeviceTemp().getValueAsDouble());
         DogLog.log("Cowl/TunablePosition", cTunablePosition);
-
     }
 }
