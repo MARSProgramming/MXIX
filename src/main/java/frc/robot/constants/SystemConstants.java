@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -8,6 +10,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.generated.TunerConstants;
 
 /**
@@ -22,6 +26,20 @@ public class SystemConstants {
         public static final LinearVelocity kMaxSpeed = TunerConstants.kSpeedAt12Volts;
         public static final AngularVelocity kMaxRotationalRate = Units.RotationsPerSecond.of(1);
         public static final AngularVelocity kPIDRotationDeadband = kMaxRotationalRate.times(0.005);
+    }
+
+    public static class Limelights {
+        public static final String kShooterLimelightName = "limelight-shooter";
+        public static final String kClimbLimelightName = "limelight-climb";
+
+        public static int[] getValidTagIDs() {
+        final Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+            return new int[]{17,18,19,20,21,22,23,24,25,26,27,28,29,30}; // Valid blue tags
+            } else {
+            return new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; // Red alliance sees these AprilTags
+            }
+        }
     }
 
     /**
