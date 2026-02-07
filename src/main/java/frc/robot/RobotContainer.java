@@ -84,13 +84,6 @@ public class RobotContainer {
 
         // Back Button: Reset field-centric heading (gyro).
         pilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
-
-        // Locks the heading to our nearest "diamond orientation."
-        // Disables upon first rotational input from joystick.
-        // Note: This binding on leftBumper might conflict with the whileTrue binding above.
-        pilot.leftBumper().onTrue(Commands.runOnce(
-                () -> manualDriveCommand.setLockedHeading(
-                        FieldConstants.Orientations.getClosestDiamond(swervebase.getState().Pose))));
     }
 
     /**

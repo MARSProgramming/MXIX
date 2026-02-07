@@ -40,6 +40,15 @@ public class Feeder extends SubsystemBase {
     }
 
     /**
+     * set feeder RPM
+     * @param velocityRPM
+     */
+    
+    public void setRPM(double velocityRPM) {
+            mFeeder.setControl(feederVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+    }
+
+    /**
      * Sets the feeder to a specific velocity in RPM.
      * The command runs until interrupted or finished, stopping the motor on end.
      *
