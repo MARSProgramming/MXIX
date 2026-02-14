@@ -17,7 +17,11 @@ import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.Cowl;
+import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DrivetrainTelemetry;
 
@@ -36,12 +40,16 @@ public class RobotContainer {
 
     // Subsystems
     Swerve swervebase = new Swerve();
+    Cowl mCowl = new Cowl();
+    Flywheel mFlywheel = new Flywheel();
+    Feeder mFeeder = new Feeder();
+
+    Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder);
+
     DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
-    private final Limelight shooterLimelight = new Limelight("llshooter");
-    private final Limelight backLimelight = new Limelight("llback");
 
     // Autonomous routines manager
-    private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
+   // private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -49,80 +57,16 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-        autoRoutines.configure();
+      //  autoRoutines.configure();
     }
 
     /**
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
-        // Default drive command: Field-centric driving with joystick inputs.
-        final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
-                swervebase,
-                () -> -pilot.getLeftY(),
-                () -> -pilot.getLeftX(),
-                () -> -pilot.getRightX());
+        pilot.rightTrigger().whileTrue(mSuperstructure.feedAndRunFlywheel());
 
-        // Aim and Drive command: Drives while automatically aiming at a target.
-        final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
-                swervebase,
-                () -> -pilot.getLeftY(),
-                () -> -pilot.getLeftX());
-
-        // Left Bumper: While held, auto-aim at the speaker/target.
-        pilot.leftBumper().whileTrue(aimAndDriveCommand);
-
-        // Right Bumper: Lock heading to the nearest "diamond" (cardinal/intercardinal) direction.
-        pilot.rightBumper().onTrue(Commands.runOnce(
-                () -> manualDriveCommand.setLockedHeading(
-                        FieldConstants.Orientations.getClosestDiamond(swervebase.getState().Pose))));
-
-        // Set default commands
-        swervebase.setDefaultCommand(manualDriveCommand);
-        shooterLimelight.setDefaultCommand(updateShooterVision());
-        backLimelight.setDefaultCommand(updateBackVision());
-
-        // Back Button: Reset field-centric heading (gyro).
-        pilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
-    }
-
-    /**
-     * Creates a command to continuously update the robot's pose using the shooter Limelight.
-     *
-     * @return A command that runs in the background (default command).
-     */
-    private Command updateShooterVision() {
-        return shooterLimelight.run(() -> {
-            final Pose2d currentRobotPose = swervebase.getState().Pose;
-            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
-            measurement.ifPresent(m -> {
-                swervebase.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
-            });
-        })
-        .ignoringDisable(true);
-    }
-
-    /**
-     * Creates a command to continuously update the robot's pose using the back Limelight.
-     *
-     * @return A command that runs in the background (default command).
-     */
-    private Command updateBackVision() {
-        return backLimelight.run(() -> {
-            final Pose2d currentRobotPose = swervebase.getState().Pose;
-            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
-            measurement.ifPresent(m -> {
-                swervebase.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
-            });
-        })
-        .ignoringDisable(true);
+        pilot.a().whileTrue(mFeeder.setVelocityTunable());
+        pilot.b().whileTrue(mFlywheel.setVelocityTunable());
     }
 }

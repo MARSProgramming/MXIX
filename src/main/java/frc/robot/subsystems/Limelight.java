@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,7 +11,6 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.SystemConstants.Limelights;
 import frc.robot.util.LimelightHelpers;
@@ -54,7 +52,7 @@ public class Limelight extends SubsystemBase {
             poseEstimate_MegaTag2.pose.getTranslation(),
             poseEstimate_MegaTag1.pose.getRotation()
         );
-        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 99999999);
+        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
         posePublisher.set(poseEstimate_MegaTag2.pose);
 
@@ -71,28 +69,18 @@ public class Limelight extends SubsystemBase {
         }
     }
 
-    public Optional<Boolean> isConnected() {
-        double latencyMillis = LimelightHelpers.getLatency_Pipeline(name);
-        return latencyMillis >= 0 ? Optional.of(true) : Optional.empty();
-    }
-
     @Override
     public void periodic() {  
-        boolean isCameraConnected = isConnected().orElse(false);
-        DogLog.log(name + "/IsConnected", isCameraConnected);
-        
-        if (!isCameraConnected) {
-            DogLog.logFault(name + " is not connected", AlertType.kWarning);
-        }
-
         if (RobotState.isDisabled()) {
             LimelightHelpers.SetThrottle(name, 100);
         } else {
             LimelightHelpers.SetThrottle(name, 0);
         }
 
-        LimelightHelpers.SetIMUMode(name, 4);
+
+        LimelightHelpers.SetIMUMode(name, 3);
         LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
         LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
     }
+
 }

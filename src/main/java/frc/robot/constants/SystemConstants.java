@@ -91,9 +91,9 @@ public class SystemConstants {
      * Constants and configuration for the Cowl subsystem.
      */
     public static class Cowl {
-        public static final double kCowlReduction = (24.0 / 12.0) * (260.0 / 17.0);
+        public static final double kCowlReduction = (24 / 12) * (260.0 / 17.0); // include first set of gearing for positional accuracy
         private static final AngularVelocity kMaxCowlSpeed = KrakenX44.kFreeSpeed.div(kCowlReduction);
-        public static final double kCowlStallCurrent = 1; // Configure with testing, this is way too low
+        public static final double kCowlStallCurrent = 3.5; // Configure with testing
         public static final double kCowlHomingOutput = -0.1; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
@@ -105,8 +105,9 @@ public class SystemConstants {
             cowlConfig.Slot0.kV = 12.0 / kMaxCowlSpeed.in(Units.RotationsPerSecond);
 
             cowlConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            cowlConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
-            cowlConfig.Feedback.SensorToMechanismRatio = kCowlReduction; // Gear ratio
+            cowlConfig.Feedback.SensorToMechanismRatio = 1.0; // Gear ratio
 
             cowlConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             cowlConfig.CurrentLimits.SupplyCurrentLimit = 70;
@@ -198,8 +199,8 @@ public class SystemConstants {
      * Constants and configuration for the Feeder subsystem.
      */
     public static class Feeder {
-        public static final double kFloorReduction = 1.0; 
-        private static final AngularVelocity kMaxFeederSpeed = KrakenX60.kFreeSpeed.div(kFloorReduction);
+        public static final double kFeederReduction = 4 / 1; // 4:1 Sport gearbox transmission
+        private static final AngularVelocity kMaxFeederSpeed = KrakenX60.kFreeSpeed.div(kFeederReduction);
         public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
         public static TalonFXConfiguration feederConfig = new TalonFXConfiguration();
 
@@ -213,7 +214,7 @@ public class SystemConstants {
             feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
             feederConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
 
-            feederConfig.Feedback.SensorToMechanismRatio = kFloorReduction; 
+            feederConfig.Feedback.SensorToMechanismRatio = kFeederReduction; 
 
             feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             feederConfig.CurrentLimits.SupplyCurrentLimit = 70;

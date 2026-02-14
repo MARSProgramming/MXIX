@@ -62,12 +62,16 @@ public class Cowl extends SubsystemBase {
         });
     }
 
+    // Re-zero the cowl motor
+
     public Command home() {
         return run(() -> {
             mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
         }).until(
             () -> mCowl.getSupplyCurrent().getValueAsDouble() < SystemConstants.Cowl.kCowlStallCurrent
-        );
+        ).andThen(runOnce(() -> {
+            mCowl.setPosition(0);
+        }));
     }
 
     @Override

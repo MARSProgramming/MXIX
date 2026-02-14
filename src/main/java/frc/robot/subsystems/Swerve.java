@@ -3,7 +3,10 @@ package frc.robot.subsystems;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory;
@@ -19,8 +22,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.GeometryUtil;
 
 /**
  * Subsystem representing the Swerve Drivetrain.
@@ -39,6 +44,16 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
+
+    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
+        .withRotationalDeadband(Drive.kPIDRotationDeadband)
+        .withMaxAbsRotationalRate(Drive.kMaxRotationalRate)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
+        .withHeadingPID(5, 0, 0);
+
+     private static final Rotation2d kAimTolerance = Rotation2d.fromDegrees(5);
 
     /**
      * Creates a new Swerve subsystem.
@@ -178,5 +193,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Matrix<N3, N1> visionMeasurementStdDevs
     ) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
+    }
+
+    public boolean isAimed() {
+        final Rotation2d targetHeading = fieldCentricFacingAngleRequest.TargetDirection;
+        
+        // Get current heading in Blue Alliance perspective (standard field coordinates)
+        final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
+        
+        // Convert to Operator Perspective to match the request's frame of reference
+        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(getOperatorForwardDirection());
+        
+        return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance.getMeasure());
     }
 }
