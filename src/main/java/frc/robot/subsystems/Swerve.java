@@ -11,17 +11,22 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory;
 import choreo.trajectory.SwerveSample;
+import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -159,6 +164,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        DogLog.log("Swerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
     }
 
     /**
@@ -195,15 +202,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
     }
 
-    public boolean isAimed() {
-        final Rotation2d targetHeading = fieldCentricFacingAngleRequest.TargetDirection;
-        
-        // Get current heading in Blue Alliance perspective (standard field coordinates)
-        final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
-        
-        // Convert to Operator Perspective to match the request's frame of reference
-        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(getOperatorForwardDirection());
-        
-        return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance.getMeasure());
+
+    // Returns distance in meters
+    public double getDistanceToHub() {
+        final Translation2d hubPosition = FieldConstants.Locations.hubPosition();
+        final Pose2d robotPose = this.getState().Pose;
+
+        return robotPose.getTranslation().getDistance(hubPosition);
     }
 }

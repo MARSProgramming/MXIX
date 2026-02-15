@@ -19,6 +19,7 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Superstructure;
@@ -43,10 +44,11 @@ public class RobotContainer {
     Cowl mCowl = new Cowl();
     Flywheel mFlywheel = new Flywheel();
     Feeder mFeeder = new Feeder();
+    Floor mFloor = new Floor();
 
-    Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder);
+    Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
 
-    DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
+   // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
 
     // Autonomous routines manager
    // private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
@@ -68,5 +70,6 @@ public class RobotContainer {
 
         pilot.a().whileTrue(mFeeder.setVelocityTunable());
         pilot.b().whileTrue(mFlywheel.setVelocityTunable());
+        pilot.x().whileTrue(mFloor.setTunable());
     }
 }

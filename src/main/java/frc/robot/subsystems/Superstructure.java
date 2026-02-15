@@ -8,18 +8,21 @@ public class Superstructure extends SubsystemBase {
     Cowl mCowl;
     Flywheel mFlywheel;
     Feeder mFeeder;
+    Floor mFloor;
 
    // private AimAndDriveCommand aimAndDriveCommand;
 
     public Superstructure (
         Cowl cowlSupplier, 
         Flywheel flywheelSupplier, 
-        Feeder feederSupplier)  {
+        Feeder feederSupplier,
+        Floor floorSupplier)  {
 
         // Subsystem initialization
         this.mCowl = cowlSupplier;
         this.mFlywheel = flywheelSupplier;
-        this.mFeeder = feederSupplier;    
+        this.mFeeder = feederSupplier;   
+        this.mFloor = floorSupplier; 
 
         // Command initialization
        // aimAndDriveCommand = new AimAndDriveCommand(mSwerve);
@@ -29,6 +32,7 @@ public class Superstructure extends SubsystemBase {
         return Commands.parallel(
             mFlywheel.spinUp(3000),
             mFeeder.setPercentOut(0.5).onlyIf(() -> mFlywheel.isVelocityWithinTolerance())
+
         ).handleInterrupt(
             () -> {
                 mFlywheel.setPercentOut(0);

@@ -31,6 +31,8 @@ public class Cowl extends SubsystemBase {
     public Cowl() {
         mCowl = new TalonFX(Ports.Cowl.kCowlMotor);
         mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
+
+        mCowl.setPosition(0);
     }
 
     /**

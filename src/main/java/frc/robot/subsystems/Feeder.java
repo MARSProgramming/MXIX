@@ -5,6 +5,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -22,8 +23,10 @@ public class Feeder extends SubsystemBase {
     private TalonFX mFeeder;
 
     private final IntegerSubscriber feederRpmTunable = DogLog.tunable("Feeder/TunableFeederVelocity", 2000);
+    private final DoubleSubscriber feederPercOutTunable = DogLog.tunable("Feeder/TunableFeederPercOut", 0.5);
 
     double sTunableRpm = feederRpmTunable.get();
+    double stunablePercOut = feederPercOutTunable.get();
 
     // Control requests for the TalonFX
     VelocityVoltage feederVelocityOut = new VelocityVoltage(0).withSlot(0);
@@ -77,6 +80,15 @@ public class Feeder extends SubsystemBase {
         });
     }
 
+    public Command setPercOutTunable() {
+        return runEnd(() -> {
+            mFeeder.set(stunablePercOut);
+        }, () -> {
+            mFeeder.set(0);
+        });
+    }
+
+
     /**
      * Sets the feeder motor to a percentage of output voltage.
      *
@@ -96,6 +108,7 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         // Update local tunable variable from NetworkTables
         sTunableRpm = feederRpmTunable.get();
+        stunablePercOut = feederPercOutTunable.get();
         
         // Log relevant data to DogLog/NetworkTables
         DogLog.log("Feeder/VelocityRPM", Units.RotationsPerSecond.of(mFeeder.getVelocity().getValueAsDouble()).in(Units.RPM));
