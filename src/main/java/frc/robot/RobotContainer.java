@@ -21,6 +21,7 @@ import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
@@ -40,13 +41,13 @@ public class RobotContainer {
     private final CommandXboxController pilot = new CommandXboxController(0);
 
     // Subsystems
-    Swerve swervebase = new Swerve();
     Cowl mCowl = new Cowl();
     Flywheel mFlywheel = new Flywheel();
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
+    IntakeRollers mIntakeRollers = new IntakeRollers();
 
-    Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
+  //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
 
    // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
 
@@ -66,10 +67,9 @@ public class RobotContainer {
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
-        pilot.rightTrigger().whileTrue(mSuperstructure.feedAndRunFlywheel());
-
-        pilot.a().whileTrue(mFeeder.setVelocityTunable());
-        pilot.b().whileTrue(mFlywheel.setVelocityTunable());
-        pilot.x().whileTrue(mFloor.setTunable());
+       pilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
+       pilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
+       pilot.x().whileTrue(mFloor.setPercentOutTunable());
+        pilot.a().whileTrue(mIntakeRollers.setTunable());
     }
 }

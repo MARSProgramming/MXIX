@@ -39,7 +39,7 @@ public class Feeder extends SubsystemBase {
     public Feeder() {
         mFeeder = new TalonFX(Ports.Feeder.kFeederMotor);
         // Apply the configuration.
-        mFeeder.getConfigurator().apply(SystemConstants.Floor.floorConfig);
+        mFeeder.getConfigurator().apply(SystemConstants.Feeder.feederConfig);
     }
 
     /**
@@ -80,7 +80,7 @@ public class Feeder extends SubsystemBase {
         });
     }
 
-    public Command setPercOutTunable() {
+    public Command setPercentOutTunable() {
         return runEnd(() -> {
             mFeeder.set(stunablePercOut);
         }, () -> {

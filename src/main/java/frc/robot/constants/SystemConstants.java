@@ -155,7 +155,7 @@ public class SystemConstants {
             rollerConfig.Slot0.kV = 12.0 / kMaxIntakeRollerSpeed.in(Units.RotationsPerSecond);
 
             rollerConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-            rollerConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+            rollerConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
             rollerConfig.Feedback.SensorToMechanismRatio = kIntakeRollerReduction; 
 
@@ -212,7 +212,7 @@ public class SystemConstants {
             feederConfig.Slot0.kV = 12.0 / kMaxFeederSpeed.in(Units.RotationsPerSecond);
 
             feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-            feederConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
+            feederConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
             feederConfig.Feedback.SensorToMechanismRatio = kFeederReduction; 
 

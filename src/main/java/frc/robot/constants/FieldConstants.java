@@ -103,32 +103,5 @@ public class FieldConstants {
             return new Translation2d(Units.Inches.of(469.115), Units.Inches.of(158.845));
         }
         
-
-        public enum CowlRange {
-        CLOSE(0, 3, 0),
-        MID(3, 6, 1),
-        FAR(6, 100, 1.5);
-
-        private final double minDist;
-        private final double maxDist;
-        private final double cowlPosition;
-
-        private CowlRange(double minDist, double maxDist, double cowlPosition) {
-            this.minDist = minDist;
-            this.maxDist = maxDist;
-            this.cowlPosition = cowlPosition;
-        }
-
-        public static CowlRange getCowlPositionForRange(double distance) {
-            CowlRange validRange = CowlRange.CLOSE;
-            for (CowlRange range : CowlRange.values()) {
-                if (distance >= range.minDist && distance < range.maxDist) {
-                    validRange = range;
-                }
-            }
-
-            return validRange;
-        }
-    }
     }
 }

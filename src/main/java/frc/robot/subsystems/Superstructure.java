@@ -31,7 +31,8 @@ public class Superstructure extends SubsystemBase {
     public Command feedAndRunFlywheel() {
         return Commands.parallel(
             mFlywheel.spinUp(3000),
-            mFeeder.setPercentOut(0.5).onlyIf(() -> mFlywheel.isVelocityWithinTolerance())
+            mFeeder.setPercentOut(0.5).onlyIf(() -> mFlywheel.isVelocityWithinTolerance()),
+            mFloor.set(0.5).onlyIf(() -> mFlywheel.isVelocityWithinTolerance())
 
         ).handleInterrupt(
             () -> {
