@@ -21,10 +21,10 @@ public class Cowl extends SubsystemBase {
     double COWL_POSITION_TOLERANCE = 0.05; // Tolerance in rotations for considering the cowl "at position"
 
     // Control request for position control using voltage
-    PositionVoltage cowlPositionOut = new PositionVoltage(0);
+    PositionVoltage cowlPositionOut = new PositionVoltage(0).withSlot(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.1);
+    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.5);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
     double cTunablePosition = cowlPositionTunable.get();
     double cTunablePercentout = cowlPercentOutTunable.get();
@@ -69,8 +69,9 @@ public class Cowl extends SubsystemBase {
      * @return A Command that moves the cowl to the tunable position.
      */
     public Command setPositionTunable() {
+        double clampedPos = MathUtil.clamp(cTunablePosition, 0, 1.8);
         return runEnd(() -> {
-            mCowl.setControl(cowlPositionOut.withPosition(cTunablePosition));
+            mCowl.setControl(cowlPositionOut.withPosition(clampedPos));
         }, () -> {
             mCowl.set(0);
         });
