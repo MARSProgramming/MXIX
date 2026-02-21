@@ -44,7 +44,7 @@ public class IntakePivot extends SubsystemBase {
 
     public Command forwardTunable() {
         return runEnd(() -> {
-            mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));
+            mIntakePivot.setControl(floorVoltageOut.withOutput(-cTunablePivotOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
@@ -52,7 +52,7 @@ public class IntakePivot extends SubsystemBase {
 
         public Command backwardTunable() {
         return runEnd(() -> {
-            mIntakePivot.setControl(floorVoltageOut.withOutput(-cTunablePivotOut * 12.0));
+            mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });

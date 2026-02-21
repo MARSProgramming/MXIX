@@ -76,14 +76,14 @@ public class RobotContainer {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
       testPilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
 
+      testPilot.a().whileTrue(mIntakeRollers.setTunable().alongWith(mFloor.setPercentOutTunable()));
       testPilot.y().whileTrue(mIntakeRollers.setTunable());
       testPilot.b().whileTrue(mFloor.setPercentOutTunable());
-
 
       testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
       testPilot.povDown().onTrue(mCowl.home());
       testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-      testPilot.povLeft().whileTrue(mIntakePivot.forwardTunable());
+      testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
 
 
