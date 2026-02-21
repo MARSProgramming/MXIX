@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -17,12 +18,11 @@ import frc.robot.constants.SystemConstants;
 public class IntakePivot extends SubsystemBase {
     TalonFX mIntakePivot;
 
-    // Control request for position control using voltage
-    PositionVoltage cowlPositionOut = new PositionVoltage(0);
-
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Intake/TunablePosition", 0.1);
-    double cTunablePosition = cowlPositionTunable.get();
+    private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
+    double cTunablePivotOut = pivotPercentOutTunable.get();
+
+    VoltageOut floorVoltageOut = new VoltageOut(0);
 
     /**
      * Creates a new Cowl subsystem.
@@ -33,34 +33,31 @@ public class IntakePivot extends SubsystemBase {
         mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
     }
 
-    /**
-     * Sets the cowl to a specific position.
-     * The command runs until interrupted or finished, stopping the motor on end.
-     *
-     * @param position The target position in rotations.
-     * @return A Command that moves the cowl to the specified position.
-     */
-    public Command setPosition(double position) {
+
+    public Command setPercentOut(double percentOut) {
         return runEnd(() -> {
-            mIntakePivot.setControl(cowlPositionOut.withPosition(position));
+            mIntakePivot.setControl(floorVoltageOut.withOutput(percentOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
     }
 
-    /**
-     * Sets the cowl to the position specified by the tunable NetworkTable value.
-     * Useful for tuning the position setpoint without redeploying code.
-     *
-     * @return A Command that moves the cowl to the tunable position.
-     */
-    public Command setPositionTunable() {
+    public Command forwardTunable() {
         return runEnd(() -> {
-            mIntakePivot.setControl(cowlPositionOut.withPosition(cTunablePosition));
+            mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
     }
+
+        public Command backwardTunable() {
+        return runEnd(() -> {
+            mIntakePivot.setControl(floorVoltageOut.withOutput(-cTunablePivotOut * 12.0));
+        }, () -> {
+            mIntakePivot.set(0);
+        });
+    }
+
 
     public Command home() {
         return run(() -> {
@@ -73,12 +70,11 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePosition = cowlPositionTunable.get();
+        cTunablePivotOut = pivotPercentOutTunable.get();
 
         // Log current position
         DogLog.log("Intake/Pivot/Position", mIntakePivot.getPosition().getValueAsDouble());
         DogLog.log("Intake/Pivot/AppliedVoltage", mIntakePivot.getMotorVoltage().getValueAsDouble());
         DogLog.log("Intake/Pivot/Temperature", mIntakePivot.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Intake/Pivot/TunablePosition", cTunablePosition);
     }
 }

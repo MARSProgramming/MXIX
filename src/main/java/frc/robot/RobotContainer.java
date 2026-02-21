@@ -18,6 +18,7 @@ import frc.robot.commands.ManualDriveCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
+import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
@@ -38,13 +39,18 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
     // The driver's controller.
-    private final CommandXboxController pilot = new CommandXboxController(0);
+    private final CommandXboxController testPilot = new CommandXboxController(0);
+    private final CommandXboxController drivePilot = new CommandXboxController(1);
 
     // Subsystems
     Cowl mCowl = new Cowl();
     Flywheel mFlywheel = new Flywheel();
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
+    IntakePivot mIntakePivot = new IntakePivot();
+
+    Swerve swerve = new Swerve();
+    
     IntakeRollers mIntakeRollers = new IntakeRollers();
 
   //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
@@ -67,9 +73,30 @@ public class RobotContainer {
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
-       pilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
-       pilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
-       pilot.x().whileTrue(mFloor.setPercentOutTunable());
-        pilot.a().whileTrue(mIntakeRollers.setTunable());
+      testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
+      testPilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
+
+      testPilot.y().whileTrue(mIntakeRollers.setTunable());
+      testPilot.b().whileTrue(mFloor.setPercentOutTunable());
+
+
+      testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+      testPilot.povDown().onTrue(mCowl.home());
+      testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+      testPilot.povLeft().whileTrue(mIntakePivot.forwardTunable());
+
+
+
+      final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+          swerve,
+          () -> -drivePilot.getLeftY(),
+          () -> -drivePilot.getLeftX(),
+          () -> -drivePilot.getRightX());
+
+      swerve.setDefaultCommand(manualDriveCommand);
+      drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+
+
+        
     }
 }

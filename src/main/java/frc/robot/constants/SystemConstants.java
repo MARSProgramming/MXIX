@@ -91,21 +91,24 @@ public class SystemConstants {
      * Constants and configuration for the Cowl subsystem.
      */
     public static class Cowl {
-        public static final double kCowlReduction = (24 / 12) * (260.0 / 17.0); // include first set of gearing for positional accuracy
-        private static final AngularVelocity kMaxCowlSpeed = KrakenX44.kFreeSpeed.div(kCowlReduction);
-        public static final double kCowlStallCurrent = 3.5; // Configure with testing
-        public static final double kCowlHomingOutput = -0.1; // Configure with testing, call percentOut to home
+        public static final double kCowlStallCurrent = 9.0; // Configure with testing
+        public static final double kCowlHomingOutput = -0.18; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
         static {
             // Position Control pid (requires tuning)
-            cowlConfig.Slot0.kP = 1;
-            cowlConfig.Slot0.kI = 0;
-            cowlConfig.Slot0.kD = 0;
-            cowlConfig.Slot0.kV = 12.0 / kMaxCowlSpeed.in(Units.RotationsPerSecond);
 
             cowlConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             cowlConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+
+            cowlConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+            cowlConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.80;
+            cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+            cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.1;
+
+            cowlConfig.Slot0.kP = 13;
+            cowlConfig.Slot0.kI = 0;
+            cowlConfig.Slot0.kD = 0;
 
             cowlConfig.Feedback.SensorToMechanismRatio = 1.0; // Gear ratio
 

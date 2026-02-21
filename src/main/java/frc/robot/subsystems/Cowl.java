@@ -24,8 +24,10 @@ public class Cowl extends SubsystemBase {
     PositionVoltage cowlPositionOut = new PositionVoltage(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlOutput", 0.1);
+    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.1);
+    private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
     double cTunablePosition = cowlPositionTunable.get();
+    double cTunablePercentout = cowlPercentOutTunable.get();
 
     /**
      * Creates a new Cowl subsystem.
@@ -74,15 +76,32 @@ public class Cowl extends SubsystemBase {
         });
     }
 
+    public Command forwardTunable() {
+        return runEnd(() -> {
+            mCowl.set(cTunablePercentout);
+        }, () -> {
+            mCowl.set(0);
+        });
+    }
+
+    public Command backwardTunable() {
+        return runEnd(() -> {
+            mCowl.set(-cTunablePercentout);
+        }, () -> {
+            mCowl.set(0);
+        });
+    }
+
     // Re-zero the cowl motor
 
     public Command home() {
         return run(() -> {
             mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
         }).until(
-            () -> mCowl.getSupplyCurrent().getValueAsDouble() < SystemConstants.Cowl.kCowlStallCurrent
+            () -> mCowl.getSupplyCurrent().getValueAsDouble() > SystemConstants.Cowl.kCowlStallCurrent
         ).andThen(runOnce(() -> {
             mCowl.setPosition(0);
+            mCowl.set(0);
         }));
     }
 
@@ -90,11 +109,12 @@ public class Cowl extends SubsystemBase {
     public void periodic() {
         // Update local tunable variable from NetworkTables
         cTunablePosition = cowlPositionTunable.get();
+        cTunablePercentout = cowlPercentOutTunable.get();
 
         // Log current position
         DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());
         DogLog.log("Cowl/AppliedVoltage", mCowl.getMotorVoltage().getValueAsDouble());
+        DogLog.log("Cowl/SupplyCurrent", mCowl.getSupplyCurrent().getValueAsDouble());
         DogLog.log("Cowl/Temperature", mCowl.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Cowl/TunablePosition", cTunablePosition);
     }
 }

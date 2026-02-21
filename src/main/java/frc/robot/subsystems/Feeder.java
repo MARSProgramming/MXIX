@@ -114,7 +114,6 @@ public class Feeder extends SubsystemBase {
         DogLog.log("Feeder/VelocityRPM", Units.RotationsPerSecond.of(mFeeder.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Feeder/AppliedVoltage", mFeeder.getMotorVoltage().getValueAsDouble());
         DogLog.log("Feeder/Temperature", mFeeder.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Feeder/TunableFeederVelocity", Units.RotationsPerSecond.of(mFeeder.getVelocity().getValueAsDouble()).in(Units.RPM));
     }
 
     /**

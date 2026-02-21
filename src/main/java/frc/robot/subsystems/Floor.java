@@ -69,6 +69,5 @@ public class Floor extends SubsystemBase {
         DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Floor/AppliedVoltage", mFloor.getMotorVoltage().getValueAsDouble());
         DogLog.log("Floor/Temperature", mFloor.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Floor/TunableFeederVelocity", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
     }
 }

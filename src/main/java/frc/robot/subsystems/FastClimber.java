@@ -91,8 +91,6 @@ public class FastClimber extends SubsystemBase {
         DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());
         DogLog.log("FastClimber/AppliedVoltage", mFastClimber.getMotorVoltage().getValueAsDouble());
         DogLog.log("FastClimber/Temperature", mFastClimber.getDeviceTemp().getValueAsDouble());
-        DogLog.log("FastClimber/TunablePercentOut", cTunableOutput);
-        DogLog.log("FastClimber/TunablePosition", cTunablePosition);
 
     }
 }

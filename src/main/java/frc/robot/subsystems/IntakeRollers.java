@@ -70,6 +70,5 @@ public class IntakeRollers extends SubsystemBase {
         DogLog.log("Intake/VelocityRPM", Units.RotationsPerSecond.of(mIntakeRollers.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Intake/AppliedVoltage", mIntakeRollers.getMotorVoltage().getValueAsDouble());
         DogLog.log("Intake/Temperature", mIntakeRollers.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Intake/TunableFeederVelocity", Units.RotationsPerSecond.of(mIntakeRollers.getVelocity().getValueAsDouble()).in(Units.RPM));
     }
 }
