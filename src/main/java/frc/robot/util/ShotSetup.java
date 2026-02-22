@@ -20,7 +20,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.constants.SystemConstants.Flywheel;
+import frc.robot.subsystems.Swerve;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Locations;
 
 public class ShotSetup {
 
@@ -110,7 +112,7 @@ public class ShotSetup {
      * @return ShotInfo with continuously interpolated RPM and cowl position
      * @throws IllegalArgumentException if distance is negative or beyond calibrated maximum
      */
-    public ShotInfo getClampedShotInfo(Distance distanceToHub) {
+    public ShotInfo getStaticShotInfo(Distance distanceToHub) {
         ShotInfo initialShotInfo = SHOT_MAP.get(distanceToHub);
 
         double clampedCowlPos = Math.max(0, Math.min(initialShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
@@ -122,52 +124,20 @@ public class ShotSetup {
         );  
     }
 
-
-
-    
-    /**
-     * Variant that includes robot velocity compensation for shooting on the move.
-     * 
-     * When the robot is moving, the projectile inherits the robot's velocity.
-     * This shifts both the effective distance and required launch velocity.
-     * 
-     * IMPLEMENTATION NOTE: This is a simplified linear compensation model.
-     * For competition-level accuracy, consider full projectile physics solving.
-     * 
-     * @param distanceToHub Static distance to target
-     * @param robotVelocity Robot's velocity vector (positive = moving toward target)
-     * @return ShotInfo with velocity-compensated parameters
-     */
-    public ShotInfo getShotInfoWithVelocityComp(Distance distanceToHub, double robotVelocityMPS) {
-        // Get base shot parameters for stationary shot
-        ShotInfo baseShot = getClampedShotInfo(distanceToHub);
-        
-        // Simple linear velocity compensation (tune this coefficient based on testing)
-        // Positive velocity (moving toward target) = need less RPM
-        // Negative velocity (moving away) = need more RPM
-        double VELOCITY_COMP_COEFFICIENT = 50.0;  // RPM per m/s of robot velocity (Tune)
-        double compensatedRPM = baseShot.shot.shooterRPM - (robotVelocityMPS * VELOCITY_COMP_COEFFICIENT);
-                        
-        return new ShotInfo(
-            new Shot(compensatedRPM),
-            baseShot.cowlPosition
-        );
-    }
-
-    public SOTMInfo getSOTMInfo(SwerveDriveState drivetrainState) {
+    public SOTMInfo getSOTMInfo(Swerve swerveSubsystem) {
         double phaseDelay = 0.03;
-        Pose2d estimatedShotPose = drivetrainState.Pose;
+        Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
         estimatedShotPose = 
             estimatedShotPose.exp(new 
-            Twist2d(drivetrainState.Speeds.vxMetersPerSecond * phaseDelay,
-            drivetrainState.Speeds.vyMetersPerSecond * phaseDelay,
-            drivetrainState.Speeds.omegaRadiansPerSecond * phaseDelay));
+            Twist2d(swerveSubsystem.getState().Speeds.vxMetersPerSecond * phaseDelay,
+            swerveSubsystem.getState().Speeds.vyMetersPerSecond * phaseDelay,
+            swerveSubsystem.getState().Speeds.omegaRadiansPerSecond * phaseDelay));
 
         Translation2d target = FieldConstants.Locations.hubPosition(); // add alliance util logic to get this target (hub target)
         Distance launcherToTargetDistance = Units.Meters.of(target.getDistance(estimatedShotPose.getTranslation()));
 
-        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(drivetrainState.Speeds, drivetrainState.Pose.getRotation()).vxMetersPerSecond;
-        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(drivetrainState.Speeds, drivetrainState.Pose.getRotation()).vyMetersPerSecond;
+        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vxMetersPerSecond;
+        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vyMetersPerSecond;
 
         double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance.magnitude());
 
@@ -189,7 +159,13 @@ public class ShotSetup {
 
 
         ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
-        return new SOTMInfo(desiredShotInfo, getTargetDriveAngle(lookaheadPose, target));
+
+        double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), desiredShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
+        double clampedCowlPos = Math.max(0, Math.min(desiredShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
+
+        ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
+
+        return new SOTMInfo(clampedDesiredShotInfo, getDirectionToHub(swerveSubsystem));
     }
 
     // ========== DATA CLASSES ==========
@@ -235,9 +211,16 @@ public class ShotSetup {
         }   
     }
 
-    private static Rotation2d getTargetDriveAngle(
-      Pose2d robotPose, Translation2d target) {
-        return target.minus(robotPose.getTranslation()).getAngle();
+    private Rotation2d getDirectionToHub(Swerve swerveSubsystem) {
+        final Translation2d hubPosition = Locations.hubPosition();
+        final Translation2d robotPosition = swerveSubsystem.getState().Pose.getTranslation();
+        
+        // Calculate angle in standard field coordinates (Blue Alliance origin)
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
+        
+        // Adjust for the driver's perspective (Red vs Blue alliance)
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(swerveSubsystem.getOperatorForwardDirection());
+        return hubDirectionInOperatorPerspective;
     }
 
 }

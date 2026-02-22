@@ -47,12 +47,8 @@ public class Cowl extends SubsystemBase {
      * @param position The target position in rotations.
      * @return A Command that moves the cowl to the specified position.
      */
-    public Command setPositionWithTermination(double position) {
-        return run(() -> {
-            mCowl.setControl(cowlPositionOut.withPosition(position));
-        }).until(
-           () -> MathUtil.isNear(position, mCowl.getPosition().getValueAsDouble(), COWL_POSITION_TOLERANCE)
-        );
+    public void setPosition(double position) {
+        mCowl.setControl(cowlPositionOut.withPosition(position));
     }
 
     public Command setPositionContinuously(double position) {
@@ -60,6 +56,7 @@ public class Cowl extends SubsystemBase {
             mCowl.setControl(cowlPositionOut.withPosition(position));
         });
     }
+    
 
 
     /**

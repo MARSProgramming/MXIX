@@ -14,7 +14,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AutoRoutines;
+import frc.robot.commands.FeedCommand;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.PrepareSupershot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
@@ -24,9 +26,9 @@ import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DrivetrainTelemetry;
+import frc.robot.util.ShotSetup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -48,10 +50,17 @@ public class RobotContainer {
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
     IntakePivot mIntakePivot = new IntakePivot();
-
+    ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
-    
     IntakeRollers mIntakeRollers = new IntakeRollers();
+
+    Command prepShotCommand = new PrepareSupershot(
+      shotSetup, 
+      swerve, 
+      mFlywheel, 
+      mCowl, 
+      () -> -drivePilot.getLeftY(), 
+      () -> -drivePilot.getLeftX());
 
   //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
 
@@ -76,9 +85,9 @@ public class RobotContainer {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
       testPilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
 
-      testPilot.a().whileTrue(mIntakeRollers.setTunable().alongWith(mFloor.setPercentOutTunable()));
       testPilot.y().whileTrue(mIntakeRollers.setTunable());
       testPilot.b().whileTrue(mFloor.setPercentOutTunable());
+
 
       testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
       testPilot.povDown().onTrue(mCowl.home());
@@ -93,10 +102,15 @@ public class RobotContainer {
           () -> -drivePilot.getLeftX(),
           () -> -drivePilot.getRightX());
 
+      final PrepareSupershot supershotCommand = new PrepareSupershot(
+        shotSetup, 
+        swerve, 
+        mFlywheel, 
+        mCowl, 
+      () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX());
+
       swerve.setDefaultCommand(manualDriveCommand);
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
-
-        
     }
 }
