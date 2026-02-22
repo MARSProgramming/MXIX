@@ -19,6 +19,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Distance;
@@ -165,8 +166,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
+        
         DogLog.log("Swerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
     }
+
+
 
     /**
      * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
@@ -210,4 +214,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         return robotPose.getTranslation().getDistance(hubPosition);
     }
+
+    public ChassisSpeeds getFieldRelativeSpeeds() {
+        return ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+    }
+
+     /**
+     * Seeds the Kalman Filter with a reasonable initial pose estimate based on the driver's perspective.
+     * This can help correct for any significant odometry drift that may have occurred since the last time the operator perspective was applied.
+     */
 }

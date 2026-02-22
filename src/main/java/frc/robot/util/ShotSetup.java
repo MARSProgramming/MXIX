@@ -1,48 +1,31 @@
 package frc.robot.util;
 import static edu.wpi.first.units.Units.Meters;
 
-import java.util.*;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Twist2d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.constants.SystemConstants.Flywheel;
+import frc.robot.constants.FieldConstants;
 
-/**
- * Manages shot parameter selection (flywheel RPM and cowl position) based on distance to target.
- * 
- * Uses a CONTINUOUS INTERPOLATION approach where both RPM and cowl position smoothly interpolate
- * across the entire distance range. This eliminates zone boundaries and discrete transitions.
- * 
- * Design rationale: Since the cowl is driven by a TalonFX with continuous positioning capability,
- * we can leverage smooth interpolation rather than discrete zones. This provides:
- * - No discontinuities in trajectory (smoother aiming)
- * - Easier velocity compensation for shooting on the move
- * - Simpler code with no state management or hysteresis logic
- * - More calibration points = better accuracy
- * 
- * Trade-off: Requires more comprehensive calibration data across the full distance range.
- */
 public class ShotSetup {
+
     
-    /**
-     * Unified shot map: distance -> (RPM, cowl position)
-     * 
-     * Both RPM and cowl position interpolate linearly between calibration points.
-     * More data points = better accuracy, especially in high-priority distance ranges.
-     * 
-     * CALIBRATION PROCESS:
-     * 1. Start at close range (1.5m)
-     * 2. Find optimal (RPM, cowl) combination that consistently scores
-     * 3. Move to next distance (add more points in ranges you shoot from often)
-     * 4. Repeat across entire operational range
-     * 5. Verify interpolation works well between points
-     * 
-     * PRO TIP: Add extra calibration points in your most common shooting distances
-     * (e.g., if you shoot a lot from 3-5m, add points every 0.5m in that range)
-     */
+
     private static final InterpolatingTreeMap<Distance, ShotInfo> SHOT_MAP = new InterpolatingTreeMap<>(
         // Inverse interpolator: "where does this query distance sit between two calibration points?"
         (startDistance, endDistance, queryDistance) -> 
@@ -66,29 +49,17 @@ public class ShotSetup {
                     .interpolate(startInfo.cowlPosition, endInfo.cowlPosition, t)
             )
     );
+
+    private static final InterpolatingDoubleTreeMap timeOfFlightMap =
+      new InterpolatingDoubleTreeMap();
+
     
     // ========== INITIALIZATION ==========
     static {
         loadMap();
     }
+
     
-    /**
-     * Loads empirically measured calibration data.
-     * 
-     * IMPORTANT: These are PLACEHOLDER values. You must replace these with real field data.
-     * 
-     * Calibration strategy:
-     * - Close range (1.5-3m): Lower RPM, flatter cowl, dense points for accuracy
-     * - Mid range (3-6m): Moderate RPM/cowl, points every ~1m
-     * - Long range (6-10m): Higher RPM, steeper cowl, verify extrapolation doesn't occur
-     * 
-     * TUNING TIPS:
-     * - Start with fewer points, verify interpolation is reasonable
-     * - Add points in problem areas where shots are inconsistent
-     * - Use telemetry to identify which distances you actually shoot from
-     * - Consider separate calibration for stationary vs. moving shots
-     * 
-     */
     private static void loadMap() {
         // Close range - flatter cowl, lower speeds
         SHOT_MAP.put(Meters.of(1.5),  new ShotInfo(new Shot(2500), 0.0));   // Point blank
@@ -112,6 +83,14 @@ public class ShotSetup {
         SHOT_MAP.put(Meters.of(8.0),  new ShotInfo(new Shot(3950), 1.25));  // Very long
         SHOT_MAP.put(Meters.of(9.0),  new ShotInfo(new Shot(4100), 1.40));  // Max practical
         SHOT_MAP.put(Meters.of(10.0), new ShotInfo(new Shot(4250), 1.50));  // Absolute max
+
+        timeOfFlightMap.put(5.68, 1.16);
+        timeOfFlightMap.put(4.55, 1.12);
+        timeOfFlightMap.put(3.15, 1.11);
+        timeOfFlightMap.put(1.88, 1.09);
+        timeOfFlightMap.put(1.38, 0.90);
+
+
     }
     
     
@@ -134,7 +113,7 @@ public class ShotSetup {
     public ShotInfo getClampedShotInfo(Distance distanceToHub) {
         ShotInfo initialShotInfo = SHOT_MAP.get(distanceToHub);
 
-        double clampedCowlPos = Math.max(0, Math.min(initialShotInfo.cowlPosition, 1.5));  // Clamp cowl between 0 and 1.5 rotations
+        double clampedCowlPos = Math.max(0, Math.min(initialShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
         double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), initialShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
 
         return new ShotInfo(
@@ -174,7 +153,45 @@ public class ShotSetup {
             baseShot.cowlPosition
         );
     }
-    
+
+    public SOTMInfo getSOTMInfo(SwerveDriveState drivetrainState) {
+        double phaseDelay = 0.03;
+        Pose2d estimatedShotPose = drivetrainState.Pose;
+        estimatedShotPose = 
+            estimatedShotPose.exp(new 
+            Twist2d(drivetrainState.Speeds.vxMetersPerSecond * phaseDelay,
+            drivetrainState.Speeds.vyMetersPerSecond * phaseDelay,
+            drivetrainState.Speeds.omegaRadiansPerSecond * phaseDelay));
+
+        Translation2d target = FieldConstants.Locations.hubPosition(); // add alliance util logic to get this target (hub target)
+        Distance launcherToTargetDistance = Units.Meters.of(target.getDistance(estimatedShotPose.getTranslation()));
+
+        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(drivetrainState.Speeds, drivetrainState.Pose.getRotation()).vxMetersPerSecond;
+        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(drivetrainState.Speeds, drivetrainState.Pose.getRotation()).vyMetersPerSecond;
+
+        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance.magnitude());
+
+        Pose2d lookaheadPose = estimatedShotPose;
+        Distance lookaheadLauncherToTargetDist = launcherToTargetDistance;
+
+        for (int i = 0; i < 20; i++) {
+            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist.magnitude());
+            double offsetX = relativeVelocityX * timeOfFlight;
+            double offsetY = relativeVelocityY * timeOfFlight;
+
+            lookaheadPose = new Pose2d(
+                estimatedShotPose.getTranslation().plus(new Translation2d(offsetX, offsetY)),
+                estimatedShotPose.getRotation()
+            );
+
+            lookaheadLauncherToTargetDist = Units.Meters.of(target.getDistance(lookaheadPose.getTranslation()));
+        }
+
+
+        ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
+        return new SOTMInfo(desiredShotInfo, getTargetDriveAngle(lookaheadPose, target));
+    }
+
     // ========== DATA CLASSES ==========
     
     /**
@@ -207,4 +224,20 @@ public class ShotSetup {
             this.cowlPosition = cowlPosition;
         }
     }
+
+    public static class SOTMInfo {
+        public ShotInfo shotInfo;
+        public Rotation2d virtualTargetAngle;
+
+        public SOTMInfo(ShotInfo shotInfo, Rotation2d virtualTargetAngle) {
+            this.shotInfo = shotInfo;
+            this.virtualTargetAngle = virtualTargetAngle;
+        }   
+    }
+
+    private static Rotation2d getTargetDriveAngle(
+      Pose2d robotPose, Translation2d target) {
+        return target.minus(robotPose.getTranslation()).getAngle();
+    }
+
 }
