@@ -20,6 +20,7 @@ import frc.robot.commands.PrepareSupershot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
+import frc.robot.subsystems.FastClimber;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -53,6 +54,8 @@ public class RobotContainer {
     ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
+
+    FastClimber fastClimb = new FastClimber();
 
     Command prepShotCommand = new PrepareSupershot(
       shotSetup, 
@@ -90,9 +93,8 @@ public class RobotContainer {
 
     //  testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
     //  testPilot.povDown().onTrue(mCowl.home());
-     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
-
+     testPilot.povRight().whileTrue(fastClimb.setPercentOutTunable());
+     testPilot.povLeft().whileTrue(fastClimb.setPercentOutTunableReverse());
 
 
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(

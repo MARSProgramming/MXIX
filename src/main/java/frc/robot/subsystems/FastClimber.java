@@ -21,10 +21,10 @@ public class FastClimber extends SubsystemBase {
     PositionVoltage fcPositionOut = new PositionVoltage(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber clibmPercentOutTunable = DogLog.tunable("FastClimber/TunableClimbOutput", 0.1);
+    private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.1);
     private final DoubleSubscriber climbPositionTunable = DogLog.tunable("FastClimber/TunableClimbPosition", 0.1);
 
-    double cTunableOutput = clibmPercentOutTunable.get();
+    double cTunableOutput = climbPercentDoubleSubscriber.get();
     double cTunablePosition = climbPositionTunable.get();
 
     /**
@@ -33,7 +33,7 @@ public class FastClimber extends SubsystemBase {
      */
     public FastClimber() {
         mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber);
-        mFastClimber.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
+        mFastClimber.getConfigurator().apply(SystemConstants.FastClimber.fastClimberConfig);
     }
 
     /**
@@ -75,17 +75,26 @@ public class FastClimber extends SubsystemBase {
 
     public Command setPercentOutTunable() {
         return runEnd(() -> {
-            mFastClimber.set(clibmPercentOutTunable.get());
+            mFastClimber.set(climbPercentDoubleSubscriber.get());
         }, () -> {
             mFastClimber.set(0);
         });
     }
 
+    public Command setPercentOutTunableReverse() {
+        return runEnd(() -> {
+            mFastClimber.set(-climbPercentDoubleSubscriber.get());
+        }, () -> {
+            mFastClimber.set(0);
+        });
+    }
+
+
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
         cTunablePosition = climbPositionTunable.get();
-        cTunableOutput = clibmPercentOutTunable.get();
+        cTunableOutput = climbPercentDoubleSubscriber.get();
 
         // Log current position
         DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());
