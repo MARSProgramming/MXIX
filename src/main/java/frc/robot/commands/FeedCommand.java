@@ -59,9 +59,6 @@ public class FeedCommand extends Command {
         addRequirements(intakeRollers, feeder, floor);
     }
 
-
-
-
     @Override
     public void execute() {
         intakeRollers.set(0.5);
@@ -69,7 +66,6 @@ public class FeedCommand extends Command {
         floor.set(0.5);
     }
 
-    
     @Override
     public void end(boolean interrupted) {
         intakeRollers.set(0);

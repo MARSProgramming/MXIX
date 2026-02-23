@@ -84,15 +84,14 @@ public class RobotContainer {
     private void configureBindings() {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
       testPilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
+       testPilot.y().whileTrue(mIntakeRollers.setTunable());
+       testPilot.b().whileTrue(mFloor.setPercentOutTunable());
 
-      testPilot.y().whileTrue(mIntakeRollers.setTunable());
-      testPilot.b().whileTrue(mFloor.setPercentOutTunable());
 
-
-      testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
-      testPilot.povDown().onTrue(mCowl.home());
-      testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-      testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
+    //  testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+    //  testPilot.povDown().onTrue(mCowl.home());
+     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
 
 
@@ -102,15 +101,11 @@ public class RobotContainer {
           () -> -drivePilot.getLeftX(),
           () -> -drivePilot.getRightX());
 
-      final PrepareSupershot supershotCommand = new PrepareSupershot(
-        shotSetup, 
-        swerve, 
-        mFlywheel, 
-        mCowl, 
-      () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX());
 
       swerve.setDefaultCommand(manualDriveCommand);
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+
+
 
     }
 }

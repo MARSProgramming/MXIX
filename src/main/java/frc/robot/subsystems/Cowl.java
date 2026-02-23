@@ -103,6 +103,10 @@ public class Cowl extends SubsystemBase {
         }));
     }
 
+    public Command zero() {
+        return runOnce(() -> mCowl.setPosition(0));
+    }
+
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables

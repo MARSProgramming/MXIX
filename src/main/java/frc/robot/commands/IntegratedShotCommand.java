@@ -25,7 +25,7 @@ public class IntegratedShotCommand extends ParallelCommandGroup {
         DoubleSupplier forwardInput;
         DoubleSupplier leftInput;
 
-        public IntegratedShotCommand(CommandXboxController controller, ShotSetup setup, Swerve swerve, Flywheel flywheel, Cowl cowl, IntakeRollers rollers, Feeder feeder, Floor floor) {
+        public IntegratedShotCommand(DoubleSupplier forw, DoubleSupplier lef,  ShotSetup setup, Swerve swerve, Flywheel flywheel, Cowl cowl, IntakeRollers rollers, Feeder feeder, Floor floor) {
             mSwerve = swerve;
             mSetup = setup;
             mFlywheel = flywheel;
@@ -34,17 +34,16 @@ public class IntegratedShotCommand extends ParallelCommandGroup {
             mFeeder = feeder;
             mFloor = floor;
 
-            forwardInput = () -> -controller.getLeftY();
-            leftInput = () -> -controller.getLeftX();
+            forwardInput = forw;
+            leftInput = lef;
 
-            PrepareSupershot supershot = new PrepareSupershot(setup, swerve, flywheel, cowl, forwardInput, leftInput);
-            FeedCommand feed = new FeedCommand(rollers, feeder, floor);
+        PrepareSupershot supershot = new PrepareSupershot(setup, swerve, flywheel, cowl, forwardInput, leftInput);
+        FeedCommand feed = new FeedCommand(rollers, feeder, floor);
 
         addCommands(
         supershot,
         new WaitUntilCommand(() -> supershot.readyToShoot())
-        .andThen(feed.onlyWhile(() -> supershot.readyToShoot()))
+        .andThen(feed)
         );
-
     }   
 }

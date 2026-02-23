@@ -103,7 +103,7 @@ public class SystemConstants {
 
             cowlConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
             cowlConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.80;
-            cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+            cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
             cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.1;
 
             cowlConfig.Slot0.kP = 13;
@@ -146,6 +146,7 @@ public class SystemConstants {
             pivotConfig.Slot0.kV = 12.0 / kMaxIntakePivotSpeed.in(Units.RotationsPerSecond);
 
             pivotConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            pivotConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
 
             pivotConfig.Feedback.SensorToMechanismRatio = kIntakePivotReduction; // Gear ratio
 
