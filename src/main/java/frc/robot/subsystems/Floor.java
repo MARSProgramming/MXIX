@@ -21,7 +21,7 @@ public class Floor extends SubsystemBase {
     private TalonFX mFloor;
 
     // Tunable value for testing percent output via NetworkTables
-    private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.5);
+    private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.6);
 
     double sTunablePercentOut = floorPercentOutTunable.get();
 

@@ -41,6 +41,9 @@ public class RobotContainer {
     // Maximum speed of the robot in meters per second, derived from TunerConstants.
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
+    private final Limelight shooterLimelight = new Limelight("limelight-shooter");
+    private final Limelight backLimelight = new Limelight("limelight-back");
+
     // The driver's controller.
     private final CommandXboxController testPilot = new CommandXboxController(0);
     private final CommandXboxController drivePilot = new CommandXboxController(1);
@@ -93,11 +96,11 @@ public class RobotContainer {
 
     //  testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
     //  testPilot.povDown().onTrue(mCowl.home());
-     testPilot.povRight().whileTrue(fastClimb.setPercentOutTunable());
-     testPilot.povLeft().whileTrue(fastClimb.setPercentOutTunableReverse());
+   //  testPilot.povRight().whileTrue(fastClimb.setPercentOutTunable());
+   //  testPilot.povLeft().whileTrue(fastClimb.setPercentOutTunableReverse());
 
 
-      final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+    final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -drivePilot.getLeftY(),
           () -> -drivePilot.getLeftX(),
@@ -105,9 +108,47 @@ public class RobotContainer {
 
 
       swerve.setDefaultCommand(manualDriveCommand);
+     // shooterLimelight.setDefaultCommand(updateShooterVision());
+     // backLimelight.setDefaultCommand(updateBackVision());
+
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
 
 
+    }
+
+    private Command updateShooterVision() {
+        return shooterLimelight.run(() -> {
+            final Pose2d currentRobotPose = swerve.getState().Pose;
+            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
+            measurement.ifPresent(m -> {
+                swerve.addVisionMeasurement(
+                    m.poseEstimate.pose, 
+                    m.poseEstimate.timestampSeconds,
+                    m.standardDeviations
+                );
+            });
+        })
+        .ignoringDisable(true);
+    }
+
+    /**
+     * Creates a command to continuously update the robot's pose using the back Limelight.
+     *
+     * @return A command that runs in the background (default command).
+     */
+    private Command updateBackVision() {
+        return backLimelight.run(() -> {
+            final Pose2d currentRobotPose = swerve.getState().Pose;
+            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
+            measurement.ifPresent(m -> {
+                swerve.addVisionMeasurement(
+                    m.poseEstimate.pose, 
+                    m.poseEstimate.timestampSeconds,
+                    m.standardDeviations
+                );
+            });
+        })
+        .ignoringDisable(true);
     }
 }
