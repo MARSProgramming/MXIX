@@ -106,13 +106,13 @@ public class SystemConstants {
             cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
             cowlConfig.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.1;
 
-            cowlConfig.Slot0.kP = 13;
+            cowlConfig.Slot0.kP = 20;
             cowlConfig.Slot0.kI = 0;
             cowlConfig.Slot0.kD = 0;
             cowlConfig.Slot0.kA = 0;
             cowlConfig.Slot0.kV = 0;
             cowlConfig.Slot0.kG = 0;
-            cowlConfig.Slot0.kS = 0;
+            cowlConfig.Slot0.kS = 2;
 
 
             cowlConfig.Feedback.SensorToMechanismRatio = 1.0; // Gear ratio

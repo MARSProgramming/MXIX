@@ -89,15 +89,17 @@ public class RobotContainer {
      */
     private void configureBindings() {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
-      testPilot.rightTrigger().whileTrue(mFlywheel.setPercentOutTunable());
+      testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
        testPilot.y().whileTrue(mIntakeRollers.setTunable());
        testPilot.b().whileTrue(mFloor.setPercentOutTunable());
+
+      testPilot.a().onTrue(mCowl.zero());
 
 
      testPilot.povUp().whileTrue(mCowl.forwardTunable()); // Min 0 Max 1.8
      testPilot.povDown().onTrue(mCowl.backwardTunable());
-   //  testPilot.povRight().whileTrue(fastClimb.setPercentOutTunable());
-   //  testPilot.povLeft().whileTrue(fastClimb.setPercentOutTunableReverse());
+     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
 
     final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
@@ -120,6 +122,11 @@ public class RobotContainer {
     private Command updateShooterVision() {
         return shooterLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
+
+            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+              return;
+            }
+
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
                 swerve.addVisionMeasurement(
@@ -140,6 +147,11 @@ public class RobotContainer {
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
+
+            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+              return;
+            }
+
             final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
                 swerve.addVisionMeasurement(
