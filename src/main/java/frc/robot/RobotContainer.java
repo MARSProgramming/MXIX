@@ -94,8 +94,8 @@ public class RobotContainer {
        testPilot.b().whileTrue(mFloor.setPercentOutTunable());
 
 
-    //  testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
-    //  testPilot.povDown().onTrue(mCowl.home());
+     testPilot.povUp().whileTrue(mCowl.forwardTunable()); // Min 0 Max 1.8
+     testPilot.povDown().onTrue(mCowl.backwardTunable());
    //  testPilot.povRight().whileTrue(fastClimb.setPercentOutTunable());
    //  testPilot.povLeft().whileTrue(fastClimb.setPercentOutTunableReverse());
 
@@ -108,8 +108,8 @@ public class RobotContainer {
 
 
       swerve.setDefaultCommand(manualDriveCommand);
-     // shooterLimelight.setDefaultCommand(updateShooterVision());
-     // backLimelight.setDefaultCommand(updateBackVision());
+      shooterLimelight.setDefaultCommand(updateShooterVision());
+      backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 

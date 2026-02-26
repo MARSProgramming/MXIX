@@ -34,6 +34,12 @@ public class Limelight extends SubsystemBase {
     public static double linearStdDevBaseline = 0.02; // Meters
     public static double angularStdDevBaseline = 0.06; // Radians
 
+    public static double CAMERA_STATIC_TRUST = 1.0;
+
+
+    public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
+    public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
+
     public Limelight(String name) {
         this.name = name;
         this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
@@ -65,10 +71,17 @@ public class Limelight extends SubsystemBase {
             poseEstimate_MegaTag2.pose.getTranslation(),
             poseEstimate_MegaTag1.pose.getRotation()
         );
-
         
-        // put autoscale StdDevs here
-        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
+        double stdDevFactor = Math.pow(poseEstimate_MegaTag2.avgTagDist, 2.0) / poseEstimate_MegaTag2.tagCount;
+        double linearStdDev = linearStdDevBaseline * stdDevFactor;
+        double angularStdDev = angularStdDevBaseline * stdDevFactor;
+
+        linearStdDev *= linearStdDevMegatag2Factor;
+
+        linearStdDev *= CAMERA_STATIC_TRUST;
+        angularStdDev *= CAMERA_STATIC_TRUST;
+
+        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev);
         posePublisher.set(poseEstimate_MegaTag2.pose);
         return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
     }
