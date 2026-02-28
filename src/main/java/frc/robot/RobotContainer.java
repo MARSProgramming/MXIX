@@ -57,8 +57,10 @@ public class RobotContainer {
     ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
+    private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
     FastClimber fastClimb = new FastClimber();
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
 
     Command prepShotCommand = new PrepareSupershot(
       shotSetup, 
@@ -81,7 +83,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-      //  autoRoutines.configure();
+       autoRoutines.configure();
     }
 
     /**
@@ -90,8 +92,8 @@ public class RobotContainer {
     private void configureBindings() {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
       testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
-       testPilot.y().whileTrue(mIntakeRollers.setTunable());
-       testPilot.b().whileTrue(mFloor.setPercentOutTunable());
+       testPilot.y().whileTrue(mFloor.setPercentOutTunable());
+       testPilot.b().whileTrue(mFeeder.setPercentOutTunable());
 
       testPilot.a().onTrue(mCowl.zero());
 

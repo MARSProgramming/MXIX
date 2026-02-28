@@ -12,7 +12,7 @@ import edu.wpi.first.math.numbers.N2;
  * Applies configurable deadbanding and exponential scaling to joystick inputs for driving.
  **/
 public class DriveInputSmoother {
-    private static final double kJoystickDeadband = 0.1;
+    private static final double kJoystickDeadband = 0.05;
     private static final double kCurveExponent = 1.5;
 
     private final DoubleSupplier forwardInput;

@@ -7,6 +7,7 @@ package frc.robot.commands;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$0;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$1;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$2;
+import static frc.robot.util.ChoreoTraj.ResetPoseOutpost;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -54,6 +55,7 @@ public final class AutoRoutines {
      */
     public void configure() {
         autoChooser.addRoutine("Outpost", this::OutpostRoutine);
+        autoChooser.addRoutine("reset Pose", this::resetPoseAtTrench);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // Schedule the selected autonomous command when the robot enters autonomous mode
@@ -91,4 +93,15 @@ public final class AutoRoutines {
 
         return routine;
     }
+
+    private AutoRoutine resetPoseAtTrench() {
+        final AutoRoutine routine = autoFactory.newRoutine("reset Pose at trench");
+        final AutoTrajectory posTrajectory = ResetPoseOutpost.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            posTrajectory.resetOdometry()
+        );
+
+        return routine;
+    }   
 }

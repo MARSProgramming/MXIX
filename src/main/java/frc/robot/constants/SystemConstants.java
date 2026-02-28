@@ -35,7 +35,7 @@ public class SystemConstants {
         public static int[] getValidTagIDs() {
         final Optional<Alliance> alliance = DriverStation.getAlliance();
         if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-            return new int[]{17,18,19,20,21,22,23,24,25,26,27,28,29,30}; // Valid blue tags
+            return new int[]{17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32}; // Valid blue tags
             } else {
             return new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16}; // Red alliance sees these AprilTags
             }
