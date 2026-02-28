@@ -27,6 +27,7 @@ import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DrivetrainTelemetry;
 import frc.robot.util.ShotSetup;
@@ -59,29 +60,12 @@ public class RobotContainer {
     ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
+    FastClimber fastClimb = new FastClimber();
+
+    Superstructure mSuperstructure = new Superstructure(mCowl, swerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers);
+
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
-    FastClimber fastClimb = new FastClimber();
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
-
-    Command prepShotCommand = new PrepareSupershot(
-      shotSetup, 
-      swerve, 
-      mFlywheel, 
-      mCowl, 
-      () -> -drivePilot.getLeftY(), 
-      () -> -drivePilot.getLeftX());
-
-  //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
-
-   // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
-
-    // Autonomous routines manager
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
-
-    /**
-     * The container for the robot. Contains subsystems, OI devices, and commands.
-     */
     public RobotContainer() {
         configureBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
@@ -93,11 +77,13 @@ public class RobotContainer {
      */
     private void configureBindings() {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
-      testPilot.rightTrigger().whileTrue(
-        mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
-        .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
-        );
 
+      testPilot.rightTrigger().whileTrue(
+        mSuperstructure.aimAndStaticShot(
+            () -> -testPilot.getLeftY(), 
+            () -> -testPilot.getLeftX()
+        )
+      );
 
        testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
        testPilot.b().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
