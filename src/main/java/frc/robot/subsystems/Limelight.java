@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -27,19 +25,6 @@ public class Limelight extends SubsystemBase {
     private final NetworkTable telemetryTable;
     private final StructPublisher<Pose2d> posePublisher;
 
-    public static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-    public static double maxAmbiguity = 0.3;
-    public static double maxZError = 0.75;
-
-    public static double linearStdDevBaseline = 0.02; // Meters
-    public static double angularStdDevBaseline = 0.06; // Radians
-
-    public static double CAMERA_STATIC_TRUST = 1.0;
-
-
-    public static double linearStdDevMegatag2Factor = 0.5; // More stable than full 3D solve
-    public static double angularStdDevMegatag2Factor = Double.POSITIVE_INFINITY; // No rotation data available
-
     public Limelight(String name) {
         this.name = name;
         this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
@@ -52,14 +37,10 @@ public class Limelight extends SubsystemBase {
         final PoseEstimate poseEstimate_MegaTag1 = LimelightHelpers.getBotPoseEstimate_wpiBlue(name);
         final PoseEstimate poseEstimate_MegaTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
         if (
-                   poseEstimate_MegaTag1 == null 
+            poseEstimate_MegaTag1 == null 
                 || poseEstimate_MegaTag2 == null
                 || poseEstimate_MegaTag1.tagCount == 0
                 || poseEstimate_MegaTag2.tagCount == 0
-                || poseEstimate_MegaTag2.pose.getX() < 0.0
-                || poseEstimate_MegaTag2.pose.getX() > aprilTagLayout.getFieldLength()
-                || poseEstimate_MegaTag2.pose.getY() < 0.0
-                || poseEstimate_MegaTag2.pose.getY() > aprilTagLayout.getFieldWidth()
         ) {
             return Optional.empty();
         }
@@ -67,18 +48,15 @@ public class Limelight extends SubsystemBase {
         // Combine the readings from MegaTag1 and MegaTag2:
         // 1. Use the more stable position from MegaTag2
         // 2. Use the rotation from MegaTag1 (with low confidence) to counteract gyro drift
-        poseEstimate_MegaTag1.pose = new Pose2d(
-            poseEstimate_MegaTag1.pose.getTranslation(),
+        poseEstimate_MegaTag2.pose = new Pose2d(
+            poseEstimate_MegaTag2.pose.getTranslation(),
             poseEstimate_MegaTag1.pose.getRotation()
         );
-        
+        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
+        posePublisher.set(poseEstimate_MegaTag2.pose);
 
-       // final Matrix<N3, N1> standardDeviations = VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev);
-       final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
-
-        posePublisher.set(poseEstimate_MegaTag1.pose);
-        return Optional.of(new Measurement(poseEstimate_MegaTag1, standardDeviations));
+        return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
     }
 
     public static class Measurement {
@@ -99,8 +77,10 @@ public class Limelight extends SubsystemBase {
             LimelightHelpers.SetThrottle(name, 0);
         }
 
+
         LimelightHelpers.SetIMUMode(name, 3);
         LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
         LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
-    }
+
+}
 }

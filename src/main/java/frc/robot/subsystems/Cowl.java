@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
@@ -47,8 +49,17 @@ public class Cowl extends SubsystemBase {
      * @param position The target position in rotations.
      * @return A Command that moves the cowl to the specified position.
      */
-    public void setPosition(double position) {
-        mCowl.setControl(cowlPositionOut.withPosition(position));
+    public void setPosition(DoubleSupplier position) {
+        mCowl.setControl(cowlPositionOut.withPosition(position.getAsDouble()));
+    }
+
+        
+    public Command setPositionCommand(DoubleSupplier position) {
+        return runEnd(() -> {
+            mCowl.setControl(cowlPositionOut.withPosition(position.getAsDouble()));
+        }, () -> {
+            mCowl.set(0);
+        });
     }
 
     public Command setPositionContinuously(double position) {
@@ -66,9 +77,9 @@ public class Cowl extends SubsystemBase {
      * @return A Command that moves the cowl to the tunable position.
      */
     public Command setPositionTunable() {
-        double clampedPos = MathUtil.clamp(cTunablePosition, 0, 1.8);
         return runEnd(() -> {
-            mCowl.setControl(cowlPositionOut.withPosition(clampedPos));
+            double desiredCowlPos = cowlPositionTunable.get();
+            mCowl.setControl(cowlPositionOut.withPosition(desiredCowlPos));
         }, () -> {
             mCowl.set(0);
         });

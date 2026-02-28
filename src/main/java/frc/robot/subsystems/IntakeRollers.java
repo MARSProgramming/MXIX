@@ -21,7 +21,7 @@ public class IntakeRollers extends SubsystemBase {
     private TalonFX mIntakeRollers;
 
     // Tunable value for testing percent output via NetworkTables
-    private final DoubleSubscriber intakePercentOutTunable = DogLog.tunable("Intake/TunableIntakeRollerOutput", 0.6);
+    private final DoubleSubscriber intakePercentOutTunable = DogLog.tunable("Intake/TunableIntakeRollerOutput", 0.8);
     double sTunablePercentOut = intakePercentOutTunable.get();
 
     VoltageOut floorVoltageOut = new VoltageOut(0);

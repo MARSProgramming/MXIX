@@ -104,7 +104,7 @@ public class PrepareSupershot extends Command {
         );
 
         flywheel.setRPM(currentInfo.shotInfo.shot.shooterRPM);
-        cowl.setPosition(currentInfo.shotInfo.cowlPosition);        
+        cowl.setPosition(() -> currentInfo.shotInfo.cowlPosition);        
     }
 
     public boolean readyToShoot() {

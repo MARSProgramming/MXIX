@@ -28,14 +28,14 @@ public class ShotSetup {
 
     
 
-    private static final InterpolatingTreeMap<Distance, ShotInfo> SHOT_MAP = new InterpolatingTreeMap<>(
+    private static final InterpolatingTreeMap<Double, ShotInfo> SHOT_MAP = new InterpolatingTreeMap<>(
         // Inverse interpolator: "where does this query distance sit between two calibration points?"
         (startDistance, endDistance, queryDistance) -> 
             InverseInterpolator.forDouble()
                 .inverseInterpolate(
-                    startDistance.in(Meters), 
-                    endDistance.in(Meters), 
-                    queryDistance.in(Meters)
+                    startDistance, 
+                    endDistance, 
+                    queryDistance
                 ),
         
         // Forward interpolator: "given position 't' between two ShotInfos, interpolate both fields"
@@ -64,27 +64,14 @@ public class ShotSetup {
     
     private static void loadMap() {
         // Close range - flatter cowl, lower speeds
-        SHOT_MAP.put(Meters.of(1.5),  new ShotInfo(new Shot(2500), 0.0));   // Point blank
-        SHOT_MAP.put(Meters.of(2.0),  new ShotInfo(new Shot(2600), 0.05));  // Very close
-        SHOT_MAP.put(Meters.of(2.5),  new ShotInfo(new Shot(2700), 0.15));  // Close
+        SHOT_MAP.put(1.4,  new ShotInfo(new Shot(3400), 0.4));   // Point blank
+        SHOT_MAP.put(2.3,  new ShotInfo(new Shot(3450), 0.7));  // Very close
+        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3500), 1.2));  // Close
         
         // Transition range - common shooting zone, add extra points
-        SHOT_MAP.put(Meters.of(3.0),  new ShotInfo(new Shot(2850), 0.30));  // Mid-close
-        SHOT_MAP.put(Meters.of(3.5),  new ShotInfo(new Shot(2950), 0.40));  // Sweet spot start
-        SHOT_MAP.put(Meters.of(4.0),  new ShotInfo(new Shot(3050), 0.50));  // Sweet spot
-        SHOT_MAP.put(Meters.of(4.5),  new ShotInfo(new Shot(3150), 0.60));  // Sweet spot
-        SHOT_MAP.put(Meters.of(5.0),  new ShotInfo(new Shot(3250), 0.70));  // Sweet spot end
-        
-        // Mid-long range
-        SHOT_MAP.put(Meters.of(5.5),  new ShotInfo(new Shot(3350), 0.80));  // Getting far
-        SHOT_MAP.put(Meters.of(6.0),  new ShotInfo(new Shot(3450), 0.90));  // Far
-        SHOT_MAP.put(Meters.of(6.5),  new ShotInfo(new Shot(3600), 1.00));  // Very far
-        
-        // Long range - steeper cowl, higher speeds
-        SHOT_MAP.put(Meters.of(7.0),  new ShotInfo(new Shot(3750), 1.10));  // Long
-        SHOT_MAP.put(Meters.of(8.0),  new ShotInfo(new Shot(3950), 1.25));  // Very long
-        SHOT_MAP.put(Meters.of(9.0),  new ShotInfo(new Shot(4100), 1.40));  // Max practical
-        SHOT_MAP.put(Meters.of(10.0), new ShotInfo(new Shot(4250), 1.50));  // Absolute max
+        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3600), 1.3));  // Mid-close
+        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3750), 1.4));  // Sweet spot start
+        SHOT_MAP.put(4.7,  new ShotInfo(new Shot(4000), 1.5));  // Sweet spot
 
         timeOfFlightMap.put(5.68, 1.16);
         timeOfFlightMap.put(4.55, 1.12);
@@ -112,8 +99,8 @@ public class ShotSetup {
      * @return ShotInfo with continuously interpolated RPM and cowl position
      * @throws IllegalArgumentException if distance is negative or beyond calibrated maximum
      */
-    public ShotInfo getStaticShotInfo(Distance distanceToHub) {
-        ShotInfo initialShotInfo = SHOT_MAP.get(distanceToHub);
+    public ShotInfo getStaticShotInfo(double hubDistMeters) {
+        ShotInfo initialShotInfo = SHOT_MAP.get(hubDistMeters);
 
         double clampedCowlPos = Math.max(0, Math.min(initialShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
         double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), initialShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
@@ -134,18 +121,18 @@ public class ShotSetup {
             swerveSubsystem.getState().Speeds.omegaRadiansPerSecond * phaseDelay));
 
         Translation2d target = FieldConstants.Locations.hubPosition(); // add alliance util logic to get this target (hub target)
-        Distance launcherToTargetDistance = Units.Meters.of(target.getDistance(estimatedShotPose.getTranslation()));
+        double launcherToTargetDistance = target.getDistance(estimatedShotPose.getTranslation());
 
         double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vxMetersPerSecond;
         double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vyMetersPerSecond;
 
-        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance.magnitude());
+        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance);
 
         Pose2d lookaheadPose = estimatedShotPose;
-        Distance lookaheadLauncherToTargetDist = launcherToTargetDistance;
+        double lookaheadLauncherToTargetDist = launcherToTargetDistance;
 
         for (int i = 0; i < 20; i++) {
-            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist.magnitude());
+            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist);
             double offsetX = relativeVelocityX * timeOfFlight;
             double offsetY = relativeVelocityY * timeOfFlight;
 
@@ -154,7 +141,7 @@ public class ShotSetup {
                 estimatedShotPose.getRotation()
             );
 
-            lookaheadLauncherToTargetDist = Units.Meters.of(target.getDistance(lookaheadPose.getTranslation()));
+            lookaheadLauncherToTargetDist = target.getDistance(lookaheadPose.getTranslation());
         }
 
 

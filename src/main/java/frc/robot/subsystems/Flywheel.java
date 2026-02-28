@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -32,7 +33,7 @@ public class Flywheel extends SubsystemBase {
     private final List<TalonFX> motors;
 
     // Tunable values for testing velocity and percent output via NetworkTables
-    private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 1000.0);
+    private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 3400.0);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.5);
 
     double sTunableRpm = shooterRpmTunable.get();
@@ -114,6 +115,16 @@ public class Flywheel extends SubsystemBase {
         return runEnd(() -> {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(sTunableRpm)));
+        }, () -> {
+            rm.set(0);
+            lm.set(0);
+        });
+    }
+
+    public Command setVelocity(DoubleSupplier velo) {
+        return runEnd(() -> {
+            rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velo.getAsDouble())));
+            lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velo.getAsDouble())));
         }, () -> {
             rm.set(0);
             lm.set(0);

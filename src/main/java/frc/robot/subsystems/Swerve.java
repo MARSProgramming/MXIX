@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -170,7 +171,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         DogLog.log("Swerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
     }
 
-
+    public Distance hubDistInMeters() {
+        return Units.Meters.of(getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+    }
 
     /**
      * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate

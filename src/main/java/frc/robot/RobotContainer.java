@@ -44,6 +44,8 @@ public class RobotContainer {
     private final Limelight shooterLimelight = new Limelight("limelight-shooter");
     private final Limelight backLimelight = new Limelight("limelight-back");
 
+    ShotSetup setup = new ShotSetup();
+
     // The driver's controller.
     private final CommandXboxController testPilot = new CommandXboxController(0);
     private final CommandXboxController drivePilot = new CommandXboxController(1);
@@ -60,7 +62,7 @@ public class RobotContainer {
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
     FastClimber fastClimb = new FastClimber();
-    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
+   // private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
 
     Command prepShotCommand = new PrepareSupershot(
       shotSetup, 
@@ -83,7 +85,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-       autoRoutines.configure();
+     //  autoRoutines.configure();
     }
 
     /**
@@ -91,31 +93,43 @@ public class RobotContainer {
      */
     private void configureBindings() {
       testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
-      testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
-       testPilot.y().whileTrue(mFloor.setPercentOutTunable());
-       testPilot.b().whileTrue(mFeeder.setPercentOutTunable());
+      testPilot.rightTrigger().whileTrue(
+        mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
+        .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
+        );
 
-      testPilot.a().onTrue(mCowl.zero());
+
+       testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
+       testPilot.b().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+
+      testPilot.a().whileTrue(mIntakeRollers.setTunable());
 
 
-     testPilot.povUp().whileTrue(mCowl.forwardTunable()); // Min 0 Max 1.8
-     testPilot.povDown().onTrue(mCowl.backwardTunable());
+     testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+     testPilot.povDown().onTrue(mCowl.home());
      testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
      testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
 
     final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
-          () -> -drivePilot.getLeftY(),
-          () -> -drivePilot.getLeftX(),
-          () -> -drivePilot.getRightX());
+          () -> -testPilot.getLeftY(),
+          () -> -testPilot.getLeftX(),
+          () -> -testPilot.getRightX());
+
+    final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
+            swerve, 
+            () -> -testPilot.getLeftY(), 
+            () -> -testPilot.getLeftX());
 
 
       swerve.setDefaultCommand(manualDriveCommand);
       shooterLimelight.setDefaultCommand(updateShooterVision());
-      backLimelight.setDefaultCommand(updateBackVision());
+    //  backLimelight.setDefaultCommand(updateBackVision());
+     testPilot.leftBumper().whileTrue(aimAndDriveCommand);
 
-      drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+
+      testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
 
 
@@ -146,6 +160,8 @@ public class RobotContainer {
      *
      * @return A command that runs in the background (default command).
      */
+
+     /*
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
@@ -164,5 +180,5 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
-    }
+    } */
 }

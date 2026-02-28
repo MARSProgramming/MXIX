@@ -23,7 +23,7 @@ public class Feeder extends SubsystemBase {
     private TalonFX mFeeder;
 
     private final IntegerSubscriber feederRpmTunable = DogLog.tunable("Feeder/TunableFeederVelocity", 2000);
-    private final DoubleSubscriber feederPercOutTunable = DogLog.tunable("Feeder/TunableFeederPercOut", 0.7);
+    private final DoubleSubscriber feederPercOutTunable = DogLog.tunable("Feeder/TunableFeederPercOut", 1.0);
 
     double sTunableRpm = feederRpmTunable.get();
     double stunablePercOut = feederPercOutTunable.get();
