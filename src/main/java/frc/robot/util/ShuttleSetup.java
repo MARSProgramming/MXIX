@@ -1,28 +1,9 @@
 package frc.robot.util;
-import static edu.wpi.first.units.Units.Meters;
-
-import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Twist2d;
-import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.constants.SystemConstants.Flywheel;
-import frc.robot.subsystems.Swerve;
-import frc.robot.constants.FieldConstants;
-import frc.robot.constants.FieldConstants.Locations;
 
 public class ShuttleSetup {
 

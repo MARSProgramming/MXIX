@@ -83,24 +83,6 @@ public class ShuttleAndDriveCommand extends Command {
         return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
     }
 
-    /**
-     * Calculates the direction from the robot to the Hub (target).
-     *
-     * @return The Rotation2d representing the angle to the target in Operator Perspective.
-     */
-    private Rotation2d getClosestShuttlingPosition() {
-        final Translation2d hubPosition = Locations.hubPosition();
-        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
-        
-        // Calculate angle in standard field coordinates (Blue Alliance origin)
-        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
-        
-        // Adjust for the driver's perspective (Red vs Blue alliance)
-        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
-        
-        return hubDirectionInOperatorPerspective;
-    }
-
 
     private Rotation2d getDirectionToShuttle(Pose2d robotPose) {
         final Translation2d nearestShuttlingPos = Locations.getClosestShuttlingPosition(robotPose).getTranslation();

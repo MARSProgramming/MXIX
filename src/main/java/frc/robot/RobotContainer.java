@@ -4,9 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -15,11 +13,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AutoRoutines;
-import frc.robot.commands.FeedCommand;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SystemConstants;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.FastClimber;
 import frc.robot.subsystems.IntakePivot;
@@ -30,7 +26,6 @@ import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.DrivetrainTelemetry;
 import frc.robot.util.GeometryUtil;
 import frc.robot.util.ShotSetup;
 
@@ -42,7 +37,6 @@ import frc.robot.util.ShotSetup;
  */
 public class RobotContainer {
     // Maximum speed of the robot in meters per second, derived from TunerConstants.
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
     private final Limelight shooterLimelight = new Limelight(SystemConstants.Limelights.kShooterLimelightName);
     private final Limelight backLimelight = new Limelight(SystemConstants.Limelights.kBackLimelightName);
@@ -64,13 +58,14 @@ public class RobotContainer {
     FastClimber fastClimb = new FastClimber();
 
     Superstructure mSuperstructure = new Superstructure(mCowl, mSwerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight, backLimelight);
-    private final AutoRoutines autoRoutines = new AutoRoutines(mSwerve, mSuperstructure, shooterLimelight, backLimelight);
-
+    
+    private final AutoRoutines autoRoutines = new AutoRoutines(mSuperstructure);
+    
     public RobotContainer() {
         configureBindings();
         configureTestBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-     //  autoRoutines.configure();
+        autoRoutines.configure();
     }
 
     /**
