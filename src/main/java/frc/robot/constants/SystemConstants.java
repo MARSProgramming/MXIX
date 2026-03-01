@@ -7,7 +7,9 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -61,7 +63,11 @@ public class SystemConstants {
      * Constants and configuration for the Flywheel (Shooter) subsystem.
      */
     public static class Flywheel {
-        public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM = new Transform3d();
+        public static final Transform3d ROBOT_TO_SHOOTER_TRANSFORM = new Transform3d(
+                new Translation3d(-0.044704, -0.055626, 0.525526),
+                new Rotation3d(0, 0, 0)
+        );        
+        
         public static final double kFlywheelReduction = 1.0;
         public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
         public static final AngularVelocity kMaxFlywheelSpeed = KrakenX60.kFreeSpeed.div(kFlywheelReduction);

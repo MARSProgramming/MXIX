@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
+import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants;
 
 /**
@@ -42,6 +43,29 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
+    public Command deployCommand() {
+        return runEnd(
+            () -> {
+                mIntakePivot.setControl(floorVoltageOut.withOutput(Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+            },
+            () -> {
+                mIntakePivot.set(0);
+            }
+        );
+    }
+
+    
+    public Command retractCommand() {
+        return runEnd(
+            () -> {
+                mIntakePivot.setControl(floorVoltageOut.withOutput(-Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+            },
+            () -> {
+                mIntakePivot.set(0);
+            }
+        );
+    }
+
     public Command forwardTunable() {
         return runEnd(() -> {
             mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));
@@ -50,7 +74,7 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
-        public Command backwardTunable() {
+    public Command backwardTunable() {
         return runEnd(() -> {
             mIntakePivot.setControl(floorVoltageOut.withOutput(-cTunablePivotOut * 12.0));
         }, () -> {
@@ -58,14 +82,6 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
-
-    public Command home() {
-        return run(() -> {
-            mIntakePivot.set(SystemConstants.Cowl.kCowlHomingOutput);
-        }).until(
-            () -> mIntakePivot.getSupplyCurrent().getValueAsDouble() < SystemConstants.Intake.kIntakePivotStallCurrent
-        );
-    }
 
     @Override
     public void periodic() {

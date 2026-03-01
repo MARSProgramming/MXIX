@@ -121,8 +121,6 @@ public class RobotContainer {
         return shooterLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
 
-
-
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
 
