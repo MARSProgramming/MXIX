@@ -49,8 +49,8 @@ public class RobotContainer {
     ShotSetup setup = new ShotSetup();
 
     // The driver's controller.
-    private final CommandXboxController testPilot = new CommandXboxController(0);
-    private final CommandXboxController drivePilot = new CommandXboxController(1);
+    private final CommandXboxController drivePilot = new CommandXboxController(0);
+    private final CommandXboxController testPilot = new CommandXboxController(1);
 
     // Subsystems
     Cowl mCowl = new Cowl();
@@ -58,12 +58,11 @@ public class RobotContainer {
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
     IntakePivot mIntakePivot = new IntakePivot();
-    ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
     FastClimber fastClimb = new FastClimber();
 
-    Superstructure mSuperstructure = new Superstructure(mCowl, swerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers);
+    Superstructure mSuperstructure = new Superstructure(mCowl, swerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight, backLimelight);
 
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
@@ -78,47 +77,46 @@ public class RobotContainer {
      */
     private void configureBindings() {
     final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
-          swerve,
-          () -> -testPilot.getLeftY(),
-          () -> -testPilot.getLeftX(),
-          () -> -testPilot.getRightX());
+          mSuperstructure.getSwerveSubsystem(),
+          () -> -drivePilot.getLeftY(),
+          () -> -drivePilot.getLeftX(),
+          () -> -drivePilot.getRightX());
 
     final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
-            swerve, 
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX());
+            mSuperstructure.getSwerveSubsystem(), 
+            () -> -drivePilot.getLeftY(), 
+            () -> -drivePilot.getLeftX());
 
 
-      testPilot.leftTrigger().whileTrue(mSuperstructure.intakeCommand());
-      testPilot.rightTrigger().whileTrue(
+      drivePilot.leftTrigger().whileTrue(mSuperstructure.intakeCommand());
+      drivePilot.rightTrigger().whileTrue(
         mSuperstructure.aimAndStaticShot(
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX()
+            () -> -drivePilot.getLeftY(), 
+            () -> -drivePilot.getLeftX()
         )
       );
 
-      testPilot.leftBumper().whileTrue(mSuperstructure.unjamCommand());
-      testPilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(swerve.getState().Pose)))); 
+      drivePilot.leftBumper().whileTrue(mSuperstructure.unjamCommand());
+      drivePilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(swerve.getState().Pose)))); 
 
-      testPilot.povRight().whileTrue(mIntakePivot.deployCommand());
-      testPilot.povLeft().whileTrue(mIntakePivot.retractCommand());
-
-
-
-      swerve.setDefaultCommand(manualDriveCommand);
-      shooterLimelight.setDefaultCommand(updateShooterVision());
-    //  backLimelight.setDefaultCommand(updateBackVision());
-     testPilot.leftBumper().whileTrue(aimAndDriveCommand);
+      drivePilot.povRight().onTrue(mSuperstructure.getIntakePivotSubsystem().timedDeployCommand());
+      drivePilot.povLeft().onTrue(mSuperstructure.getIntakePivotSubsystem().timedRetractCommand());
 
 
-      testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+      //shooterLimelight.setDefaultCommand(updateShooterVision());
+      mSuperstructure.getSwerveSubsystem().setDefaultCommand(manualDriveCommand);
+      mSuperstructure.getBackLimelight().setDefaultCommand(updateBackVision());
+      drivePilot.leftBumper().whileTrue(aimAndDriveCommand);
+
+
+      drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
 
 
     }
 
     private Command updateShooterVision() {
-        return shooterLimelight.run(() -> {
+        return mSuperstructure.getShooterLimelight().run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
 
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
@@ -152,9 +150,9 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
-     /*
+     
     private Command updateBackVision() {
-        return backLimelight.run(() -> {
+        return mSuperstructure.getBackLimelight().run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
 
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
@@ -171,5 +169,5 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
-    } */
+    } 
 }

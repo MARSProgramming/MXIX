@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,13 +23,9 @@ import frc.robot.util.LimelightHelpers.PoseEstimate;
 
 public class Limelight extends SubsystemBase {
     private final String name;
-    private final NetworkTable telemetryTable;
-    private final StructPublisher<Pose2d> posePublisher;
 
     public Limelight(String name) {
         this.name = name;
-        this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
-        this.posePublisher = telemetryTable.getStructTopic("Estimated Robot Pose", Pose2d.struct).publish();
     }
 
     public Optional<Measurement> getMeasurement(Pose2d currentRobotPose) {
@@ -54,7 +51,7 @@ public class Limelight extends SubsystemBase {
         );
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
-        posePublisher.set(poseEstimate_MegaTag2.pose);
+        DogLog.log("ShooterLimelight/EstimatedRobotPose", poseEstimate_MegaTag2.pose);
 
         return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
     }

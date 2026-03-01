@@ -10,17 +10,13 @@ import frc.robot.subsystems.Swerve;
 
 public class DrivetrainTelemetry extends SubsystemBase {
     private Swerve dt;
-    StructPublisher<Pose2d> publisher;
 
     public DrivetrainTelemetry(Swerve drivetrain)  {
         dt = drivetrain;
-         publisher = NetworkTableInstance.getDefault().getStructTopic("Swerve/EstimatedRobotPose", Pose2d.struct).publish();
     }
 
     @Override
-    public void periodic() {
-       publisher.set(dt.getState().Pose);   
-       
+    public void periodic() {       
        DogLog.log("DogLogSwerve/EstimatedRobotPose", dt.getState().Pose);
     }
 }

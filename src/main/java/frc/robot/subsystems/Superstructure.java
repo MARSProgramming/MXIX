@@ -12,7 +12,6 @@ import frc.robot.commands.ShuttleAndDriveCommand;
 import frc.robot.constants.Settings;
 import frc.robot.util.ShotSetup;
 import frc.robot.util.ShuttleSetup;
-import frc.robot.util.ShotSetup.ShotInfo;
 
 public class Superstructure extends SubsystemBase {
     
@@ -24,12 +23,15 @@ public class Superstructure extends SubsystemBase {
     private Feeder mFeeder;
     private IntakePivot mIntakePivot;
     private IntakeRollers mIntakeRollers;
+
+    private Limelight mShooterLimelight;
+    private Limelight mBackLimelight;
     
     private ShotSetup shotInfoCalculator;
     private ShuttleSetup shuttleInfoCalculator;
 
 
-    public Superstructure(Cowl cowl, Swerve swerve, Feeder feeder, Floor floor, FastClimber fastClimber, Flywheel flywheel, IntakePivot intakePivot, IntakeRollers intakeRollers) {
+    public Superstructure(Cowl cowl, Swerve swerve, Feeder feeder, Floor floor, FastClimber fastClimber, Flywheel flywheel, IntakePivot intakePivot, IntakeRollers intakeRollers, Limelight shooterLimelight, Limelight backLimelight) {
         mCowl = cowl;
         mSwerve = swerve;
         mFloor = floor;
@@ -38,6 +40,8 @@ public class Superstructure extends SubsystemBase {
         mFastClimber = fastClimber;
         mIntakeRollers = intakeRollers;
         mIntakePivot = intakePivot;
+        mShooterLimelight = shooterLimelight;
+        mBackLimelight = backLimelight;
 
         shotInfoCalculator = new ShotSetup();
         shuttleInfoCalculator = new ShuttleSetup();
@@ -47,9 +51,9 @@ public class Superstructure extends SubsystemBase {
     public Command slamtake() {
     return Commands.repeatingSequence(
         mIntakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
-        Commands.waitSeconds(0.5),
-        mIntakePivot.retractCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
-        Commands.waitSeconds(0.5)
+        Commands.waitSeconds(1),
+        mIntakePivot.retractCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
+        Commands.waitSeconds(1)
         );
     }
 
@@ -132,6 +136,59 @@ public class Superstructure extends SubsystemBase {
     );
    }
 
+   public Command idleBothCameras() {
+    return run(
+        () -> {
+            mShooterLimelight.idle();
+            mBackLimelight.idle();
+        }
+    );
+   }
+
+   public Cowl getCowlSubsystem() {
+    return this.mCowl;
+   }
+
+   public Swerve getSwerveSubsystem() {
+    return this.mSwerve;
+   }
+
+   public FastClimber getFastClimberSubsystem() {
+    return this.mFastClimber;
+   }
+
+   public Feeder getFeederSubsystem() {
+    return this.mFeeder;
+   }
+
+   public Floor getFloorSubsystem() {
+    return this.mFloor;
+   }
+
+   public Flywheel getFlywheelSubsystem() {
+    return this.mFlywheel;
+   }
+
+   public IntakePivot getIntakePivotSubsystem() {
+    return this.mIntakePivot;
+   }
+
+   public IntakeRollers getIntakeRollersSubsystem() {
+    return this.mIntakeRollers;
+   }
+
+   public Limelight getShooterLimelight() {
+    return this.mShooterLimelight;
+   }
+
+   public Limelight getBackLimelight() {
+    return this.mBackLimelight;
+   }
 
    
+   @Override
+   public void periodic() {
+    
+   }
+
 }
