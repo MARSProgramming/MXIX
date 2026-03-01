@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
@@ -106,7 +107,7 @@ public class Superstructure extends SubsystemBase {
             () -> mFlywheel.isVelocityWithinTolerance() && aimAndDrive.isAimed()
         ).andThen(feedCommand())
     ).finallyDo(
-        () -> mCowl.home()
+        () -> CommandScheduler.getInstance().schedule(mCowl.home())
     );
    }
 
@@ -117,9 +118,9 @@ public class Superstructure extends SubsystemBase {
       prepareShuttle(),  
         new WaitUntilCommand(
             () -> mFlywheel.isVelocityWithinTolerance() && shuttleAndDrive.isAimed()
-        )
+        ).andThen(feedCommand())
     ).finallyDo(
-        () -> mCowl.home()
+        () -> CommandScheduler.getInstance().schedule(mCowl.home())
     );
    }
 
