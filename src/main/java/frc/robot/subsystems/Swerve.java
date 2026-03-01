@@ -32,7 +32,6 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.util.GeometryUtil;
 
 /**
  * Subsystem representing the Swerve Drivetrain.
@@ -47,7 +46,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private boolean m_hasAppliedOperatorPerspective = false;
 
     /** Swerve request to apply during field-centric path following */
-    private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
+    private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds()
+    .withDriveRequestType(DriveRequestType.Velocity);
+
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
@@ -59,6 +60,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         .withSteerRequestType(SteerRequestType.MotionMagicExpo)
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
         .withHeadingPID(5, 0, 0);
+
+    private final SwerveRequest.RobotCentric robotCentricRequest = new SwerveRequest.RobotCentric()
+         .withRotationalDeadband(Drive.kPIDRotationDeadband)
+        .withDriveRequestType(DriveRequestType.Velocity)
+        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+
 
      private static final Rotation2d kAimTolerance = Rotation2d.fromDegrees(5);
 
@@ -114,6 +121,14 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    public Command driveRobotCentric(double velocityY, double velocityX) {
+        return this.applyRequest(
+            () -> robotCentricRequest
+            .withVelocityX(velocityX)
+            .withVelocityY(velocityY)
+        );
     }
 
     /**

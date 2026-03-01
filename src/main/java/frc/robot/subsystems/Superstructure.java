@@ -145,6 +145,17 @@ public class Superstructure extends SubsystemBase {
     );
    }
 
+   public Command finalClimbLineup() {
+    return Commands.sequence(
+        mSwerve.driveRobotCentric(
+            0, 
+            Settings.ClimbLineupSettings.LINEUP_VELOCITY).withTimeout(Settings.ClimbLineupSettings.SIDEWAYS_LINEUP_TIMEOUT),
+        mSwerve.driveRobotCentric(
+            Settings.ClimbLineupSettings.LINEUP_VELOCITY, 
+            0).withTimeout(Settings.ClimbLineupSettings.FORWARD_LINEUP_TIMEOUT)
+    );
+   }
+
    public Cowl getCowlSubsystem() {
     return this.mCowl;
    }

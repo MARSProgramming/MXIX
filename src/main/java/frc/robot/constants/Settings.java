@@ -20,4 +20,11 @@ public class Settings {
         public static double INTAKING_STANDARD_DUTYCYCLE = 0.8;
         public static double INTAKING_FLOOR_STANDARD_DUTYCYCLE = 0.2;
     }
+
+
+    public static class ClimbLineupSettings {
+        public static double LINEUP_VELOCITY = 0.3; // M/s
+        public static double SIDEWAYS_LINEUP_TIMEOUT = 1.0;
+        public static double FORWARD_LINEUP_TIMEOUT = 0.7;
+    }
 }

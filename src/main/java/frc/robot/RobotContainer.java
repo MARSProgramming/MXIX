@@ -27,7 +27,6 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.GeometryUtil;
-import frc.robot.util.ShotSetup;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -41,7 +40,6 @@ public class RobotContainer {
     private final Limelight shooterLimelight = new Limelight(SystemConstants.Limelights.kShooterLimelightName);
     private final Limelight backLimelight = new Limelight(SystemConstants.Limelights.kBackLimelightName);
 
-    ShotSetup setup = new ShotSetup();
 
     // The driver's controller.
     private final CommandXboxController drivePilot = new CommandXboxController(0);
@@ -60,11 +58,10 @@ public class RobotContainer {
     Superstructure mSuperstructure = new Superstructure(mCowl, mSwerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight, backLimelight);
     
     private final AutoRoutines autoRoutines = new AutoRoutines(mSuperstructure);
-    
+
     public RobotContainer() {
         configureBindings();
         configureTestBindings();
-        // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
         autoRoutines.configure();
     }
 
