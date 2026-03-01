@@ -68,6 +68,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        configureTestBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
      //  autoRoutines.configure();
     }
@@ -113,7 +114,39 @@ public class RobotContainer {
     }
 
     public void configureTestBindings() {
+        // shooting
+        testPilot.y().whileTrue(mSuperstructure.getFeederSubsystem().setPercentOutTunable());
+        testPilot.rightTrigger().whileTrue(mSuperstructure.getFlywheelSubsystem().setVelocityTunable());
+        testPilot.leftTrigger().whileTrue(
+        mSuperstructure.getFloorSubsystem().setPercentOutTunable()
+        .alongWith(mSuperstructure.getFeederSubsystem().setPercentOutTunable())
+        .alongWith(mSuperstructure.getIntakeRollersSubsystem().setTunable()));
 
+        //unjam
+        testPilot.leftBumper().whileTrue(
+            mSuperstructure.getFloorSubsystem().set(-0.5)
+            .alongWith(mSuperstructure.getFeederSubsystem().setPercentOut(-0.5)
+            .alongWith(mSuperstructure.getIntakeRollersSubsystem().set(-0.5))));
+
+        //intake
+       testPilot.rightBumper().whileTrue(mIntakeRollers.setTunable());
+
+       // climb testing
+       testPilot.x().whileTrue(
+        mSuperstructure.getFastClimberSubsystem().setPercentOutTunable()
+       );
+       
+       testPilot.y().whileTrue(
+        mSuperstructure.getFastClimberSubsystem().setPercentOutTunableReverse()
+       );
+
+       //cowl
+       testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+       testPilot.povDown().onTrue(mCowl.home());
+
+       //intakepivot
+       testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+       testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
     }
 
     private Command updateShooterVision() {
