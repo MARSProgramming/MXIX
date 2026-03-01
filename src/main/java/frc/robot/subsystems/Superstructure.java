@@ -7,8 +7,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.AimAndDriveCommand;
+import frc.robot.commands.ShuttleAndDriveCommand;
 import frc.robot.constants.Settings;
 import frc.robot.util.ShotSetup;
+import frc.robot.util.ShuttleSetup;
 import frc.robot.util.ShotSetup.ShotInfo;
 
 public class Superstructure extends SubsystemBase {
@@ -23,8 +25,8 @@ public class Superstructure extends SubsystemBase {
     private IntakeRollers mIntakeRollers;
     
     private ShotSetup shotInfoCalculator;
+    private ShuttleSetup shuttleInfoCalculator;
 
-    private AimAndDriveCommand aimAndDriveCommand;
 
     public Superstructure(Cowl cowl, Swerve swerve, Feeder feeder, Floor floor, FastClimber fastClimber, Flywheel flywheel, IntakePivot intakePivot, IntakeRollers intakeRollers) {
         mCowl = cowl;
@@ -37,6 +39,7 @@ public class Superstructure extends SubsystemBase {
         mIntakePivot = intakePivot;
 
         shotInfoCalculator = new ShotSetup();
+        shuttleInfoCalculator = new ShuttleSetup();
     }
 
 
@@ -56,6 +59,17 @@ public class Superstructure extends SubsystemBase {
             ),
             mCowl.setPositionCommand(
                 () -> shotInfoCalculator.getStaticShotInfo(mSwerve.getDistanceToHub()).cowlPosition
+            )
+        );
+    }
+
+    public Command prepareShuttle() {
+        return Commands.parallel(
+            mFlywheel.setVelocity(
+                () -> shuttleInfoCalculator.getStaticShotInfo(mSwerve.getDistanceToHub()).shot.shooterRPM
+            ),
+            mCowl.setPositionCommand(
+                () -> shuttleInfoCalculator.getStaticShotInfo(mSwerve.getDistanceToHub()).cowlPosition
             )
         );
     }
@@ -91,8 +105,32 @@ public class Superstructure extends SubsystemBase {
         new WaitUntilCommand(
             () -> mFlywheel.isVelocityWithinTolerance() && aimAndDrive.isAimed()
         ).andThen(feedCommand())
+    ).finallyDo(
+        () -> mCowl.home()
     );
-}
+   }
+
+   public Command aimAndStaticShuttle(DoubleSupplier forwardInput, DoubleSupplier leftInput) {
+    ShuttleAndDriveCommand shuttleAndDrive = new ShuttleAndDriveCommand(mSwerve, forwardInput, leftInput);
+    return Commands.parallel(
+      shuttleAndDrive,
+      prepareShuttle(),  
+        new WaitUntilCommand(
+            () -> mFlywheel.isVelocityWithinTolerance() && shuttleAndDrive.isAimed()
+        )
+    ).finallyDo(
+        () -> mCowl.home()
+    );
+   }
+
+   public Command staticShot() {
+    return Commands.parallel(
+        prepareStaticShot(),
+        new WaitUntilCommand(() -> mFlywheel.isVelocityWithinTolerance())
+        .andThen(feedCommand())
+    );
+   }
 
 
+   
 }

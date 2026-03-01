@@ -9,37 +9,27 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.constants.FieldConstants.Locations;
-import frc.robot.subsystems.Cowl;
-import frc.robot.subsystems.Feeder;
-import frc.robot.subsystems.Floor;
-import frc.robot.subsystems.Flywheel;
-import frc.robot.subsystems.IntakePivot;
-import frc.robot.subsystems.IntakeRollers;
+import frc.robot.constants.SystemConstants;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.GeometryUtil;
 import frc.robot.util.ManualDriveInput;
-import frc.robot.util.ShotSetup;
 
 /**
  * Command that allows the driver to translate the robot field-centrically while the robot
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
-public class PrepareSupershot extends Command {
+public class ShuttleAndDriveCommand extends Command {
     private static final Angle kAimTolerance = Degrees.of(5);
 
     private final Swerve swerve;
-    private final Flywheel flywheel;
-    private final Cowl cowl;
-    private final ShotSetup setup;
-    
-
     private final DriveInputSmoother inputSmoother;
 
     // Request to drive field-centric while facing a specific angle
@@ -58,21 +48,23 @@ public class PrepareSupershot extends Command {
      * @param forwardInput Supplier for forward/backward translation input (-1 to 1).
      * @param leftInput Supplier for left/right translation input (-1 to 1).
      */
-    public PrepareSupershot(
-        ShotSetup setup,
+    public ShuttleAndDriveCommand(
         Swerve swerve,
-        Flywheel flywheel,
-        Cowl cowl,
         DoubleSupplier forwardInput,
         DoubleSupplier leftInput
     ) {
-        this.setup = setup;
         this.swerve = swerve;
-        this.flywheel = flywheel;
-        this.cowl = cowl;
-
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
-        addRequirements(swerve, flywheel, cowl);
+        addRequirements(swerve);
+    }
+
+    /**
+     * Constructs a new AimAndDriveCommand with zero translation (aim only).
+     *
+     * @param swerve The swerve subsystem.
+     */
+    public ShuttleAndDriveCommand(Swerve swerve) {
+        this(swerve, () -> 0, () -> 0);
     }
 
     /**
@@ -82,40 +74,60 @@ public class PrepareSupershot extends Command {
      */
     public boolean isAimed() {
         final Rotation2d targetHeading = fieldCentricFacingAngleRequest.TargetDirection;
+        
+        // Get current heading in Blue Alliance perspective (standard field coordinates)
         final Rotation2d currentHeadingInBlueAlliancePerspective = swerve.getState().Pose.getRotation();
+        
+        // Convert to Operator Perspective to match the request's frame of reference
         final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
-       
         return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
     }
 
+    /**
+     * Calculates the direction from the robot to the Hub (target).
+     *
+     * @return The Rotation2d representing the angle to the target in Operator Perspective.
+     */
+    private Rotation2d getClosestShuttlingPosition() {
+        final Translation2d hubPosition = Locations.hubPosition();
+        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        
+        // Calculate angle in standard field coordinates (Blue Alliance origin)
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
+        
+        // Adjust for the driver's perspective (Red vs Blue alliance)
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
+        
+        return hubDirectionInOperatorPerspective;
+    }
+
+
+    private Rotation2d getDirectionToShuttle(Pose2d robotPose) {
+        final Translation2d nearestShuttlingPos = Locations.getClosestShuttlingPosition(robotPose).getTranslation();
+        Pose2d launcherPosition = robotPose.transformBy(GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
+        final Translation2d shooterPos = launcherPosition.getTranslation();
+        
+        // Calculate angle in standard field coordinates (Blue Alliance origin)
+        final Rotation2d shuttleDirectionInBlueAlliancePerspective = nearestShuttlingPos.minus(shooterPos).getAngle();
+        
+        // Adjust for the driver's perspective (Red vs Blue alliance)
+        final Rotation2d shuttleDirectionInOperatorPerspective = shuttleDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
+        
+        return shuttleDirectionInOperatorPerspective;
+    }
 
     @Override
     public void execute() {
         // Get smoothed joystick inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
-        ShotSetup.SOTMInfo currentInfo = setup.getSOTMInfo(swerve);
-
+        
         // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
                 .withVelocityX(Drive.kMaxSpeed.times(input.forward))
                 .withVelocityY(Drive.kMaxSpeed.times(input.left))
-                .withTargetDirection(currentInfo.virtualTargetAngle) // Continuously update target direction
+                .withTargetDirection(getDirectionToShuttle(swerve.getState().Pose)) // Continuously update target direction
         );
-
-        flywheel.setRPM(currentInfo.shotInfo.shot.shooterRPM);
-        cowl.setPosition(() -> currentInfo.shotInfo.cowlPosition);        
-    }
-
-    public boolean readyToShoot() {
-        return (isAimed() && flywheel.isVelocityWithinTolerance());
-    }
-
-    
-    @Override
-    public void end(boolean interrupted) {
-        cowl.home();
-        flywheel.setPercentOut(0);
     }
 
     @Override

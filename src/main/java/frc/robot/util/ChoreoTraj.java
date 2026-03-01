@@ -55,9 +55,9 @@ public record ChoreoTraj(
 	public static final ChoreoTraj ResetPoseOutpost = new ChoreoTraj(
 	    "ResetPoseOutpost",
 	    OptionalInt.empty(),
-	    0.89675,
-	    new Pose2d(3.534, 0.858, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.761, 1.228, Rotation2d.fromRadians(0))
+	    1.42047,
+	    new Pose2d(2.025, 6.06, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.073, 1.764, Rotation2d.fromRadians(0))
 	);
 
     /**

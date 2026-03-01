@@ -9,11 +9,15 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.constants.SystemConstants.Drive;
+import frc.robot.constants.SystemConstants;
 import frc.robot.constants.FieldConstants.Locations;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DriveInputSmoother;
@@ -89,10 +93,13 @@ public class AimAndDriveCommand extends Command {
      */
     private Rotation2d getDirectionToHub() {
         final Translation2d hubPosition = Locations.hubPosition();
-        final Translation2d robotPosition = swerve.getState().Pose.getTranslation();
+        final Pose2d robotPose = swerve.getState().Pose;
+        Pose2d launcherPosition = robotPose.transformBy(GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
+        final Translation2d shooterPos = launcherPosition.getTranslation();
+
         
         // Calculate angle in standard field coordinates (Blue Alliance origin)
-        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(robotPosition).getAngle();
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(shooterPos).getAngle();
         
         // Adjust for the driver's perspective (Red vs Blue alliance)
         final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());

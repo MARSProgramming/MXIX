@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,7 +17,6 @@ import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.FeedCommand;
 import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.PrepareSupershot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
@@ -30,6 +30,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DrivetrainTelemetry;
+import frc.robot.util.GeometryUtil;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -76,27 +77,6 @@ public class RobotContainer {
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
-      testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
-
-      testPilot.rightTrigger().whileTrue(
-        mSuperstructure.aimAndStaticShot(
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX()
-        )
-      );
-
-       testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
-       testPilot.b().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
-
-      testPilot.a().whileTrue(mIntakeRollers.setTunable());
-
-
-     testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
-     testPilot.povDown().onTrue(mCowl.home());
-     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
-
-
     final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -testPilot.getLeftY(),
@@ -107,6 +87,22 @@ public class RobotContainer {
             swerve, 
             () -> -testPilot.getLeftY(), 
             () -> -testPilot.getLeftX());
+
+
+      testPilot.leftTrigger().whileTrue(mSuperstructure.intakeCommand());
+      testPilot.rightTrigger().whileTrue(
+        mSuperstructure.aimAndStaticShot(
+            () -> -testPilot.getLeftY(), 
+            () -> -testPilot.getLeftX()
+        )
+      );
+
+      testPilot.leftBumper().whileTrue(mSuperstructure.unjamCommand());
+      testPilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(swerve.getState().Pose)))); 
+
+      testPilot.povRight().whileTrue(mIntakePivot.deployCommand());
+      testPilot.povLeft().whileTrue(mIntakePivot.retractCommand());
+
 
 
       swerve.setDefaultCommand(manualDriveCommand);
@@ -125,12 +121,23 @@ public class RobotContainer {
         return shooterLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
 
-            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-              return;
-            }
+
 
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
+
+                // Discard measurement if we're rotating too fast
+                if (swerve.getState().Speeds.omegaRadiansPerSecond > 2.0)  { 
+                    return; 
+                }
+                // Discard measurements that are outside the field boundaries
+                if (!GeometryUtil.isInField(m.poseEstimate.pose)) { 
+                    return; 
+                }
+                // Discard invalid rotation measurements
+                if (Math.abs(m.poseEstimate.pose.getRotation().minus(swerve.getState().Pose.getRotation()).getDegrees()) > 45) { 
+                    return; 
+                }
                 swerve.addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
