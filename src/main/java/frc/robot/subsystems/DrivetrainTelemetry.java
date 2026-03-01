@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
@@ -13,11 +14,13 @@ public class DrivetrainTelemetry extends SubsystemBase {
 
     public DrivetrainTelemetry(Swerve drivetrain)  {
         dt = drivetrain;
-         publisher = NetworkTableInstance.getDefault().getStructTopic("AdvantageKitPose", Pose2d.struct).publish();
+         publisher = NetworkTableInstance.getDefault().getStructTopic("Swerve/EstimatedRobotPose", Pose2d.struct).publish();
     }
 
     @Override
     public void periodic() {
-       publisher.set(dt.getState().Pose);      
+       publisher.set(dt.getState().Pose);   
+       
+       DogLog.log("DogLogSwerve/EstimatedRobotPose", dt.getState().Pose);
     }
 }

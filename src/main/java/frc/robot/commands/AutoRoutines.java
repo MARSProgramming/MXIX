@@ -16,7 +16,15 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.subsystems.Cowl;
+import frc.robot.subsystems.FastClimber;
+import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Floor;
+import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.IntakePivot;
+import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.Swerve;
 
 /**
@@ -24,7 +32,9 @@ import frc.robot.subsystems.Swerve;
  * This class manages the creation of auto routines and publishes the selector to the dashboard.
  */
 public final class AutoRoutines {
-    private final Swerve swerve;
+    private final Swerve mSwerve;
+    private final Superstructure mSuperstructure;
+
     private final Limelight shooterLimelight;
     private final Limelight backLimelight;
     private final AutoFactory autoFactory;
@@ -39,12 +49,16 @@ public final class AutoRoutines {
      */
     public AutoRoutines(
         Swerve swerve,
+        Superstructure superstructure,
         Limelight shooterLimelight,
         Limelight backLimelight
     ) {
-        this.swerve = swerve;
+
+        mSwerve = swerve;
+        mSuperstructure = superstructure;
         this.shooterLimelight = shooterLimelight;
         this.backLimelight = backLimelight;
+
         this.autoFactory = swerve.createAutoFactory();
         this.autoChooser = new AutoChooser();
     }
@@ -80,7 +94,7 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
                 startToShoot.resetOdometry(), // Reset pose to start of path
-                startToShoot.cmd()
+                startToShoot.cmd()                
             )
         );
 
