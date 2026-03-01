@@ -18,6 +18,7 @@ import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.FeedCommand;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.SystemConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.FastClimber;
@@ -43,8 +44,8 @@ public class RobotContainer {
     // Maximum speed of the robot in meters per second, derived from TunerConstants.
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
-    private final Limelight shooterLimelight = new Limelight("limelight-shooter");
-    private final Limelight backLimelight = new Limelight("limelight-back");
+    private final Limelight shooterLimelight = new Limelight(SystemConstants.Limelights.kShooterLimelightName);
+    private final Limelight backLimelight = new Limelight(SystemConstants.Limelights.kBackLimelightName);
 
     ShotSetup setup = new ShotSetup();
 
@@ -58,13 +59,12 @@ public class RobotContainer {
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
     IntakePivot mIntakePivot = new IntakePivot();
-    Swerve swerve = new Swerve();
+    Swerve mSwerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
     FastClimber fastClimb = new FastClimber();
 
-    Superstructure mSuperstructure = new Superstructure(mCowl, swerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight, backLimelight);
-
-    private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
+    Superstructure mSuperstructure = new Superstructure(mCowl, mSwerve, mFeeder, mFloor, fastClimb, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight, backLimelight);
+    private final AutoRoutines autoRoutines = new AutoRoutines(mSwerve, mSuperstructure, shooterLimelight, backLimelight);
 
     public RobotContainer() {
         configureBindings();
@@ -75,7 +75,7 @@ public class RobotContainer {
     /**
      * Use this method to define your trigger->command mappings.
      */
-    private void configureBindings() {
+    public void configureBindings() {
     final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           mSuperstructure.getSwerveSubsystem(),
           () -> -drivePilot.getLeftY(),
@@ -97,7 +97,7 @@ public class RobotContainer {
       );
 
       drivePilot.leftBumper().whileTrue(mSuperstructure.unjamCommand());
-      drivePilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(swerve.getState().Pose)))); 
+      drivePilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(mSuperstructure.getSwerveSubsystem().getState().Pose)))); 
 
       drivePilot.povRight().onTrue(mSuperstructure.getIntakePivotSubsystem().timedDeployCommand());
       drivePilot.povLeft().onTrue(mSuperstructure.getIntakePivotSubsystem().timedRetractCommand());
@@ -110,20 +110,21 @@ public class RobotContainer {
 
 
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+    }
 
-
+    public void configureTestBindings() {
 
     }
 
     private Command updateShooterVision() {
         return mSuperstructure.getShooterLimelight().run(() -> {
-            final Pose2d currentRobotPose = swerve.getState().Pose;
+            final Pose2d currentRobotPose = mSuperstructure.getSwerveSubsystem().getState().Pose;
 
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
 
                 // Discard measurement if we're rotating too fast
-                if (swerve.getState().Speeds.omegaRadiansPerSecond > 2.0)  { 
+                if (mSuperstructure.getSwerveSubsystem().getState().Speeds.omegaRadiansPerSecond > 2.0)  { 
                     return; 
                 }
                 // Discard measurements that are outside the field boundaries
@@ -131,10 +132,10 @@ public class RobotContainer {
                     return; 
                 }
                 // Discard invalid rotation measurements
-                if (Math.abs(m.poseEstimate.pose.getRotation().minus(swerve.getState().Pose.getRotation()).getDegrees()) > 45) { 
+                if (Math.abs(m.poseEstimate.pose.getRotation().minus(mSuperstructure.getSwerveSubsystem().getState().Pose.getRotation()).getDegrees()) > 45) { 
                     return; 
                 }
-                swerve.addVisionMeasurement(
+                mSuperstructure.getSwerveSubsystem().addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
                     m.standardDeviations
@@ -153,15 +154,15 @@ public class RobotContainer {
      
     private Command updateBackVision() {
         return mSuperstructure.getBackLimelight().run(() -> {
-            final Pose2d currentRobotPose = swerve.getState().Pose;
+            final Pose2d currentRobotPose = mSuperstructure.getSwerveSubsystem().getState().Pose;
 
-            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+            if (mSuperstructure.getSwerveSubsystem().getState().Speeds.omegaRadiansPerSecond > 2) {
               return;
             }
 
             final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
-                swerve.addVisionMeasurement(
+                mSuperstructure.getSwerveSubsystem().addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
                     m.standardDeviations
