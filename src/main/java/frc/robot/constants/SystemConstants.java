@@ -33,7 +33,7 @@ public class SystemConstants {
 
     public static class Limelights {
         public static final String kShooterLimelightName = "limelight-shooter";
-        public static final String kClimbLimelightName = "limelight-climb";
+        public static final String kBackLimelightName = "limelight-back";
 
         public static int[] getValidTagIDs() {
         final Optional<Alliance> alliance = DriverStation.getAlliance();

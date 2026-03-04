@@ -81,8 +81,7 @@ public class Superstructure extends SubsystemBase {
 
     public Command intakeCommand() {
         return Commands.parallel(
-            mIntakeRollers.set(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE),
-            mFloor.set(Settings.IntakeSystemSettings.INTAKING_FLOOR_STANDARD_DUTYCYCLE)
+            mIntakeRollers.set(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE)
         );
     }
 

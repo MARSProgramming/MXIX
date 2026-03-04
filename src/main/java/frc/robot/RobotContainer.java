@@ -90,13 +90,14 @@ public class RobotContainer {
       );
 
       drivePilot.leftBumper().whileTrue(mSuperstructure.unjamCommand());
-      drivePilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(mSuperstructure.getSwerveSubsystem().getState().Pose)))); 
+      drivePilot.rightBumper().whileTrue(mSuperstructure.feedCommand());
+      //drivePilot.rightBumper().onTrue(Commands.runOnce(() -> manualDriveCommand.setLockedHeading(FieldConstants.Orientations.getClosestDiamond(mSuperstructure.getSwerveSubsystem().getState().Pose)))); 
 
       drivePilot.povRight().onTrue(mSuperstructure.getIntakePivotSubsystem().timedDeployCommand());
       drivePilot.povLeft().onTrue(mSuperstructure.getIntakePivotSubsystem().timedRetractCommand());
 
 
-      //shooterLimelight.setDefaultCommand(updateShooterVision());
+      shooterLimelight.setDefaultCommand(updateShooterVision());
       mSuperstructure.getSwerveSubsystem().setDefaultCommand(manualDriveCommand);
       mSuperstructure.getBackLimelight().setDefaultCommand(updateBackVision());
       drivePilot.leftBumper().whileTrue(aimAndDriveCommand);
@@ -107,7 +108,6 @@ public class RobotContainer {
 
     public void configureTestBindings() {
         // shooting
-        testPilot.y().whileTrue(mSuperstructure.getFeederSubsystem().setPercentOutTunable());
         testPilot.rightTrigger().whileTrue(mSuperstructure.getFlywheelSubsystem().setVelocityTunable());
         testPilot.leftTrigger().whileTrue(
         mSuperstructure.getFloorSubsystem().setPercentOutTunable()
@@ -132,6 +132,10 @@ public class RobotContainer {
         mSuperstructure.getFastClimberSubsystem().setPercentOutTunableReverse()
        );
 
+        testPilot.a().whileTrue(mSuperstructure.getFeederSubsystem().setPercentOutTunable());
+        testPilot.b().whileTrue(mSuperstructure.getFloorSubsystem().setPercentOutTunable());
+
+        testPilot.back().whileTrue(mSuperstructure.getIntakeRollersSubsystem().setTunable());
        //cowl
        testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
        testPilot.povDown().onTrue(mCowl.home());

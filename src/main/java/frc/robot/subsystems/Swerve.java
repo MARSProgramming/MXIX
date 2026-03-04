@@ -123,7 +123,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return run(() -> this.setControl(requestSupplier.get()));
     }
 
-    public Command driveRobotCentric(double velocityY, double velocityX) {
+    public Command driveRobotCentric(double velocityX, double velocityY) {
         return this.applyRequest(
             () -> robotCentricRequest
             .withVelocityX(velocityX)
