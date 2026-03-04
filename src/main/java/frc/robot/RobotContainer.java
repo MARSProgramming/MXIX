@@ -92,15 +92,16 @@ public class RobotContainer {
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
-      testPilot.leftTrigger().whileTrue(mFeeder.setPercentOutTunable());
+      testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
+
       testPilot.rightTrigger().whileTrue(
         mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
         .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
         );
 
 
-       testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
-       testPilot.b().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+      // testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
+       testPilot.leftBumper().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
 
       testPilot.a().whileTrue(mIntakeRollers.setTunable());
 
