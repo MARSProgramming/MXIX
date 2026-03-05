@@ -92,22 +92,33 @@ public class RobotContainer {
      * Use this method to define your trigger->command mappings.
      */
     private void configureBindings() {
+
+     final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
+            swerve, 
+            () -> -testPilot.getLeftY(), 
+            () -> -testPilot.getLeftX());
+
       testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
       testPilot.rightTrigger().whileTrue(
         mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
         .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
         );
+     testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
 
 
-      // testPilot.y().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
-       testPilot.leftBumper().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
 
-      testPilot.a().whileTrue(mIntakeRollers.setTunable());
+       testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
+       testPilot.b().onTrue(mCowl.home());
+
+       testPilot.rightBumper().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+
+      testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
+      testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());
 
 
-     testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
-     testPilot.povDown().onTrue(mCowl.home());
+
+
      testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
      testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
@@ -118,16 +129,11 @@ public class RobotContainer {
           () -> -testPilot.getLeftX(),
           () -> -testPilot.getRightX());
 
-    final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
-            swerve, 
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX());
 
 
       swerve.setDefaultCommand(manualDriveCommand);
       shooterLimelight.setDefaultCommand(updateShooterVision());
     //  backLimelight.setDefaultCommand(updateBackVision());
-     testPilot.leftBumper().whileTrue(aimAndDriveCommand);
 
 
       testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));

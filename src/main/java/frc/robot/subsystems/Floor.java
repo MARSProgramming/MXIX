@@ -42,9 +42,13 @@ public class Floor extends SubsystemBase {
      * @param percentOut The percentage of output (0.0 to 1.0).
      * @return A Command that runs the floor rollers at the specified percent output.
      */
+
+
     public Command set(double percentOut) {
-        return run(() -> {
+        return runEnd(() -> {
             mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
+        }, () -> {
+            mFloor.set(0);
         });
     }
 
