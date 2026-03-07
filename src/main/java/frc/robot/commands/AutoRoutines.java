@@ -48,10 +48,11 @@ public final class AutoRoutines {
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
 
+    // Event map for Choreo event markers.
     Map<String, Command> eventMap = Map.of(
-        "Intake", null,
-        "Shoot", null
-        );
+        "Intake", Commands.print("Intake Marker Triggered"),
+        "Shoot", Commands.print("Shoot Marker Triggered")
+    );
 
     /**
      * Creates a new AutoRoutines manager.
