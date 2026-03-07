@@ -103,17 +103,18 @@ public class RobotContainer {
 
         testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
-        testPilot.rightTrigger().whileTrue(
-                mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
-                        .alongWith(mCowl.setPositionCommand(
-                                () -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition)));
-        testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
+        // testPilot.rightTrigger().whileTrue(
+        //         mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
+        //                 .alongWith(mCowl.setPositionCommand(
+        //                         () -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition)));
+        // testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
+         testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
 
-        testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable())
+        testPilot.rightBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable())
                 .alongWith(mIntakeRollers.setTunable()));
         testPilot.b().onTrue(mCowl.home());
 
-        testPilot.rightBumper()
+        testPilot.leftBumper()
                 .whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
 
         testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
@@ -121,6 +122,9 @@ public class RobotContainer {
 
         testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
         testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
+
+        testPilot.povUp().whileTrue(mCowl.forwardTunable());
+        testPilot.povDown().whileTrue(mCowl.backwardTunable());
 
         final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
                 swerve,
