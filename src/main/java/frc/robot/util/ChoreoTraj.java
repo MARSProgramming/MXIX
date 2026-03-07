@@ -24,7 +24,14 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
+    public static final ChoreoTraj BumpAndBack = new ChoreoTraj(
+	    "BumpAndBack",
+	    OptionalInt.empty(),
+	    6.57947,
+	    new Pose2d(3.567, 0.862, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.747, 2.391, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
 	    "OutpostTrajectory",
 	    OptionalInt.empty(),
 	    7.0441,
@@ -52,6 +59,27 @@ public record ChoreoTraj(
 	    new Pose2d(1.657, 0.67, Rotation2d.fromRadians(0)),
 	    new Pose2d(3.329, 3.978, Rotation2d.fromRadians(0))
 	);
+	public static final ChoreoTraj PathForEarl = new ChoreoTraj(
+	    "PathForEarl",
+	    OptionalInt.empty(),
+	    9.03076,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(3, 2.35, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj PathForEarl$0 = new ChoreoTraj(
+	    "PathForEarl",
+	    OptionalInt.of(0),
+	    3.04941,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 2.35, Rotation2d.fromRadians(2.356))
+	);
+	public static final ChoreoTraj PathForEarl$1 = new ChoreoTraj(
+	    "PathForEarl",
+	    OptionalInt.of(1),
+	    5.981350000000001,
+	    new Pose2d(6, 2.35, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(3, 2.35, Rotation2d.fromRadians(0.785))
+	);
 	public static final ChoreoTraj ResetPoseOutpost = new ChoreoTraj(
 	    "ResetPoseOutpost",
 	    OptionalInt.empty(),
@@ -65,10 +93,14 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("OutpostTrajectory", OutpostTrajectory),
+    	Map.entry("BumpAndBack", BumpAndBack),
+		Map.entry("OutpostTrajectory", OutpostTrajectory),
 		Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
 		Map.entry("OutpostTrajectory$1", OutpostTrajectory$1),
 		Map.entry("OutpostTrajectory$2", OutpostTrajectory$2),
+		Map.entry("PathForEarl", PathForEarl),
+		Map.entry("PathForEarl$0", PathForEarl$0),
+		Map.entry("PathForEarl$1", PathForEarl$1),
 		Map.entry("ResetPoseOutpost", ResetPoseOutpost)
     );
 

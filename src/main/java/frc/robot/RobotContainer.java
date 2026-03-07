@@ -32,9 +32,12 @@ import frc.robot.util.DrivetrainTelemetry;
 import frc.robot.util.ShotSetup;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
@@ -62,30 +65,30 @@ public class RobotContainer {
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
     FastClimber fastClimb = new FastClimber();
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve,
+    shooterLimelight, backLimelight);
 
     Command prepShotCommand = new PrepareSupershot(
-      shotSetup, 
-      swerve, 
-      mFlywheel, 
-      mCowl, 
-      () -> -drivePilot.getLeftY(), 
-      () -> -drivePilot.getLeftX());
+            shotSetup,
+            swerve,
+            mFlywheel,
+            mCowl,
+            () -> -drivePilot.getLeftY(),
+            () -> -drivePilot.getLeftX());
 
-  //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
+    // Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel,
+    // mFeeder, mFloor);
 
-   // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
-
-    // Autonomous routines manager
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
+    // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         configureBindings();
-        // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-     //  autoRoutines.configure();
+        // Handles autonomous command selection and configuration. Deprecates
+        // getAutonomousCommand() generated method
+        autoRoutines.configure();
     }
 
     /**
@@ -93,52 +96,43 @@ public class RobotContainer {
      */
     private void configureBindings() {
 
-     final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
-            swerve, 
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX());
+        final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
+                swerve,
+                () -> -testPilot.getLeftY(),
+                () -> -testPilot.getLeftX());
 
-      testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
+        testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
-      testPilot.rightTrigger().whileTrue(
-        mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
-        .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
-        );
-     testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
+        testPilot.rightTrigger().whileTrue(
+                mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
+                        .alongWith(mCowl.setPositionCommand(
+                                () -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition)));
+        testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
 
+        testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable())
+                .alongWith(mIntakeRollers.setTunable()));
+        testPilot.b().onTrue(mCowl.home());
 
+        testPilot.rightBumper()
+                .whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
 
-       testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
-       testPilot.b().onTrue(mCowl.home());
+        testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
+        testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());
 
-       testPilot.rightBumper().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+        testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+        testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
-      testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
-      testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());
+        final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+                swerve,
+                () -> -testPilot.getLeftY(),
+                () -> -testPilot.getLeftX(),
+                () -> -testPilot.getRightX());
 
+        swerve.setDefaultCommand(manualDriveCommand);
+        shooterLimelight.setDefaultCommand(updateShooterVision());
+        // backLimelight.setDefaultCommand(updateBackVision());
 
-
-
-     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
-
-
-    final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
-          swerve,
-          () -> -testPilot.getLeftY(),
-          () -> -testPilot.getLeftX(),
-          () -> -testPilot.getRightX());
-
-
-
-      swerve.setDefaultCommand(manualDriveCommand);
-      shooterLimelight.setDefaultCommand(updateShooterVision());
-    //  backLimelight.setDefaultCommand(updateBackVision());
-
-
-      testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
-
-
+        testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
     }
 
@@ -147,45 +141,47 @@ public class RobotContainer {
             final Pose2d currentRobotPose = swerve.getState().Pose;
 
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-              return;
+                return;
             }
 
             final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
                 swerve.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
+                        m.poseEstimate.pose,
+                        m.poseEstimate.timestampSeconds,
+                        m.standardDeviations);
             });
         })
-        .ignoringDisable(true);
+                .ignoringDisable(true);
     }
 
     /**
-     * Creates a command to continuously update the robot's pose using the back Limelight.
+     * Creates a command to continuously update the robot's pose using the back
+     * Limelight.
      *
      * @return A command that runs in the background (default command).
      */
 
-     /*
-    private Command updateBackVision() {
-        return backLimelight.run(() -> {
-            final Pose2d currentRobotPose = swerve.getState().Pose;
-
-            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-              return;
-            }
-
-            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
-            measurement.ifPresent(m -> {
-                swerve.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
-            });
-        })
-        .ignoringDisable(true);
-    } */
+    /*
+     * private Command updateBackVision() {
+     * return backLimelight.run(() -> {
+     * final Pose2d currentRobotPose = swerve.getState().Pose;
+     * 
+     * if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+     * return;
+     * }
+     * 
+     * final Optional<Limelight.Measurement> measurement =
+     * backLimelight.getMeasurement(currentRobotPose);
+     * measurement.ifPresent(m -> {
+     * swerve.addVisionMeasurement(
+     * m.poseEstimate.pose,
+     * m.poseEstimate.timestampSeconds,
+     * m.standardDeviations
+     * );
+     * });
+     * })
+     * .ignoringDisable(true);
+     * }
+     */
 }
