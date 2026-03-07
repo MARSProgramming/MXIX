@@ -24,14 +24,7 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj BumpAndBack = new ChoreoTraj(
-	    "BumpAndBack",
-	    OptionalInt.empty(),
-	    6.57947,
-	    new Pose2d(3.567, 0.862, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.747, 2.391, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
+    public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
 	    "OutpostTrajectory",
 	    OptionalInt.empty(),
 	    7.0441,
@@ -62,51 +55,114 @@ public record ChoreoTraj(
 	public static final ChoreoTraj RightSideBumpMiddle = new ChoreoTraj(
 	    "RightSideBumpMiddle",
 	    OptionalInt.empty(),
-	    9.11468,
+	    8.52919,
 	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
 	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj RightSideBumpMiddle$0 = new ChoreoTraj(
 	    "RightSideBumpMiddle",
 	    OptionalInt.of(0),
-	    3.07203,
+	    3.08331,
 	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
 	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356))
 	);
 	public static final ChoreoTraj RightSideBumpMiddle$1 = new ChoreoTraj(
 	    "RightSideBumpMiddle",
 	    OptionalInt.of(1),
-	    6.04265,
+	    5.44588,
 	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356)),
 	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj ResetPoseOutpost = new ChoreoTraj(
-	    "ResetPoseOutpost",
-	    OptionalInt.empty(),
-	    0.89675,
-	    new Pose2d(3.534, 0.858, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.761, 1.228, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj LeftSideBumpMiddle = new ChoreoTraj(
 	    "LeftSideBumpMiddle",
 	    OptionalInt.empty(),
-	    9.11468,
+	    8.52919,
 	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
 	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
 	);
 	public static final ChoreoTraj LeftSideBumpMiddle$0 = new ChoreoTraj(
 	    "LeftSideBumpMiddle",
 	    OptionalInt.of(0),
-	    3.07203,
+	    3.08331,
 	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
 	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356))
 	);
 	public static final ChoreoTraj LeftSideBumpMiddle$1 = new ChoreoTraj(
 	    "LeftSideBumpMiddle",
 	    OptionalInt.of(1),
-	    6.04265,
+	    5.44588,
 	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356)),
 	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddleDepot = new ChoreoTraj(
+	    "LeftSideBumpMiddleDepot",
+	    OptionalInt.empty(),
+	    10.28075,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.4, 5.96, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddleDepot$0 = new ChoreoTraj(
+	    "LeftSideBumpMiddleDepot",
+	    OptionalInt.of(0),
+	    3.08331,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddleDepot$1 = new ChoreoTraj(
+	    "LeftSideBumpMiddleDepot",
+	    OptionalInt.of(1),
+	    3.27569,
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddleDepot$2 = new ChoreoTraj(
+	    "LeftSideBumpMiddleDepot",
+	    OptionalInt.of(2),
+	    2.17019,
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddleDepot$3 = new ChoreoTraj(
+	    "LeftSideBumpMiddleDepot",
+	    OptionalInt.of(3),
+	    1.7515599999999996,
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(1.4, 5.96, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj RightSideBumpMiddleOutpost = new ChoreoTraj(
+	    "RightSideBumpMiddleOutpost",
+	    OptionalInt.empty(),
+	    11.64432,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.6, 0.65, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj RightSideBumpMiddleOutpost$0 = new ChoreoTraj(
+	    "RightSideBumpMiddleOutpost",
+	    OptionalInt.of(0),
+	    3.08331,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356))
+	);
+	public static final ChoreoTraj RightSideBumpMiddleOutpost$1 = new ChoreoTraj(
+	    "RightSideBumpMiddleOutpost",
+	    OptionalInt.of(1),
+	    3.276,
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj RightSideBumpMiddleOutpost$2 = new ChoreoTraj(
+	    "RightSideBumpMiddleOutpost",
+	    OptionalInt.of(2),
+	    2.1702000000000004,
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj RightSideBumpMiddleOutpost$3 = new ChoreoTraj(
+	    "RightSideBumpMiddleOutpost",
+	    OptionalInt.of(3),
+	    3.1148100000000003,
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(0.6, 0.65, Rotation2d.fromRadians(3.142))
 	);
 
     /**
@@ -114,18 +170,26 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("BumpAndBack", BumpAndBack),
-		Map.entry("OutpostTrajectory", OutpostTrajectory),
+    	Map.entry("OutpostTrajectory", OutpostTrajectory),
 		Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
 		Map.entry("OutpostTrajectory$1", OutpostTrajectory$1),
 		Map.entry("OutpostTrajectory$2", OutpostTrajectory$2),
 		Map.entry("RightSideBumpMiddle", RightSideBumpMiddle),
 		Map.entry("RightSideBumpMiddle$0", RightSideBumpMiddle$0),
 		Map.entry("RightSideBumpMiddle$1", RightSideBumpMiddle$1),
-		Map.entry("ResetPoseOutpost", ResetPoseOutpost),
 		Map.entry("LeftSideBumpMiddle", LeftSideBumpMiddle),
 		Map.entry("LeftSideBumpMiddle$0", LeftSideBumpMiddle$0),
-		Map.entry("LeftSideBumpMiddle$1", LeftSideBumpMiddle$1)
+		Map.entry("LeftSideBumpMiddle$1", LeftSideBumpMiddle$1),
+		Map.entry("LeftSideBumpMiddleDepot", LeftSideBumpMiddleDepot),
+		Map.entry("LeftSideBumpMiddleDepot$0", LeftSideBumpMiddleDepot$0),
+		Map.entry("LeftSideBumpMiddleDepot$1", LeftSideBumpMiddleDepot$1),
+		Map.entry("LeftSideBumpMiddleDepot$2", LeftSideBumpMiddleDepot$2),
+		Map.entry("LeftSideBumpMiddleDepot$3", LeftSideBumpMiddleDepot$3),
+		Map.entry("RightSideBumpMiddleOutpost", RightSideBumpMiddleOutpost),
+		Map.entry("RightSideBumpMiddleOutpost$0", RightSideBumpMiddleOutpost$0),
+		Map.entry("RightSideBumpMiddleOutpost$1", RightSideBumpMiddleOutpost$1),
+		Map.entry("RightSideBumpMiddleOutpost$2", RightSideBumpMiddleOutpost$2),
+		Map.entry("RightSideBumpMiddleOutpost$3", RightSideBumpMiddleOutpost$3)
     );
 
     /**

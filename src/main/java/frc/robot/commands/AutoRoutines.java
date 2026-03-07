@@ -7,23 +7,35 @@ package frc.robot.commands;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$0;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$1;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$2;
-import static frc.robot.util.ChoreoTraj.ResetPoseOutpost;
 import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle;
 import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle$0;
 import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle$1;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddleOutpost;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddleOutpost$0;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddleOutpost$1;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddleOutpost$2;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddleOutpost$3;
 import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle;
 import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle$0;
 import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle$1;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddleDepot;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddleDepot$0;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddleDepot$1;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddleDepot$2;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddleDepot$3;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.Map;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
+
 
 /**
  * Handles autonomous routine selection and configuration using Choreo.
@@ -35,6 +47,11 @@ public final class AutoRoutines {
     private final Limelight backLimelight;
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
+
+    Map<String, Command> eventMap = Map.of(
+        "Intake", null,
+        "Shoot", null
+        );
 
     /**
      * Creates a new AutoRoutines manager.
@@ -61,9 +78,10 @@ public final class AutoRoutines {
      */
     public void configure() {
         autoChooser.addRoutine("Outpost", this::OutpostRoutine);
-        autoChooser.addRoutine("reset Pose", this::resetPoseAtTrench);
         autoChooser.addRoutine("Right Side Bump Middle", this::rightSideBumpMiddle);
+        autoChooser.addRoutine("Right Side Bump Middle Outpost", this::rightSideBumpMiddleOutpost);
         autoChooser.addRoutine("Left Side Bump Middle", this::leftSideBumpMiddle);
+        autoChooser.addRoutine("Left Side Bump Middle Depot", this::leftSideBumpMiddleDepot);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // Schedule the selected autonomous command when the robot enters autonomous mode
@@ -102,17 +120,6 @@ public final class AutoRoutines {
         return routine;
     }
 
-    private AutoRoutine resetPoseAtTrench() {
-        final AutoRoutine routine = autoFactory.newRoutine("reset Pose at trench");
-        final AutoTrajectory posTrajectory = ResetPoseOutpost.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            posTrajectory.resetOdometry()
-        );
-
-        return routine;
-    }   
-
     private AutoRoutine rightSideBumpMiddle() {
         final AutoRoutine routine = autoFactory.newRoutine("Right Side Bump Middle");
         final AutoTrajectory overTheBump = RightSideBumpMiddle$0.asAutoTraj(routine);
@@ -131,6 +138,28 @@ public final class AutoRoutines {
         return routine;
     }
 
+        private AutoRoutine rightSideBumpMiddleOutpost() {
+        final AutoRoutine routine = autoFactory.newRoutine("Right Side Bump Middle Outpost");
+        final AutoTrajectory overTheBump = RightSideBumpMiddleOutpost$0.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsCenter = RightSideBumpMiddleOutpost$1.asAutoTraj(routine);
+        final AutoTrajectory backOverTheBump = RightSideBumpMiddleOutpost$2.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsOutpost = RightSideBumpMiddleOutpost$3.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                overTheBump.resetOdometry(), // Reset pose to start of path
+                overTheBump.cmd()
+            )
+        );
+
+        overTheBump.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle()));
+        overTheBump.done().onTrue(intakeBallsCenter.cmd());
+        intakeBallsCenter.done().onTrue(backOverTheBump.cmd());
+        backOverTheBump.done().onTrue(intakeBallsOutpost.cmd());
+
+        return routine;
+    }
+
         private AutoRoutine leftSideBumpMiddle() {
         final AutoRoutine routine = autoFactory.newRoutine("Left Side Bump Middle");
         final AutoTrajectory overTheBump = LeftSideBumpMiddle$0.asAutoTraj(routine);
@@ -145,6 +174,28 @@ public final class AutoRoutines {
 
         overTheBump.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle()));
         overTheBump.done().onTrue(intakeBallsCenter.cmd());
+
+        return routine;
+    }
+
+            private AutoRoutine leftSideBumpMiddleDepot() {
+        final AutoRoutine routine = autoFactory.newRoutine("Left Side Bump Middle Depot");
+        final AutoTrajectory overTheBump = LeftSideBumpMiddleDepot$0.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsCenter = LeftSideBumpMiddleDepot$1.asAutoTraj(routine);
+        final AutoTrajectory backOverTheBump = LeftSideBumpMiddleDepot$2.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsOutpost = LeftSideBumpMiddleDepot$3.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                overTheBump.resetOdometry(), // Reset pose to start of path
+                overTheBump.cmd()
+            )
+        );
+
+        overTheBump.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle()));
+        overTheBump.done().onTrue(intakeBallsCenter.cmd());
+        intakeBallsCenter.done().onTrue(backOverTheBump.cmd());
+        backOverTheBump.done().onTrue(intakeBallsOutpost.cmd());
 
         return routine;
     }
