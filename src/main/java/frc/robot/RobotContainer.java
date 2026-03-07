@@ -66,7 +66,7 @@ public class RobotContainer {
 
     FastClimber fastClimb = new FastClimber();
     private final AutoRoutines autoRoutines = new AutoRoutines(swerve,
-    shooterLimelight, backLimelight);
+            shooterLimelight, backLimelight);
 
     Command prepShotCommand = new PrepareSupershot(
             shotSetup,
@@ -130,7 +130,7 @@ public class RobotContainer {
 
         swerve.setDefaultCommand(manualDriveCommand);
         shooterLimelight.setDefaultCommand(updateShooterVision());
-        // backLimelight.setDefaultCommand(updateBackVision());
+        backLimelight.setDefaultCommand(updateBackVision());
 
         testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
@@ -162,26 +162,23 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
-    /*
-     * private Command updateBackVision() {
-     * return backLimelight.run(() -> {
-     * final Pose2d currentRobotPose = swerve.getState().Pose;
-     * 
-     * if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-     * return;
-     * }
-     * 
-     * final Optional<Limelight.Measurement> measurement =
-     * backLimelight.getMeasurement(currentRobotPose);
-     * measurement.ifPresent(m -> {
-     * swerve.addVisionMeasurement(
-     * m.poseEstimate.pose,
-     * m.poseEstimate.timestampSeconds,
-     * m.standardDeviations
-     * );
-     * });
-     * })
-     * .ignoringDisable(true);
-     * }
-     */
+    private Command updateBackVision() {
+        return backLimelight.run(() -> {
+            final Pose2d currentRobotPose = swerve.getState().Pose;
+
+            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+                return;
+            }
+
+            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
+            measurement.ifPresent(m -> {
+                swerve.addVisionMeasurement(
+                        m.poseEstimate.pose,
+                        m.poseEstimate.timestampSeconds,
+                        m.standardDeviations);
+            });
+        })
+                .ignoringDisable(true);
+    }
+
 }

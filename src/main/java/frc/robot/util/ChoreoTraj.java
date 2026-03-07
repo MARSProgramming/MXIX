@@ -59,26 +59,26 @@ public record ChoreoTraj(
 	    new Pose2d(1.657, 0.67, Rotation2d.fromRadians(0)),
 	    new Pose2d(3.329, 3.978, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj PathForEarl = new ChoreoTraj(
-	    "PathForEarl",
+	public static final ChoreoTraj RightSideBumpMiddle = new ChoreoTraj(
+	    "RightSideBumpMiddle",
 	    OptionalInt.empty(),
-	    9.03076,
+	    9.11468,
 	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
-	    new Pose2d(3, 2.35, Rotation2d.fromRadians(0.785))
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
 	);
-	public static final ChoreoTraj PathForEarl$0 = new ChoreoTraj(
-	    "PathForEarl",
+	public static final ChoreoTraj RightSideBumpMiddle$0 = new ChoreoTraj(
+	    "RightSideBumpMiddle",
 	    OptionalInt.of(0),
-	    3.04941,
+	    3.07203,
 	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
-	    new Pose2d(6, 2.35, Rotation2d.fromRadians(2.356))
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356))
 	);
-	public static final ChoreoTraj PathForEarl$1 = new ChoreoTraj(
-	    "PathForEarl",
+	public static final ChoreoTraj RightSideBumpMiddle$1 = new ChoreoTraj(
+	    "RightSideBumpMiddle",
 	    OptionalInt.of(1),
-	    5.981350000000001,
-	    new Pose2d(6, 2.35, Rotation2d.fromRadians(2.356)),
-	    new Pose2d(3, 2.35, Rotation2d.fromRadians(0.785))
+	    6.04265,
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj ResetPoseOutpost = new ChoreoTraj(
 	    "ResetPoseOutpost",
@@ -86,6 +86,27 @@ public record ChoreoTraj(
 	    0.89675,
 	    new Pose2d(3.534, 0.858, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.761, 1.228, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddle = new ChoreoTraj(
+	    "LeftSideBumpMiddle",
+	    OptionalInt.empty(),
+	    9.11468,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddle$0 = new ChoreoTraj(
+	    "LeftSideBumpMiddle",
+	    OptionalInt.of(0),
+	    3.07203,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddle$1 = new ChoreoTraj(
+	    "LeftSideBumpMiddle",
+	    OptionalInt.of(1),
+	    6.04265,
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
 	);
 
     /**
@@ -98,10 +119,13 @@ public record ChoreoTraj(
 		Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
 		Map.entry("OutpostTrajectory$1", OutpostTrajectory$1),
 		Map.entry("OutpostTrajectory$2", OutpostTrajectory$2),
-		Map.entry("PathForEarl", PathForEarl),
-		Map.entry("PathForEarl$0", PathForEarl$0),
-		Map.entry("PathForEarl$1", PathForEarl$1),
-		Map.entry("ResetPoseOutpost", ResetPoseOutpost)
+		Map.entry("RightSideBumpMiddle", RightSideBumpMiddle),
+		Map.entry("RightSideBumpMiddle$0", RightSideBumpMiddle$0),
+		Map.entry("RightSideBumpMiddle$1", RightSideBumpMiddle$1),
+		Map.entry("ResetPoseOutpost", ResetPoseOutpost),
+		Map.entry("LeftSideBumpMiddle", LeftSideBumpMiddle),
+		Map.entry("LeftSideBumpMiddle$0", LeftSideBumpMiddle$0),
+		Map.entry("LeftSideBumpMiddle$1", LeftSideBumpMiddle$1)
     );
 
     /**

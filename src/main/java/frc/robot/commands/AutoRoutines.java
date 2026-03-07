@@ -8,8 +8,12 @@ import static frc.robot.util.ChoreoTraj.OutpostTrajectory$0;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$1;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$2;
 import static frc.robot.util.ChoreoTraj.ResetPoseOutpost;
-import static frc.robot.util.ChoreoTraj.PathForEarl$0;
-import static frc.robot.util.ChoreoTraj.PathForEarl$1;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle$0;
+import static frc.robot.util.ChoreoTraj.RightSideBumpMiddle$1;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle$0;
+import static frc.robot.util.ChoreoTraj.LeftSideBumpMiddle$1;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -58,7 +62,8 @@ public final class AutoRoutines {
     public void configure() {
         autoChooser.addRoutine("Outpost", this::OutpostRoutine);
         autoChooser.addRoutine("reset Pose", this::resetPoseAtTrench);
-        autoChooser.addRoutine("Over the Bump", this::pathForEarl);
+        autoChooser.addRoutine("Right Side Bump Middle", this::rightSideBumpMiddle);
+        autoChooser.addRoutine("Left Side Bump Middle", this::leftSideBumpMiddle);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // Schedule the selected autonomous command when the robot enters autonomous mode
@@ -108,10 +113,10 @@ public final class AutoRoutines {
         return routine;
     }   
 
-    private AutoRoutine pathForEarl() {
-        final AutoRoutine routine = autoFactory.newRoutine("Over the Bump");
-        final AutoTrajectory overTheBump = PathForEarl$0.asAutoTraj(routine);
-        final AutoTrajectory intakeBallsCenter = PathForEarl$1.asAutoTraj(routine);
+    private AutoRoutine rightSideBumpMiddle() {
+        final AutoRoutine routine = autoFactory.newRoutine("Right Side Bump Middle");
+        final AutoTrajectory overTheBump = RightSideBumpMiddle$0.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsCenter = RightSideBumpMiddle$1.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -120,6 +125,25 @@ public final class AutoRoutines {
             )
         );
 
+        overTheBump.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle()));
+        overTheBump.done().onTrue(intakeBallsCenter.cmd());
+
+        return routine;
+    }
+
+        private AutoRoutine leftSideBumpMiddle() {
+        final AutoRoutine routine = autoFactory.newRoutine("Left Side Bump Middle");
+        final AutoTrajectory overTheBump = LeftSideBumpMiddle$0.asAutoTraj(routine);
+        final AutoTrajectory intakeBallsCenter = LeftSideBumpMiddle$1.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                overTheBump.resetOdometry(), // Reset pose to start of path
+                overTheBump.cmd()
+            )
+        );
+
+        overTheBump.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle()));
         overTheBump.done().onTrue(intakeBallsCenter.cmd());
 
         return routine;
