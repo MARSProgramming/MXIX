@@ -3,13 +3,17 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.hardware.CANdle;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.controls.StrobeAnimation;
+import com.ctre.phoenix6.controls.TwinkleAnimation;
 import com.ctre.phoenix6.signals.AnimationDirectionValue;
 import com.ctre.phoenix6.signals.LarsonBounceValue;
 import com.ctre.phoenix6.signals.RGBWColor;
 
 import com.ctre.phoenix6.controls.RainbowAnimation;
+import com.ctre.phoenix6.controls.RgbFadeAnimation;
+import com.ctre.phoenix6.controls.SingleFadeAnimation;
 import com.ctre.phoenix6.configs.CANdleConfiguration;
 import com.ctre.phoenix6.controls.ColorFlowAnimation;
+import com.ctre.phoenix6.controls.FireAnimation;
 import com.ctre.phoenix6.controls.LarsonAnimation;
 
 import edu.wpi.first.wpilibj.util.Color;
@@ -85,6 +89,15 @@ public class LEDSubsystem extends SubsystemBase {
                         .withColor(new RGBWColor(r, g, b)));
     }
 
+    private RGBWColor getRGBWColor(Color color) {
+        int r = (int) (color.red * 255);
+        int g = (int) (color.green * 255);
+        int b = (int) (color.blue * 255);
+
+        return new RGBWColor(r,g,b);
+
+    }
+
     public void setColor(Color color, LEDSegment segment) {
         setRange(color, segment);
     }
@@ -146,11 +159,35 @@ public class LEDSubsystem extends SubsystemBase {
         int b = (int) (color.blue * 255);
 
         LarsonAnimation larson = new LarsonAnimation(start, end)
+    
                 .withColor(new RGBWColor(r, g, b))
                 .withFrameRate(50)
-                .withSize(7)
+                .withSize(15)
                 .withBounceMode(LarsonBounceValue.Front);
 
         candle.setControl(larson);
+
+    }
+
+    public void rgbFade(LEDSegment segment) {
+             int start = getStart(segment);
+        int end = start + getCount(segment) - 1;
+
+        RgbFadeAnimation fadeAnimation = new RgbFadeAnimation(start, end)
+        .withFrameRate(50);
+
+        candle.setControl(fadeAnimation);
+   
+    }
+
+    public void fadeColor(LEDSegment segment, Color color) {
+             int start = getStart(segment);
+        int end = start + getCount(segment) - 1;
+
+        SingleFadeAnimation singleFade = new SingleFadeAnimation(start, end)
+        .withColor(getRGBWColor(color))
+        .withFrameRate(50);
+
+        candle.setControl(singleFade);
     }
 }

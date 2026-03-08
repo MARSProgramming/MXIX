@@ -67,8 +67,6 @@ public class RobotContainer {
     FastClimber mFastClimber = new FastClimber();
 
     private final Trigger isAimedTrigger = new Trigger(() -> swerve.isAimedAtHub());
-    private final Trigger isRunningNormallyTrigger = new Trigger(() -> DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled());
-    private final Trigger isDisabledTrigger = new Trigger(() -> DriverStation.isDisabled());
 
 
 
@@ -97,8 +95,6 @@ public class RobotContainer {
         .onFalse(
         Commands.runOnce(() -> leds.rainbow(LEDSegment.ALL)));
 
-      isRunningNormallyTrigger.onTrue(Commands.runOnce(() -> leds.rainbow(LEDSegment.ALL)));
-      isDisabledTrigger.onTrue(Commands.runOnce(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
 
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
@@ -143,11 +139,11 @@ public class RobotContainer {
        testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
        // climb testing
-       testPilot.povUp().whileTrue(
+       testPilot.povDown().whileTrue(
         mFastClimber.setPercentOutTunable()
        );
        
-       testPilot.povDown().whileTrue(
+       testPilot.povUp().whileTrue(
         mFastClimber.setPercentOutTunableReverse()
        );
 
@@ -210,4 +206,8 @@ public class RobotContainer {
         })
         .ignoringDisable(true);
     } 
+
+    public LEDSubsystem getLedSubsystem() {
+        return this.leds;
+    }
 }

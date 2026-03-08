@@ -6,10 +6,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.signals.RGBWColor;
+
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -31,13 +36,42 @@ public class Robot extends TimedRobot {
         //  RobotController.setBrownoutVoltage(Volts.of(6.1)); 
     }
     
+
+
+    @Override
+    public void robotInit() {
+        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
+    }
+
+    @Override
+    public void disabledInit() {
+        m_robotContainer.getLedSubsystem().rainbow(LEDSegment.ALL);
+    }
+
+    @Override
+    public void teleopInit() {
+        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
+    }
+
+    @Override
+    public void testInit() {
+        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
+    }
+
+    @Override
+    public void autonomousInit() {
+        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
+    }
+
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
      * that you want ran during disabled, autonomous, teleoperated and test.
      *
+     * 
      * <p>This runs after the mode specific periodic functions, but before LiveWindow and
      * SmartDashboard integrated updating.
      */
+
     @Override
     public void robotPeriodic() {
         // Runs the Scheduler.  This is responsible for polling buttons, adding newly-scheduled
