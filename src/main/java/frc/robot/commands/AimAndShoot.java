@@ -58,13 +58,7 @@ public class AimAndShoot extends Command {
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
         .withHeadingPID(5, 0, 0);
 
-    /**
-     * Constructs a new AimAndDriveCommand.
-     *
-     * @param swerve The swerve subsystem.
-     * @param forwardInput Supplier for forward/backward translation input (-1 to 1).
-     * @param leftInput Supplier for left/right translation input (-1 to 1).
-     */
+
     public AimAndShoot(
         Swerve swerve,
         Cowl cowl,
@@ -88,11 +82,6 @@ public class AimAndShoot extends Command {
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
-    /**
-     * Constructs a new AimAndDriveCommand with zero translation (aim only).
-     *
-     * @param swerve The swerve subsystem.
-     */
     public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers) {
         this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
     }

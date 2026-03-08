@@ -7,8 +7,11 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
+import frc.robot.constants.Settings;
+import frc.robot.constants.Settings.IntakePivotSettings;
 import frc.robot.constants.SystemConstants;
 
 /**
@@ -58,12 +61,13 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
-
-    public Command home() {
-        return run(() -> {
-            mIntakePivot.set(SystemConstants.Cowl.kCowlHomingOutput);
-        }).until(
-            () -> mIntakePivot.getSupplyCurrent().getValueAsDouble() < SystemConstants.Intake.kIntakePivotStallCurrent
+    
+    public Command slamtake() {
+    return Commands.repeatingSequence(
+        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
+        Commands.waitSeconds(1),
+        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
+        Commands.waitSeconds(1)
         );
     }
 

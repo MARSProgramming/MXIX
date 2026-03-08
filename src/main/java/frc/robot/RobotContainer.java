@@ -76,6 +76,7 @@ public class RobotContainer {
      */
     public RobotContainer() {
         configureBindings();
+        configureTestBindings();
         // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
      //  autoRoutines.configure();
     }
@@ -86,48 +87,67 @@ public class RobotContainer {
     private void configureBindings() {
 
         
-    final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+      final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -drivePilot.getLeftY(),
           () -> -drivePilot.getLeftX(),
           () -> -drivePilot.getRightX());
+    
+      // driving commands
+      swerve.setDefaultCommand(manualDriveCommand);
+      drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+
+      shooterLimelight.setDefaultCommand(updateShooterVision());
+
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
-      
+
       drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
 
 
-       testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
-       testPilot.b().onTrue(mCowl.home());
-
-       testPilot.rightBumper().whileTrue(mFloor.setPercentOutCommand(-0.5).alongWith(mFeeder.setPercentOutCommand(-0.5).alongWith(mIntakeRollers.setPercentOutCommand(-0.5))));
-
-      testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
-      testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());
-
-
-
-
-     testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
-     testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
-
-
-
-
-      swerve.setDefaultCommand(manualDriveCommand);
-      shooterLimelight.setDefaultCommand(updateShooterVision());
-    //  backLimelight.setDefaultCommand(updateBackVision());
-
-
-      testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
 
 
     }
 
     private void configureTestBindings() {
+        // shooting
+        testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
+        testPilot.leftTrigger().whileTrue(
+        mFloor.setPercentOutTunable()
+        .alongWith(mFeeder.setPercentOutTunable())
+        .alongWith(mIntakeRollers.setTunable()));
 
+        //unjam
+        testPilot.leftBumper().whileTrue(
+            mFloor.setPercentOutCommand(-0.5)
+            .alongWith(mFeeder.setPercentOutCommand(-0.5)
+            .alongWith(mIntakeRollers.setPercentOutCommand(-0.5))));
+
+        //intake
+       testPilot.rightBumper().whileTrue(mIntakeRollers.setTunable());
+
+       // climb testing
+       testPilot.x().whileTrue(
+        fastClimb.setPercentOutTunable()
+       );
+       
+       testPilot.y().whileTrue(
+        fastClimb.setPercentOutTunableReverse()
+       );
+
+        testPilot.a().whileTrue(mFeeder.setPercentOutTunable());
+        testPilot.b().whileTrue(mFloor.setPercentOutTunable());
+        testPilot.back().whileTrue(mIntakeRollers.setTunable());
+
+       //cowl
+       testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+       testPilot.povDown().onTrue(mCowl.home());
+
+       //intakepivot
+       testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
+       testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
     }
 
     private Command updateShooterVision() {
