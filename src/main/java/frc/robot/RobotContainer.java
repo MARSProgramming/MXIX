@@ -108,7 +108,7 @@ public class RobotContainer {
     private void configureTestBindings() {
         // shooting
         testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
-        testPilot.leftTrigger().whileTrue(
+        testPilot.rightBumper().whileTrue(
         mFloor.setPercentOutTunable()
         .alongWith(mFeeder.setPercentOutTunable())
         .alongWith(mIntakeRollers.setTunable()));
@@ -120,7 +120,7 @@ public class RobotContainer {
             .alongWith(mIntakeRollers.setPercentOutCommand(-0.5))));
 
         //intake
-       testPilot.rightBumper().whileTrue(mIntakeRollers.setTunable());
+       testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
        // climb testing
        testPilot.x().whileTrue(
