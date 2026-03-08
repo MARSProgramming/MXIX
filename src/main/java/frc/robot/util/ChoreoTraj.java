@@ -62,7 +62,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj LeftCenterBeelineSweep = new ChoreoTraj(
 	    "LeftCenterBeelineSweep",
 	    OptionalInt.empty(),
-	    9.0449,
+	    8.98527,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
 	);
@@ -76,14 +76,14 @@ public record ChoreoTraj(
 	public static final ChoreoTraj LeftCenterBeelineSweep$1 = new ChoreoTraj(
 	    "LeftCenterBeelineSweep",
 	    OptionalInt.of(1),
-	    6.65311,
+	    6.59349,
 	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356))
 	);
 	public static final ChoreoTraj LeftCenterBeelineSweep$2 = new ChoreoTraj(
 	    "LeftCenterBeelineSweep",
 	    OptionalInt.of(2),
-	    1.3003400000000003,
+	    1.3003299999999998,
 	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356)),
 	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
 	);

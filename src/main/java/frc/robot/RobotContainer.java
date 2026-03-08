@@ -9,9 +9,12 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AimAndShoot;
 import frc.robot.commands.AutoRoutines;
@@ -27,9 +30,10 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.DrivetrainTelemetry;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -46,6 +50,7 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
+
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController testPilot = new CommandXboxController(1);
 
@@ -58,9 +63,15 @@ public class RobotContainer {
     ShotSetup shotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
-    private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
-
+    LEDSubsystem leds = new LEDSubsystem();
     FastClimber mFastClimber = new FastClimber();
+
+    private final Trigger isAimedTrigger = new Trigger(() -> swerve.isAimedAtHub());
+    private final Trigger isRunningNormallyTrigger = new Trigger(() -> DriverStation.isAutonomousEnabled() || DriverStation.isTeleopEnabled());
+    private final Trigger isDisabledTrigger = new Trigger(() -> DriverStation.isDisabled());
+
+
+
 
     // Autonomous routines manager
     private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight);
@@ -79,7 +90,16 @@ public class RobotContainer {
      */
     private void configureBindings() {
 
-        
+
+      isAimedTrigger
+        .onTrue(
+        Commands.runOnce(() -> leds.strobe(LEDSegment.ALL)))
+        .onFalse(
+        Commands.runOnce(() -> leds.rainbow(LEDSegment.ALL)));
+
+      isRunningNormallyTrigger.onTrue(Commands.runOnce(() -> leds.rainbow(LEDSegment.ALL)));
+      isDisabledTrigger.onTrue(Commands.runOnce(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
+
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -drivePilot.getLeftY(),

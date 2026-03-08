@@ -105,7 +105,7 @@ public final class AutoRoutines {
             )
         );
 
-        posTrajectory.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers).withTimeout(5));
+        posTrajectory.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers).withTimeout(5));
         return routine;
     }
 
@@ -129,7 +129,7 @@ public final class AutoRoutines {
 
         getBallsInCenterTraj.active().onTrue(intakeRollers.intakeCommand());
         getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
-        returnToShoot.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers));
+        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers));
 
         return routine;
 
