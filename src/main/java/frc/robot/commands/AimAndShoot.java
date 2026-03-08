@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.constants.FieldConstants.Locations;
@@ -110,7 +111,7 @@ public class AimAndShoot extends Command {
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtHub() && flywheel.isVelocityWithinTolerance()) {
+        if (swerve.isAimedAtHub()) {
             readyToShootBoolean = true;
         }
 
@@ -123,7 +124,7 @@ public class AimAndShoot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        cowl.home();
+        CommandScheduler.getInstance().schedule(cowl.home());
         feeder.setPercentOut(0);
         floor.setPercentOut(0);
         flywheel.setRPM(0);

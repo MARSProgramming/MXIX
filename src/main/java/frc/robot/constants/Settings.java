@@ -3,9 +3,9 @@ package frc.robot.constants;
 public class Settings {
     
     public static class IntakePivotSettings {
-        public static double INTAKE_DEPLOY_TIMEOUT = 0.7;
-        public static double INTAKE_RETRACT_TIMEOUT = 0.7;
-        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.5;
+        public static double INTAKE_DEPLOY_TIMEOUT = 0.4;
+        public static double INTAKE_RETRACT_TIMEOUT = 0.4;
+        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.2;
     }
 
     public static class FeedSystemSettings {

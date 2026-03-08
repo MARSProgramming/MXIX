@@ -21,7 +21,7 @@ public class FastClimber extends SubsystemBase {
     PositionVoltage fcPositionOut = new PositionVoltage(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.1);
+    private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.4);
     private final DoubleSubscriber climbPositionTunable = DogLog.tunable("FastClimber/TunableClimbPosition", 0.1);
 
     double cTunableOutput = climbPercentDoubleSubscriber.get();

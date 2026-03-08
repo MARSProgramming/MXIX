@@ -8,6 +8,7 @@ import static frc.robot.util.ChoreoTraj.OutpostTrajectory$0;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$1;
 import static frc.robot.util.ChoreoTraj.OutpostTrajectory$2;
 import static frc.robot.util.ChoreoTraj.ResetPoseOutpost;
+import static frc.robot.util.ChoreoTraj.ShootPreloaded;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -80,7 +81,7 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
-        autoChooser.addRoutine("Outpost", this::OutpostRoutine);
+        autoChooser.addRoutine("driveToPreloaded pos", this::drivetoPreloadShootPos);
         autoChooser.addRoutine("reset Pose", this::resetPoseAtTrench);
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -129,5 +130,21 @@ public final class AutoRoutines {
         );
 
         return routine;
-    }   
+    }  
+    
+    private AutoRoutine drivetoPreloadShootPos() {
+        final AutoRoutine routine = autoFactory.newRoutine("Drive to preload shot");
+        final AutoTrajectory posTrajectory = ShootPreloaded.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                posTrajectory.resetOdometry(), // Reset pose to start of path
+                posTrajectory.cmd()
+            )
+        );
+
+        posTrajectory.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers).withTimeout(5));
+
+        return routine;
+    }
 }

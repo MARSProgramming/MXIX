@@ -89,9 +89,9 @@ public class SystemConstants {
             // Current limits
             masterConfig.Voltage.PeakReverseVoltage = 0; // Software lock reversal of flywheel 
             masterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            masterConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            masterConfig.CurrentLimits.SupplyCurrentLimit = 50;
             masterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            masterConfig.CurrentLimits.StatorCurrentLimit = 120;
+            masterConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
     }
 
@@ -99,7 +99,7 @@ public class SystemConstants {
      * Constants and configuration for the Cowl subsystem.
      */
     public static class Cowl {
-        public static final double kCowlStallCurrent = 9.0; // Configure with testing
+        public static final double kCowlStallCurrent = 7.0; // Configure with testing
         public static final double kCowlHomingOutput = -0.18; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
@@ -126,9 +126,9 @@ public class SystemConstants {
             cowlConfig.Feedback.SensorToMechanismRatio = 1.0; // Gear ratio
 
             cowlConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            cowlConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            cowlConfig.CurrentLimits.SupplyCurrentLimit = 30;
             cowlConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            cowlConfig.CurrentLimits.StatorCurrentLimit = 120;
+            cowlConfig.CurrentLimits.StatorCurrentLimit = 50;
         }
     }
     
@@ -161,7 +161,7 @@ public class SystemConstants {
             pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             pivotConfig.CurrentLimits.SupplyCurrentLimit = 70;
             pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            pivotConfig.CurrentLimits.StatorCurrentLimit = 120;
+            pivotConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
 
         static {
@@ -179,7 +179,7 @@ public class SystemConstants {
             rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             rollerConfig.CurrentLimits.SupplyCurrentLimit = 70;
             rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            rollerConfig.CurrentLimits.StatorCurrentLimit = 120;
+            rollerConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
     }
 
@@ -207,7 +207,7 @@ public class SystemConstants {
             floorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             floorConfig.CurrentLimits.SupplyCurrentLimit = 70;
             floorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            floorConfig.CurrentLimits.StatorCurrentLimit = 120;
+            floorConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
     }
 
@@ -236,7 +236,7 @@ public class SystemConstants {
             feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
             feederConfig.CurrentLimits.SupplyCurrentLimit = 70;
             feederConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            feederConfig.CurrentLimits.StatorCurrentLimit = 120;
+            feederConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
     }
 

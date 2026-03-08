@@ -91,7 +91,7 @@ public class RobotContainer {
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
       shooterLimelight.setDefaultCommand(updateShooterVision());
-
+      backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
 
