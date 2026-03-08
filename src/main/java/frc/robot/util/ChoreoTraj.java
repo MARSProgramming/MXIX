@@ -24,47 +24,68 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj OutpostTrajectory = new ChoreoTraj(
-	    "OutpostTrajectory",
-	    OptionalInt.empty(),
-	    7.0441,
-	    new Pose2d(3.583, 0.882, Rotation2d.fromRadians(0)),
-	    new Pose2d(3.329, 3.978, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj OutpostTrajectory$0 = new ChoreoTraj(
-	    "OutpostTrajectory",
-	    OptionalInt.of(0),
-	    1.76356,
-	    new Pose2d(3.583, 0.882, Rotation2d.fromRadians(0)),
-	    new Pose2d(3.312, 3.982, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj OutpostTrajectory$1 = new ChoreoTraj(
-	    "OutpostTrajectory",
-	    OptionalInt.of(1),
-	    1.83502,
-	    new Pose2d(3.312, 3.982, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.657, 0.67, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj OutpostTrajectory$2 = new ChoreoTraj(
-	    "OutpostTrajectory",
-	    OptionalInt.of(2),
-	    3.44552,
-	    new Pose2d(1.657, 0.67, Rotation2d.fromRadians(0)),
-	    new Pose2d(3.329, 3.978, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj ResetPoseOutpost = new ChoreoTraj(
-	    "ResetPoseOutpost",
-	    OptionalInt.empty(),
-	    0.89675,
-	    new Pose2d(3.534, 0.858, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.761, 1.228, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj ShootPreloaded = new ChoreoTraj(
+    public static final ChoreoTraj ShootPreloaded = new ChoreoTraj(
 	    "ShootPreloaded",
 	    OptionalInt.empty(),
 	    1.33637,
 	    new Pose2d(3.554, 0.897, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.151, 2.631, Rotation2d.fromRadians(0.588))
+	);
+	public static final ChoreoTraj LeftCenterBeelineNoSweep = new ChoreoTraj(
+	    "LeftCenterBeelineNoSweep",
+	    OptionalInt.empty(),
+	    7.89758,
+	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(2.896, 5.382, Rotation2d.fromRadians(-0.76))
+	);
+	public static final ChoreoTraj LeftCenterBeelineNoSweep$0 = new ChoreoTraj(
+	    "LeftCenterBeelineNoSweep",
+	    OptionalInt.of(0),
+	    1.09145,
+	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj LeftCenterBeelineNoSweep$1 = new ChoreoTraj(
+	    "LeftCenterBeelineNoSweep",
+	    OptionalInt.of(1),
+	    4.63965,
+	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(6.622, 5.392, Rotation2d.fromRadians(2.336))
+	);
+	public static final ChoreoTraj LeftCenterBeelineNoSweep$2 = new ChoreoTraj(
+	    "LeftCenterBeelineNoSweep",
+	    OptionalInt.of(2),
+	    2.16648,
+	    new Pose2d(6.622, 5.392, Rotation2d.fromRadians(2.336)),
+	    new Pose2d(2.896, 5.382, Rotation2d.fromRadians(-0.76))
+	);
+	public static final ChoreoTraj LeftCenterBeelineSweep = new ChoreoTraj(
+	    "LeftCenterBeelineSweep",
+	    OptionalInt.empty(),
+	    9.0449,
+	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj LeftCenterBeelineSweep$0 = new ChoreoTraj(
+	    "LeftCenterBeelineSweep",
+	    OptionalInt.of(0),
+	    1.09145,
+	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj LeftCenterBeelineSweep$1 = new ChoreoTraj(
+	    "LeftCenterBeelineSweep",
+	    OptionalInt.of(1),
+	    6.65311,
+	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj LeftCenterBeelineSweep$2 = new ChoreoTraj(
+	    "LeftCenterBeelineSweep",
+	    OptionalInt.of(2),
+	    1.3003400000000003,
+	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
 	);
 
     /**
@@ -72,12 +93,15 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("OutpostTrajectory", OutpostTrajectory),
-		Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
-		Map.entry("OutpostTrajectory$1", OutpostTrajectory$1),
-		Map.entry("OutpostTrajectory$2", OutpostTrajectory$2),
-		Map.entry("ResetPoseOutpost", ResetPoseOutpost),
-		Map.entry("ShootPreloaded", ShootPreloaded)
+    	Map.entry("ShootPreloaded", ShootPreloaded),
+		Map.entry("LeftCenterBeelineNoSweep", LeftCenterBeelineNoSweep),
+		Map.entry("LeftCenterBeelineNoSweep$0", LeftCenterBeelineNoSweep$0),
+		Map.entry("LeftCenterBeelineNoSweep$1", LeftCenterBeelineNoSweep$1),
+		Map.entry("LeftCenterBeelineNoSweep$2", LeftCenterBeelineNoSweep$2),
+		Map.entry("LeftCenterBeelineSweep", LeftCenterBeelineSweep),
+		Map.entry("LeftCenterBeelineSweep$0", LeftCenterBeelineSweep$0),
+		Map.entry("LeftCenterBeelineSweep$1", LeftCenterBeelineSweep$1),
+		Map.entry("LeftCenterBeelineSweep$2", LeftCenterBeelineSweep$2)
     );
 
     /**
