@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.subsystems.Swerve;
@@ -102,6 +101,26 @@ public class FieldConstants {
             // Red Alliance Hub Position
             return new Translation2d(Units.Inches.of(469.115), Units.Inches.of(158.845));
         }
-        
+
+        public static ArrayList<Pose2d> shuttlingPosesBlue = new ArrayList<Pose2d>();
+        public static ArrayList<Pose2d> shuttlingPosesRed = new ArrayList<Pose2d>();
+        static {
+            shuttlingPosesBlue.add(new Pose2d(2.0, 6.0, new Rotation2d()));
+            shuttlingPosesBlue.add(new Pose2d(2.0, 2.0, new Rotation2d()));
+
+            shuttlingPosesRed.add(new Pose2d(14.6, 6.0, new Rotation2d()));
+            shuttlingPosesRed.add(new Pose2d(14.6, 2.0, new Rotation2d()));
+        }
+
+
+        public static Pose2d getClosestShuttlingPosition(Pose2d currentRobotPose) {
+                     final Optional<Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+                return currentRobotPose.nearest(shuttlingPosesBlue);
+            }
+           return currentRobotPose.nearest(shuttlingPosesRed);
+        }
+        }  
     }
-}
+
+    

@@ -13,9 +13,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AimAndDriveCommand;
+import frc.robot.commands.AimAndShoot;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.Unjam;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.Settings;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.FastClimber;
@@ -42,11 +45,9 @@ public class RobotContainer {
     private final Limelight shooterLimelight = new Limelight("limelight-shooter");
     private final Limelight backLimelight = new Limelight("limelight-back");
 
-    ShotSetup setup = new ShotSetup();
 
-    // The driver's controller.
-    private final CommandXboxController testPilot = new CommandXboxController(0);
-    private final CommandXboxController drivePilot = new CommandXboxController(1);
+    private final CommandXboxController drivePilot = new CommandXboxController(0);
+    private final CommandXboxController testPilot = new CommandXboxController(1);
 
     // Subsystems
     Cowl mCowl = new Cowl();
@@ -84,25 +85,23 @@ public class RobotContainer {
      */
     private void configureBindings() {
 
-     final AimAndDriveCommand aimAndDriveCommand = new AimAndDriveCommand(
-            swerve, 
-            () -> -testPilot.getLeftY(), 
-            () -> -testPilot.getLeftX());
+        
+    final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
+          swerve,
+          () -> -drivePilot.getLeftY(),
+          () -> -drivePilot.getLeftX(),
+          () -> -drivePilot.getRightX());
 
-      testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
-
-      testPilot.rightTrigger().whileTrue(
-        mFlywheel.setVelocity(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).shot.shooterRPM)
-        .alongWith(mCowl.setPositionCommand(() -> shotSetup.getStaticShotInfo(swerve.getDistanceToHub()).cowlPosition))
-        );
-     testPilot.rightTrigger().whileTrue(aimAndDriveCommand);
-
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
+      
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers));
+      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
 
 
        testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
        testPilot.b().onTrue(mCowl.home());
 
-       testPilot.rightBumper().whileTrue(mFloor.setPercentOut(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+       testPilot.rightBumper().whileTrue(mFloor.setPercentOutCommand(-0.5).alongWith(mFeeder.setPercentOutCommand(-0.5).alongWith(mIntakeRollers.setPercentOutCommand(-0.5))));
 
       testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
       testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());
@@ -114,12 +113,6 @@ public class RobotContainer {
      testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
 
 
-    final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
-          swerve,
-          () -> -testPilot.getLeftY(),
-          () -> -testPilot.getLeftX(),
-          () -> -testPilot.getRightX());
-
 
 
       swerve.setDefaultCommand(manualDriveCommand);
@@ -130,6 +123,10 @@ public class RobotContainer {
       testPilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
 
+
+    }
+
+    private void configureTestBindings() {
 
     }
 
