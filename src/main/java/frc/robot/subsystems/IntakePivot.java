@@ -45,6 +45,29 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
+    public Command deployCommand() {
+        return runEnd(
+            () -> {
+                mIntakePivot.setControl(floorVoltageOut.withOutput(Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+            },
+            () -> {
+                mIntakePivot.set(0);
+            }
+        );
+    }
+
+    public Command retractCommand() {
+        return runEnd(
+            () -> {
+                mIntakePivot.setControl(floorVoltageOut.withOutput(-Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+            },
+            () -> {
+                mIntakePivot.set(0);
+            }
+        );
+    }
+
+
     public Command forwardTunable() {
         return runEnd(() -> {
             mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));

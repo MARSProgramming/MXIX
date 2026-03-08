@@ -168,7 +168,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
 
         
-        DogLog.log("Swerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+        DogLog.log("DogLogSwerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+        DogLog.log("DogLogSwerve/Pose", getState().Pose);
     }
 
     public Distance hubDistInMeters() {

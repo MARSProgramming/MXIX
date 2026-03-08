@@ -61,15 +61,9 @@ public class RobotContainer {
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
     FastClimber fastClimb = new FastClimber();
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
-
-
-  //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
-
-   // DrivetrainTelemetry dttel = new DrivetrainTelemetry(swervebase);
 
     // Autonomous routines manager
-   // private final AutoRoutines autoRoutines = new AutoRoutines(swervebase, shooterLimelight, backLimelight);
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, fastClimb, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -77,8 +71,7 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         configureTestBindings();
-        // Handles autonomous command selection and configuration. Deprecates getAutonomousCommand() generated method
-     //  autoRoutines.configure();
+        autoRoutines.configure();
     }
 
     /**

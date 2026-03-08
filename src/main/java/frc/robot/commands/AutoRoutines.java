@@ -16,6 +16,13 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.subsystems.Cowl;
+import frc.robot.subsystems.FastClimber;
+import frc.robot.subsystems.Feeder;
+import frc.robot.subsystems.Floor;
+import frc.robot.subsystems.Flywheel;
+import frc.robot.subsystems.IntakePivot;
+import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
 
@@ -25,8 +32,15 @@ import frc.robot.subsystems.Swerve;
  */
 public final class AutoRoutines {
     private final Swerve swerve;
+    private final Cowl cowl;
+    private final FastClimber fastClimber;
+    private final Feeder feeder;
+    private final Floor floor;
+    private final Flywheel flywheel;
+    private final IntakePivot intakePivot;
+    private final IntakeRollers intakeRollers;
+    
     private final Limelight shooterLimelight;
-    private final Limelight backLimelight;
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
 
@@ -39,12 +53,24 @@ public final class AutoRoutines {
      */
     public AutoRoutines(
         Swerve swerve,
-        Limelight shooterLimelight,
-        Limelight backLimelight
+        Cowl cowl,
+        FastClimber fastClimber,
+        Feeder feeder,
+        Floor floor,
+        Flywheel flywheel, 
+        IntakePivot intakePivot,
+        IntakeRollers intakeRollers,
+        Limelight shooterLimelight
     ) {
         this.swerve = swerve;
+        this.cowl = cowl;
+        this.fastClimber = fastClimber;
+        this.feeder = feeder;
+        this.floor = floor;
+        this.flywheel = flywheel;
+        this.intakePivot = intakePivot;
+        this.intakeRollers = intakeRollers;
         this.shooterLimelight = shooterLimelight;
-        this.backLimelight = backLimelight;
         this.autoFactory = swerve.createAutoFactory();
         this.autoChooser = new AutoChooser();
     }
@@ -85,7 +111,7 @@ public final class AutoRoutines {
         );
 
         // Keep Limelights idle while driving the first path. Useful for paths that rotate or move fast.
-        startToShoot.active().whileTrue(shooterLimelight.idle().alongWith(backLimelight.idle())); 
+        startToShoot.active().whileTrue(shooterLimelight.idle()); 
         
         // Chain the trajectories: when one finishes, start the next
         startToShoot.done().onTrue(shootAndMovetoPreintake.cmd());

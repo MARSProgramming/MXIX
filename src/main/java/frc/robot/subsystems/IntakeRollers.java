@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.constants.Ports;
+import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants;
 
 /**
@@ -47,6 +48,14 @@ public class IntakeRollers extends SubsystemBase {
         }, () -> {
             mIntakeRollers.set(0);
         });
+    }
+
+    public Command intakeCommand() {
+        return runEnd(() -> {
+            mIntakeRollers.setControl(floorVoltageOut.withOutput(Units.Volts.of(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE * 12.0)));
+        }, () -> {
+            mIntakeRollers.set(0);
+        }); 
     }
 
     public void setPercentOut(double percentOut) {
