@@ -14,9 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AutoRoutines;
-import frc.robot.commands.FeedCommand;
 import frc.robot.commands.ManualDriveCommand;
-import frc.robot.commands.PrepareSupershot;
 import frc.robot.constants.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
@@ -64,13 +62,6 @@ public class RobotContainer {
     FastClimber fastClimb = new FastClimber();
    // private final AutoRoutines autoRoutines = new AutoRoutines(swerve, shooterLimelight, backLimelight);
 
-    Command prepShotCommand = new PrepareSupershot(
-      shotSetup, 
-      swerve, 
-      mFlywheel, 
-      mCowl, 
-      () -> -drivePilot.getLeftY(), 
-      () -> -drivePilot.getLeftX());
 
   //  Superstructure mSuperstructure = new Superstructure(mCowl, mFlywheel, mFeeder, mFloor);
 
@@ -111,7 +102,7 @@ public class RobotContainer {
        testPilot.leftBumper().whileTrue(mFloor.setPercentOutTunable().alongWith(mFeeder.setPercentOutTunable()).alongWith(mIntakeRollers.setTunable()));
        testPilot.b().onTrue(mCowl.home());
 
-       testPilot.rightBumper().whileTrue(mFloor.set(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
+       testPilot.rightBumper().whileTrue(mFloor.setPercentOut(-0.5).alongWith(mFeeder.setPercentOut(-0.5).alongWith(mIntakeRollers.set(-0.5))));
 
       testPilot.a().whileTrue(fastClimb.setPercentOutTunable());
       testPilot.y().whileTrue(fastClimb.setPercentOutTunableReverse());

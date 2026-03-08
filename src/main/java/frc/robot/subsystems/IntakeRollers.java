@@ -41,12 +41,16 @@ public class IntakeRollers extends SubsystemBase {
      * @param percentOut The percentage of output (0.0 to 1.0).
      * @return A Command that runs the floor rollers at the specified percent output.
      */
-    public Command set(double percentOut) {
+    public Command setPercentOutCommand(double percentOut) {
         return runEnd(() -> {
             mIntakeRollers.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
         }, () -> {
             mIntakeRollers.set(0);
         });
+    }
+
+    public void setPercentOut(double percentOut) {
+        mIntakeRollers.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
     }
 
     /**

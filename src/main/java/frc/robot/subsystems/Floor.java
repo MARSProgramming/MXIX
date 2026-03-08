@@ -44,12 +44,16 @@ public class Floor extends SubsystemBase {
      */
 
 
-    public Command set(double percentOut) {
+    public Command setPercentOutCommand(double percentOut) {
         return runEnd(() -> {
             mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
         }, () -> {
             mFloor.set(0);
         });
+    }
+
+    public Command setPercentOut(double percentOut) {
+        mFloor.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
     }
 
     /**
