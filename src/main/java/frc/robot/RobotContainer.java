@@ -60,10 +60,10 @@ public class RobotContainer {
     IntakeRollers mIntakeRollers = new IntakeRollers();
     private DrivetrainTelemetry dtTelem = new DrivetrainTelemetry(swerve);
 
-    FastClimber fastClimb = new FastClimber();
+    FastClimber mFastClimber = new FastClimber();
 
     // Autonomous routines manager
-    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, fastClimb, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight);
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -98,9 +98,10 @@ public class RobotContainer {
       drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
 
+      drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
+      drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
 
-
-
+      drivePilot.povDown().onTrue(mCowl.home());
 
     }
 
@@ -123,11 +124,11 @@ public class RobotContainer {
 
        // climb testing
        testPilot.x().whileTrue(
-        fastClimb.setPercentOutTunable()
+        mFastClimber.setPercentOutTunable()
        );
        
        testPilot.y().whileTrue(
-        fastClimb.setPercentOutTunableReverse()
+        mFastClimber.setPercentOutTunableReverse()
        );
 
         testPilot.a().whileTrue(mFeeder.setPercentOutTunable());
@@ -169,7 +170,7 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
-     /*
+     
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
@@ -188,5 +189,5 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
-    } */
+    } 
 }

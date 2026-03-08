@@ -23,12 +23,15 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.FieldConstants.Locations;
+import frc.robot.constants.SystemConstants;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -52,15 +55,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
-    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
-        .withRotationalDeadband(Drive.kPIDRotationDeadband)
-        .withMaxAbsRotationalRate(Drive.kMaxRotationalRate)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-        .withHeadingPID(5, 0, 0);
 
-     private static final Rotation2d kAimTolerance = Rotation2d.fromDegrees(5);
+    private static final Angle kAimTolerance = Units.Degrees.of(5);
 
     /**
      * Creates a new Swerve subsystem.
@@ -170,10 +166,45 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         
         DogLog.log("DogLogSwerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
         DogLog.log("DogLogSwerve/Pose", getState().Pose);
+        DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
     }
 
     public Distance hubDistInMeters() {
         return Units.Meters.of(getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+    }
+
+    public boolean isAimedAtHub() {
+        final Rotation2d targetHeading = getShooterDirectionToHub();
+        
+        // Get current heading in Blue Alliance perspective (standard field coordinates)
+        final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
+        
+        // Convert to Operator Perspective to match the request's frame of reference
+        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
+        
+        return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
+    }
+
+    public boolean isAimedAtVirtualTarget(Rotation2d virtualTargetAngle) {
+    final Rotation2d currentHeading = getState().Pose.getRotation()
+        .rotateBy(getOperatorForwardDirection());
+    return GeometryUtil.isNear(virtualTargetAngle, currentHeading, kAimTolerance);
+    }
+
+    public Rotation2d getShooterDirectionToHub() {
+        final Translation2d hubPosition = Locations.hubPosition();
+        final Pose2d robotPose = this.getState().Pose;
+        Pose2d launcherPosition = robotPose.transformBy(GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
+        final Translation2d shooterPos = launcherPosition.getTranslation();
+
+        
+        // Calculate angle in standard field coordinates (Blue Alliance origin)
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(shooterPos).getAngle();
+        
+        // Adjust for the driver's perspective (Red vs Blue alliance)
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
+        
+        return hubDirectionInOperatorPerspective;
     }
 
     /**

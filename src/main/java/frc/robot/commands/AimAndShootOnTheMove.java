@@ -109,12 +109,12 @@ public class AimAndShootOnTheMove extends Command {
         // Get smoothed joystick inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
         
+        ShotSetup.SOTMInfo sotmInfo = shotSetup.getSOTMInfo(swerve);
 
-        double cowlAngle = shotSetup.getSOTMInfo(swerve).shotInfo.cowlPosition;
-        double shooterRPM = shotSetup.getSOTMInfo(swerve).shotInfo.shot.shooterRPM;
-        Rotation2d virtualTargetAngle = shotSetup.getSOTMInfo(swerve).virtualTargetAngle;
+        double cowlAngle = sotmInfo.shotInfo.cowlPosition;
+        double shooterRPM = sotmInfo.shotInfo.shot.shooterRPM;
+        Rotation2d virtualTargetAngle = sotmInfo.virtualTargetAngle;        
 
-        // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
                 .withVelocityX(Drive.kMaxSpeed.times(input.forward))
@@ -125,7 +125,7 @@ public class AimAndShootOnTheMove extends Command {
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (isAimed() && flywheel.isVelocityWithinTolerance()) {
+        if (swerve.isAimedAtVirtualTarget(virtualTargetAngle) && flywheel.isVelocityWithinTolerance()) {
             readyToShootBoolean = true;
         }
 
@@ -150,21 +150,7 @@ public class AimAndShootOnTheMove extends Command {
 
     @Override
     public boolean isFinished() {
-        // Command runs until interrupted (e.g., button release)
         return false;
-    }
-
-        /**
-     * Checks if the robot is currently facing the target within tolerance.
-     *
-     * @return true if the robot's heading is close to the target heading.
-     */
-    public boolean isAimed() {
-        final Rotation2d targetHeading = fieldCentricFacingAngleRequest.TargetDirection;
-        final Rotation2d currentHeadingInBlueAlliancePerspective = swerve.getState().Pose.getRotation();
-        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(swerve.getOperatorForwardDirection());
-        
-        return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
     }
 
 }
