@@ -143,11 +143,11 @@ public class RobotContainer {
        testPilot.leftTrigger().whileTrue(mIntakeRollers.setTunable());
 
        // climb testing
-       testPilot.x().whileTrue(
+       testPilot.povUp().whileTrue(
         mFastClimber.setPercentOutTunable()
        );
        
-       testPilot.y().whileTrue(
+       testPilot.povDown().whileTrue(
         mFastClimber.setPercentOutTunableReverse()
        );
 
@@ -156,8 +156,8 @@ public class RobotContainer {
         testPilot.back().whileTrue(mIntakeRollers.setTunable());
 
        //cowl
-       testPilot.povUp().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
-       testPilot.povDown().onTrue(mCowl.home());
+       testPilot.x().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
+       testPilot.y().onTrue(mCowl.home());
 
        //intakepivot
        testPilot.povRight().whileTrue(mIntakePivot.forwardTunable());
