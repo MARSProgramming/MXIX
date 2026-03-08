@@ -24,7 +24,42 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj LeftSideBumpMiddle = new ChoreoTraj(
+    public static final ChoreoTraj LeftSideBumpFullPass = new ChoreoTraj(
+	    "LeftSideBumpFullPass",
+	    OptionalInt.empty(),
+	    11.26131,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.15, 2.9, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj LeftSideBumpFullPass$0 = new ChoreoTraj(
+	    "LeftSideBumpFullPass",
+	    OptionalInt.of(0),
+	    3.08331,
+	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj LeftSideBumpFullPass$1 = new ChoreoTraj(
+	    "LeftSideBumpFullPass",
+	    OptionalInt.of(1),
+	    3.95493,
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpFullPass$2 = new ChoreoTraj(
+	    "LeftSideBumpFullPass",
+	    OptionalInt.of(2),
+	    2.17019,
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj LeftSideBumpFullPass$3 = new ChoreoTraj(
+	    "LeftSideBumpFullPass",
+	    OptionalInt.of(3),
+	    2.05288,
+	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(1.15, 2.9, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj LeftSideBumpMiddle = new ChoreoTraj(
 	    "LeftSideBumpMiddle",
 	    OptionalInt.empty(),
 	    8.52919,
@@ -108,6 +143,41 @@ public record ChoreoTraj(
 	    new Pose2d(1.657, 0.67, Rotation2d.fromRadians(0)),
 	    new Pose2d(3.329, 3.978, Rotation2d.fromRadians(0))
 	);
+	public static final ChoreoTraj RightSideBumpFullPass = new ChoreoTraj(
+	    "RightSideBumpFullPass",
+	    OptionalInt.empty(),
+	    11.42544,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.95, 4.6, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj RightSideBumpFullPass$0 = new ChoreoTraj(
+	    "RightSideBumpFullPass",
+	    OptionalInt.of(0),
+	    3.08331,
+	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356))
+	);
+	public static final ChoreoTraj RightSideBumpFullPass$1 = new ChoreoTraj(
+	    "RightSideBumpFullPass",
+	    OptionalInt.of(1),
+	    4.56118,
+	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj RightSideBumpFullPass$2 = new ChoreoTraj(
+	    "RightSideBumpFullPass",
+	    OptionalInt.of(2),
+	    2.170189999999999,
+	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj RightSideBumpFullPass$3 = new ChoreoTraj(
+	    "RightSideBumpFullPass",
+	    OptionalInt.of(3),
+	    1.6107600000000009,
+	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(0.95, 4.6, Rotation2d.fromRadians(3.142))
+	);
 	public static final ChoreoTraj RightSideBumpMiddle = new ChoreoTraj(
 	    "RightSideBumpMiddle",
 	    OptionalInt.empty(),
@@ -164,83 +234,18 @@ public record ChoreoTraj(
 	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(0.6, 0.65, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj RightSideBumpFullPass = new ChoreoTraj(
-	    "RightSideBumpFullPass",
-	    OptionalInt.empty(),
-	    11.42544,
-	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
-	    new Pose2d(0.95, 4.6, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj RightSideBumpFullPass$0 = new ChoreoTraj(
-	    "RightSideBumpFullPass",
-	    OptionalInt.of(0),
-	    3.08331,
-	    new Pose2d(3.6, 0.9, Rotation2d.fromRadians(0)),
-	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356))
-	);
-	public static final ChoreoTraj RightSideBumpFullPass$1 = new ChoreoTraj(
-	    "RightSideBumpFullPass",
-	    OptionalInt.of(1),
-	    4.56118,
-	    new Pose2d(6, 2.45, Rotation2d.fromRadians(2.356)),
-	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785))
-	);
-	public static final ChoreoTraj RightSideBumpFullPass$2 = new ChoreoTraj(
-	    "RightSideBumpFullPass",
-	    OptionalInt.of(2),
-	    2.170189999999999,
-	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785))
-	);
-	public static final ChoreoTraj RightSideBumpFullPass$3 = new ChoreoTraj(
-	    "RightSideBumpFullPass",
-	    OptionalInt.of(3),
-	    1.6107600000000009,
-	    new Pose2d(3, 5.65, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(0.95, 4.6, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj LeftSideBumpFullPass = new ChoreoTraj(
-	    "LeftSideBumpFullPass",
-	    OptionalInt.empty(),
-	    11.26131,
-	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.15, 2.9, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj LeftSideBumpFullPass$0 = new ChoreoTraj(
-	    "LeftSideBumpFullPass",
-	    OptionalInt.of(0),
-	    3.08331,
-	    new Pose2d(3.6, 7.2, Rotation2d.fromRadians(0)),
-	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356))
-	);
-	public static final ChoreoTraj LeftSideBumpFullPass$1 = new ChoreoTraj(
-	    "LeftSideBumpFullPass",
-	    OptionalInt.of(1),
-	    3.95493,
-	    new Pose2d(6, 5.65, Rotation2d.fromRadians(-2.356)),
-	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj LeftSideBumpFullPass$2 = new ChoreoTraj(
-	    "LeftSideBumpFullPass",
-	    OptionalInt.of(2),
-	    2.17019,
-	    new Pose2d(6, 2.45, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj LeftSideBumpFullPass$3 = new ChoreoTraj(
-	    "LeftSideBumpFullPass",
-	    OptionalInt.of(3),
-	    2.05288,
-	    new Pose2d(3, 2.45, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(1.15, 2.9, Rotation2d.fromRadians(0))
-	);
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("LeftSideBumpMiddle", LeftSideBumpMiddle),
+    	Map.entry("LeftSideBumpFullPass", LeftSideBumpFullPass),
+		Map.entry("LeftSideBumpFullPass$0", LeftSideBumpFullPass$0),
+		Map.entry("LeftSideBumpFullPass$1", LeftSideBumpFullPass$1),
+		Map.entry("LeftSideBumpFullPass$2", LeftSideBumpFullPass$2),
+		Map.entry("LeftSideBumpFullPass$3", LeftSideBumpFullPass$3),
+		Map.entry("LeftSideBumpMiddle", LeftSideBumpMiddle),
 		Map.entry("LeftSideBumpMiddle$0", LeftSideBumpMiddle$0),
 		Map.entry("LeftSideBumpMiddle$1", LeftSideBumpMiddle$1),
 		Map.entry("LeftSideBumpMiddleDepot", LeftSideBumpMiddleDepot),
@@ -252,6 +257,11 @@ public record ChoreoTraj(
 		Map.entry("OutpostTrajectory$0", OutpostTrajectory$0),
 		Map.entry("OutpostTrajectory$1", OutpostTrajectory$1),
 		Map.entry("OutpostTrajectory$2", OutpostTrajectory$2),
+		Map.entry("RightSideBumpFullPass", RightSideBumpFullPass),
+		Map.entry("RightSideBumpFullPass$0", RightSideBumpFullPass$0),
+		Map.entry("RightSideBumpFullPass$1", RightSideBumpFullPass$1),
+		Map.entry("RightSideBumpFullPass$2", RightSideBumpFullPass$2),
+		Map.entry("RightSideBumpFullPass$3", RightSideBumpFullPass$3),
 		Map.entry("RightSideBumpMiddle", RightSideBumpMiddle),
 		Map.entry("RightSideBumpMiddle$0", RightSideBumpMiddle$0),
 		Map.entry("RightSideBumpMiddle$1", RightSideBumpMiddle$1),
@@ -259,17 +269,7 @@ public record ChoreoTraj(
 		Map.entry("RightSideBumpMiddleOutpost$0", RightSideBumpMiddleOutpost$0),
 		Map.entry("RightSideBumpMiddleOutpost$1", RightSideBumpMiddleOutpost$1),
 		Map.entry("RightSideBumpMiddleOutpost$2", RightSideBumpMiddleOutpost$2),
-		Map.entry("RightSideBumpMiddleOutpost$3", RightSideBumpMiddleOutpost$3),
-		Map.entry("RightSideBumpFullPass", RightSideBumpFullPass),
-		Map.entry("RightSideBumpFullPass$0", RightSideBumpFullPass$0),
-		Map.entry("RightSideBumpFullPass$1", RightSideBumpFullPass$1),
-		Map.entry("RightSideBumpFullPass$2", RightSideBumpFullPass$2),
-		Map.entry("RightSideBumpFullPass$3", RightSideBumpFullPass$3),
-		Map.entry("LeftSideBumpFullPass", LeftSideBumpFullPass),
-		Map.entry("LeftSideBumpFullPass$0", LeftSideBumpFullPass$0),
-		Map.entry("LeftSideBumpFullPass$1", LeftSideBumpFullPass$1),
-		Map.entry("LeftSideBumpFullPass$2", LeftSideBumpFullPass$2),
-		Map.entry("LeftSideBumpFullPass$3", LeftSideBumpFullPass$3)
+		Map.entry("RightSideBumpMiddleOutpost$3", RightSideBumpMiddleOutpost$3)
     );
 
     /**
