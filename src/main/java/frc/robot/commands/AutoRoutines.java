@@ -10,10 +10,6 @@ import static frc.robot.util.ChoreoTraj.LeftCenterBeelineNoSweep$2;
 import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$0;
 import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$1;
 import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$2;
-import static frc.robot.util.ChoreoTraj.OutpostTrajectory$0;
-import static frc.robot.util.ChoreoTraj.OutpostTrajectory$1;
-import static frc.robot.util.ChoreoTraj.OutpostTrajectory$2;
-import static frc.robot.util.ChoreoTraj.ResetPoseOutpost;
 import static frc.robot.util.ChoreoTraj.ShootPreloaded;
 
 import choreo.auto.AutoChooser;
@@ -91,7 +87,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("driveToPreloaded pos", this::drivetoPreloadShootPos);
         autoChooser.addRoutine("Left Side Center Beeline", this::leftBumpBeelineToCenter);
         autoChooser.addRoutine("Left Side Center Beeline Sweep", this::leftBumpBeelineAndSweepCenter);
-        
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // Schedule the selected autonomous command when the robot enters autonomous mode
