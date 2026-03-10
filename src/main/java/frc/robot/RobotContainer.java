@@ -66,14 +66,11 @@ public class RobotContainer {
     LEDSubsystem leds = new LEDSubsystem();
     FastClimber mFastClimber = new FastClimber();
 
-    private final Trigger isAimedTrigger = new Trigger(() -> swerve.isAimedAtHub());
-
 
 
 
     // Autonomous routines manager
-    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, shooterLimelight);
-
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds, shooterLimelight);
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -89,11 +86,6 @@ public class RobotContainer {
     private void configureBindings() {
 
 
-      isAimedTrigger
-        .onTrue(
-        Commands.runOnce(() -> leds.strobe(LEDSegment.ALL)))
-        .onFalse(
-        Commands.runOnce(() -> leds.rainbow(LEDSegment.ALL)));
 
 
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
@@ -106,18 +98,21 @@ public class RobotContainer {
       swerve.setDefaultCommand(manualDriveCommand);
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
-      shooterLimelight.setDefaultCommand(updateShooterVision());
-      backLimelight.setDefaultCommand(updateBackVision());
+       shooterLimelight.setDefaultCommand(updateShooterVision());
+      // backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
 
-      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers));
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, () -> -drivePilot.getLeftY(), leds,  () -> -drivePilot.getLeftX()));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
 
-      drivePilot.povDown().onTrue(mCowl.home());
+      drivePilot.x().whileTrue(mIntakePivot.slamtake());
+
+      drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE));
+      drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE));
 
     }
 

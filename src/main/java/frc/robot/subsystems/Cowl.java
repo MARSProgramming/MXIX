@@ -28,8 +28,8 @@ public class Cowl extends SubsystemBase {
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.5);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
-    double cTunablePosition = cowlPositionTunable.get();
-    double cTunablePercentout = cowlPercentOutTunable.get();
+    double cTunablePosition = 0;
+    double cTunablePercentout = 0;
 
     /**
      * Creates a new Cowl subsystem.
@@ -121,8 +121,8 @@ public class Cowl extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePosition = cowlPositionTunable.get();
-        cTunablePercentout = cowlPercentOutTunable.get();
+        cTunablePosition = 0;
+        cTunablePercentout = 0;
 
         // Log current position
         DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());

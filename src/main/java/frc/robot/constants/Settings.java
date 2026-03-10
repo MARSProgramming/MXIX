@@ -3,9 +3,9 @@ package frc.robot.constants;
 public class Settings {
     
     public static class IntakePivotSettings {
-        public static double INTAKE_DEPLOY_TIMEOUT = 0.4;
-        public static double INTAKE_RETRACT_TIMEOUT = 0.4;
-        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.2;
+        public static double INTAKE_DEPLOY_TIMEOUT = 0.5;
+        public static double INTAKE_RETRACT_TIMEOUT = 0.5;
+        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.45;
     }
 
     public static class FeedSystemSettings {
@@ -17,7 +17,7 @@ public class Settings {
     }
 
     public static class IntakeSystemSettings {
-        public static double INTAKING_STANDARD_DUTYCYCLE = 0.8;
+        public static double INTAKING_STANDARD_DUTYCYCLE = 0.9;
     }
 
 
@@ -25,5 +25,9 @@ public class Settings {
         public static double LINEUP_VELOCITY = 0.3; // M/s
         public static double SIDEWAYS_LINEUP_TIMEOUT = 1.0;
         public static double FORWARD_LINEUP_TIMEOUT = 0.7;
+    }
+
+    public static class ClimbSettings {
+        public static double CLIMB_DUTYCYCLE = 0.4;
     }
 }

@@ -38,30 +38,13 @@ public class Robot extends TimedRobot {
     
 
 
-    @Override
-    public void robotInit() {
-        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
-    }
+
 
     @Override
     public void disabledInit() {
         m_robotContainer.getLedSubsystem().rainbow(LEDSegment.ALL);
     }
 
-    @Override
-    public void teleopInit() {
-        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
-    }
-
-    @Override
-    public void testInit() {
-        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
-    }
-
-    @Override
-    public void autonomousInit() {
-        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.LEFT_BAR);
-    }
 
     /**
      * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics

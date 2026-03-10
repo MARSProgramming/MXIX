@@ -128,7 +128,7 @@ public class LEDSubsystem extends SubsystemBase {
         int end = start + getCount(segment) - 1;
 
         StrobeAnimation strobeAnimation = new StrobeAnimation(start, end)
-        .withColor(RGBWColor.fromHex(Color.kRed.toHexString()).get())
+        .withColor(RGBWColor.fromHex(Color.kGreen.toHexString()).get())
         .withFrameRate(50);
 
         candle.setControl(strobeAnimation);
@@ -161,7 +161,7 @@ public class LEDSubsystem extends SubsystemBase {
         LarsonAnimation larson = new LarsonAnimation(start, end)
     
                 .withColor(new RGBWColor(r, g, b))
-                .withFrameRate(50)
+                .withFrameRate(10)
                 .withSize(15)
                 .withBounceMode(LarsonBounceValue.Front);
 

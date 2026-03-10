@@ -36,8 +36,8 @@ public class Flywheel extends SubsystemBase {
     private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 3400.0);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.5);
 
-    double sTunableRpm = shooterRpmTunable.get();
-    double sTunablePercentOut = shooterPercentOutTunable.get(); 
+    double sTunableRpm = 0;
+    double sTunablePercentOut = 0;
 
     // Control requests
     VoltageOut flywheelVoltageOut = new VoltageOut(0);
@@ -165,8 +165,8 @@ public class Flywheel extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variables from NetworkTables
-        sTunableRpm = shooterRpmTunable.get();
-        sTunablePercentOut = shooterPercentOutTunable.get();
+        sTunableRpm = 0;
+        sTunablePercentOut = 0;
 
         // Logging
         DogLog.log("Shooter/RightMaster/VelocityRPM", Units.RotationsPerSecond.of(rm.getVelocity().getValueAsDouble()).in(Units.RPM));

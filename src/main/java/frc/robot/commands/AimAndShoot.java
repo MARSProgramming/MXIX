@@ -9,6 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -17,11 +18,13 @@ import frc.robot.constants.FieldConstants.Locations;
 import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
@@ -39,6 +42,7 @@ public class AimAndShoot extends Command {
     private final Feeder feeder;
     private final IntakeRollers intakeRollers;
     private final Floor floor;
+    private final LEDSubsystem ledsubsystem;
 
 
     private final ShotSetup shotSetup;
@@ -62,6 +66,7 @@ public class AimAndShoot extends Command {
         Floor floor,
         IntakeRollers intakeRollers,
         DoubleSupplier forwardInput,
+        LEDSubsystem ledsubsystem,
         DoubleSupplier leftInput
     ) {
         this.swerve = swerve;
@@ -70,6 +75,7 @@ public class AimAndShoot extends Command {
         this.floor = floor;
         this.intakeRollers = intakeRollers;
         this.flywheel = flywheel;
+        this.ledsubsystem = ledsubsystem;
 
         shotSetup = new ShotSetup();
 
@@ -77,8 +83,8 @@ public class AimAndShoot extends Command {
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
-    public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers) {
-        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
+    public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, ledSubsystem, () -> 0);
     }
 
 
@@ -119,6 +125,8 @@ public class AimAndShoot extends Command {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
+
+            ledsubsystem.setColor(Color.kGreen, LEDSegment.ALL);
         }
     }
 
@@ -129,6 +137,7 @@ public class AimAndShoot extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
+        ledsubsystem.rainbow(LEDSegment.ALL);
     }
 
     @Override

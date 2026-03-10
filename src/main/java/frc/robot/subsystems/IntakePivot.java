@@ -23,8 +23,8 @@ public class IntakePivot extends SubsystemBase {
 
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
-    double cTunablePivotOut = pivotPercentOutTunable.get();
-
+    double cTunablePivotOut = 0;
+    
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
     /**
@@ -86,8 +86,9 @@ public class IntakePivot extends SubsystemBase {
 
     
     public Command slamtake() {
+    // assumes intake is deployed. 
     return Commands.repeatingSequence(
-        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
+        this.setPercentOut(-IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
         Commands.waitSeconds(1),
         this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
         Commands.waitSeconds(1)
@@ -97,7 +98,7 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePivotOut = pivotPercentOutTunable.get();
+        cTunablePivotOut = 0;
 
         // Log current position
         DogLog.log("Intake/Pivot/Position", mIntakePivot.getPosition().getValueAsDouble());

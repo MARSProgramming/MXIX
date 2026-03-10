@@ -23,7 +23,7 @@ public class Floor extends SubsystemBase {
     // Tunable value for testing percent output via NetworkTables
     private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.8);
 
-    double sTunablePercentOut = floorPercentOutTunable.get();
+    double sTunablePercentOut = 0;
 
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
@@ -73,7 +73,7 @@ public class Floor extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable and log data
-        sTunablePercentOut = floorPercentOutTunable.get();
+        sTunablePercentOut = 0;
         DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
         DogLog.log("Floor/AppliedVoltage", mFloor.getMotorVoltage().getValueAsDouble());
         DogLog.log("Floor/Temperature", mFloor.getDeviceTemp().getValueAsDouble());

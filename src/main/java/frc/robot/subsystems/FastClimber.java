@@ -24,8 +24,8 @@ public class FastClimber extends SubsystemBase {
     private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.4);
     private final DoubleSubscriber climbPositionTunable = DogLog.tunable("FastClimber/TunableClimbPosition", 0.1);
 
-    double cTunableOutput = climbPercentDoubleSubscriber.get();
-    double cTunablePosition = climbPositionTunable.get();
+    double cTunableOutput = 0;
+    double cTunablePosition = 0;
 
     /**
      * Creates a new Cowl subsystem.
@@ -93,8 +93,6 @@ public class FastClimber extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePosition = climbPositionTunable.get();
-        cTunableOutput = climbPercentDoubleSubscriber.get();
 
         // Log current position
         DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());

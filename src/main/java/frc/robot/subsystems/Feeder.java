@@ -25,8 +25,8 @@ public class Feeder extends SubsystemBase {
     private final IntegerSubscriber feederRpmTunable = DogLog.tunable("Feeder/TunableFeederVelocity", 2000);
     private final DoubleSubscriber feederPercOutTunable = DogLog.tunable("Feeder/TunableFeederPercOut", 1.0);
 
-    double sTunableRpm = feederRpmTunable.get();
-    double stunablePercOut = feederPercOutTunable.get();
+    double sTunableRpm = 0;
+    double stunablePercOut = 0; 
 
     // Control requests for the TalonFX
     VelocityVoltage feederVelocityOut = new VelocityVoltage(0).withSlot(0);
@@ -111,8 +111,6 @@ public class Feeder extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        sTunableRpm = feederRpmTunable.get();
-        stunablePercOut = feederPercOutTunable.get();
         
         // Log relevant data to DogLog/NetworkTables
         DogLog.log("Feeder/VelocityRPM", Units.RotationsPerSecond.of(mFeeder.getVelocity().getValueAsDouble()).in(Units.RPM));
