@@ -65,6 +65,10 @@ public class IntakePivot extends SubsystemBase {
         );
     }
 
+    public Command timedDeployCommand() {
+        return deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT);
+    }
+
     public Command retractCommand() {
         return runEnd(
             () -> {

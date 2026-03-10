@@ -8,6 +8,12 @@ import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$0;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$1;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$3;
+import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$0;
+import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$1;
+import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$2;
+import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$0;
+import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$1;
+import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$2;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -87,6 +93,12 @@ public final class AutoRoutines {
     public void configure() {
         autoChooser.addRoutine("C_BEELINE", this::C_BEELINE);
         autoChooser.addRoutine("C_BEELINE_GREED", this::C_BEELINE_GREED);
+        autoChooser.addRoutine("C_PRELOAD", this::C_PRELOAD);
+        autoChooser.addRoutine("C_DEPOT", this::C_DEPOT);
+        autoChooser.addRoutine("D_PRELOAD", this::D_PRELOAD);
+        autoChooser.addRoutine("D_DEPOT", this::D_DEPOT);
+
+
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -152,10 +164,93 @@ public final class AutoRoutines {
             goOverBumpTraj.cmd().andThen(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()))
         );
         
- 
         return routine;
-
     }
+
+    private AutoRoutine C_PRELOAD() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_PRELOAD_ROUTINE");
+
+        final AutoTrajectory lineUpToDepot = C_HOME_FAMILY$0.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            lineUpToDepot.resetOdometry()
+            .andThen(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                .alongWith(intakePivot.slamtake())
+                .withTimeout(5)
+            )
+        );
+
+
+        return routine;
+    }
+
+    private AutoRoutine C_DEPOT() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
+        final AutoTrajectory lineUpToDepot = C_HOME_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getDepots = C_HOME_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory goToScoringPos = C_HOME_FAMILY$2.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                lineUpToDepot.resetOdometry(),
+                lineUpToDepot.cmd().alongWith(intakePivot.timedDeployCommand())
+            )
+        );
+
+        lineUpToDepot.done().onTrue(
+            getDepots.cmd().alongWith(intakeRollers.intakeCommand())
+        );
+
+        getDepots.done().onTrue(goToScoringPos.cmd());
+
+        goToScoringPos.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
+
+        return routine;
+    }
+
+    private AutoRoutine D_PRELOAD() {
+        final AutoRoutine routine = autoFactory.newRoutine("D_PRELOAD_ROUTINE");
+
+        final AutoTrajectory lineUpToDepot = D_HOME_FAMILY$0.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            lineUpToDepot.resetOdometry()
+            .andThen(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                .alongWith(intakePivot.slamtake())
+                .withTimeout(5)
+            )
+        );
+
+
+        return routine;
+    }
+
+    private AutoRoutine D_DEPOT() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
+        final AutoTrajectory lineUpToDepot = D_HOME_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getDepots = D_HOME_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory goToScoringPos = D_HOME_FAMILY$2.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                lineUpToDepot.resetOdometry(),
+                lineUpToDepot.cmd().alongWith(intakePivot.timedDeployCommand())
+            )
+        );
+
+        lineUpToDepot.done().onTrue(
+            getDepots.cmd().alongWith(intakeRollers.intakeCommand())
+        );
+
+        getDepots.done().onTrue(goToScoringPos.cmd());
+
+        goToScoringPos.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
+
+        return routine;
+    }
+
 
 
 }
