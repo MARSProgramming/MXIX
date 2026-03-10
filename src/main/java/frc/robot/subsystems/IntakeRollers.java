@@ -24,6 +24,8 @@ public class IntakeRollers extends SubsystemBase {
     // Tunable value for testing percent output via NetworkTables
     private final DoubleSubscriber intakePercentOutTunable = DogLog.tunable("Intake/TunableIntakeRollerOutput", 0.8);
     double sTunablePercentOut = 0;
+    // Rate limiter for periodic logging
+    private int logCounter = 0;
 
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
@@ -80,8 +82,11 @@ public class IntakeRollers extends SubsystemBase {
     public void periodic() {
         // Update local tunable variable and log data
         sTunablePercentOut = 0;
-        DogLog.log("Intake/VelocityRPM", Units.RotationsPerSecond.of(mIntakeRollers.getVelocity().getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Intake/AppliedVoltage", mIntakeRollers.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Intake/Temperature", mIntakeRollers.getDeviceTemp().getValueAsDouble());
+        if (++logCounter >= 5) {
+            logCounter = 0;
+            DogLog.log("Intake/VelocityRPM", Units.RotationsPerSecond.of(mIntakeRollers.getVelocity().getValueAsDouble()).in(Units.RPM));
+            DogLog.log("Intake/AppliedVoltage", mIntakeRollers.getMotorVoltage().getValueAsDouble());
+            DogLog.log("Intake/Temperature", mIntakeRollers.getDeviceTemp().getValueAsDouble());
+        }
     }
 }

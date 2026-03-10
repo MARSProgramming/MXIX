@@ -24,6 +24,8 @@ public class IntakePivot extends SubsystemBase {
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
     double cTunablePivotOut = 0;
+    // Rate limiter for periodic logging
+    private int logCounter = 0;
     
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
@@ -101,8 +103,11 @@ public class IntakePivot extends SubsystemBase {
         cTunablePivotOut = 0;
 
         // Log current position
-        DogLog.log("Intake/Pivot/Position", mIntakePivot.getPosition().getValueAsDouble());
-        DogLog.log("Intake/Pivot/AppliedVoltage", mIntakePivot.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Intake/Pivot/Temperature", mIntakePivot.getDeviceTemp().getValueAsDouble());
+        if (++logCounter >= 5) {
+            logCounter = 0;
+            DogLog.log("Intake/Pivot/Position", mIntakePivot.getPosition().getValueAsDouble());
+            DogLog.log("Intake/Pivot/AppliedVoltage", mIntakePivot.getMotorVoltage().getValueAsDouble());
+            DogLog.log("Intake/Pivot/Temperature", mIntakePivot.getDeviceTemp().getValueAsDouble());
+        }
     }
 }

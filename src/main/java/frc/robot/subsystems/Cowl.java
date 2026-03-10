@@ -30,6 +30,8 @@ public class Cowl extends SubsystemBase {
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
     double cTunablePosition = 0;
     double cTunablePercentout = 0;
+    // Rate limiter for logging to avoid overwhelming the robot thread
+    private int logCounter = 0;
 
     /**
      * Creates a new Cowl subsystem.
@@ -124,10 +126,13 @@ public class Cowl extends SubsystemBase {
         cTunablePosition = 0;
         cTunablePercentout = 0;
 
-        // Log current position
-        DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());
-        DogLog.log("Cowl/AppliedVoltage", mCowl.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Cowl/SupplyCurrent", mCowl.getSupplyCurrent().getValueAsDouble());
-        DogLog.log("Cowl/Temperature", mCowl.getDeviceTemp().getValueAsDouble());
+        // Rate-limited logging: log at ~10Hz instead of 50Hz
+        if (++logCounter >= 5) {
+            logCounter = 0;
+            DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());
+            DogLog.log("Cowl/AppliedVoltage", mCowl.getMotorVoltage().getValueAsDouble());
+            DogLog.log("Cowl/SupplyCurrent", mCowl.getSupplyCurrent().getValueAsDouble());
+            DogLog.log("Cowl/Temperature", mCowl.getDeviceTemp().getValueAsDouble());
+        }
     }
 }

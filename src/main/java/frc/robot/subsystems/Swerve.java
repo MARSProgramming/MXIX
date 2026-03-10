@@ -48,6 +48,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
     /* Keep track if we've ever applied the operator perspective before or not */
     private boolean m_hasAppliedOperatorPerspective = false;
+    // Rate limiter for periodic logging
+    private int m_logCounter = 0;
 
     /** Swerve request to apply during field-centric path following */
     private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
@@ -164,9 +166,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         }
 
         
-        DogLog.log("DogLogSwerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
-        DogLog.log("DogLogSwerve/Pose", getState().Pose);
-        DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
+        // Rate-limited swerve diagnostics to avoid overwhelming the main loop
+        if (++m_logCounter >= 5) {
+            m_logCounter = 0;
+            DogLog.log("DogLogSwerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+            DogLog.log("DogLogSwerve/Pose", getState().Pose);
+            DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
+        }
     }
 
     public Distance hubDistInMeters() {

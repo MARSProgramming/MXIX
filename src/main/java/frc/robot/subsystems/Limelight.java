@@ -24,11 +24,17 @@ public class Limelight extends SubsystemBase {
     private final String name;
     private final NetworkTable telemetryTable;
     private final StructPublisher<Pose2d> posePublisher;
+    // Cache last states to avoid repeated NetworkTables/HTTP writes each loop
+    private boolean lastDisabled = !edu.wpi.first.wpilibj.RobotState.isDisabled();
 
     public Limelight(String name) {
         this.name = name;
         this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
         this.posePublisher = telemetryTable.getStructTopic("Estimated Robot Pose", Pose2d.struct).publish();
+        // Configure static settings once at construction time instead of every periodic
+        LimelightHelpers.SetIMUMode(name, 4);
+        LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
+        LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
     }
 
     public Optional<Measurement> getMeasurement(Pose2d currentRobotPose) {
@@ -68,16 +74,12 @@ public class Limelight extends SubsystemBase {
 
     @Override
     public void periodic() {  
-        if (RobotState.isDisabled()) {
-            LimelightHelpers.SetThrottle(name, 100);
-        } else {
-            LimelightHelpers.SetThrottle(name, 0);
+        // Only toggle throttle when disabled state changes to avoid heavy NT traffic
+        boolean disabled = RobotState.isDisabled();
+        if (disabled != lastDisabled) {
+            lastDisabled = disabled;
+            LimelightHelpers.SetThrottle(name, disabled ? 100 : 0);
         }
-
-
-        LimelightHelpers.SetIMUMode(name, 4);
-        LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
-        LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
 
 }
 }

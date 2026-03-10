@@ -26,6 +26,8 @@ public class FastClimber extends SubsystemBase {
 
     double cTunableOutput = 0;
     double cTunablePosition = 0;
+    // Rate limiter for periodic logging
+    private int logCounter = 0;
 
     /**
      * Creates a new Cowl subsystem.
@@ -95,9 +97,12 @@ public class FastClimber extends SubsystemBase {
         // Update local tunable variable from NetworkTables
 
         // Log current position
-        DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());
-        DogLog.log("FastClimber/AppliedVoltage", mFastClimber.getMotorVoltage().getValueAsDouble());
-        DogLog.log("FastClimber/Temperature", mFastClimber.getDeviceTemp().getValueAsDouble());
+        if (++logCounter >= 5) {
+            logCounter = 0;
+            DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());
+            DogLog.log("FastClimber/AppliedVoltage", mFastClimber.getMotorVoltage().getValueAsDouble());
+            DogLog.log("FastClimber/Temperature", mFastClimber.getDeviceTemp().getValueAsDouble());
+        }
 
     }
 }
