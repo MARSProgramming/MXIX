@@ -1,11 +1,16 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -23,7 +28,11 @@ public class Floor extends SubsystemBase {
     // Tunable value for testing percent output via NetworkTables
     private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.8);
 
-    double sTunablePercentOut = 0;
+    private final StatusSignal<AngularVelocity> mVelocity = mFloor.getVelocity();
+    private final StatusSignal<Voltage> mVoltage  = mFloor.getMotorVoltage();
+    private final StatusSignal<Temperature> mTemp     = mFloor.getDeviceTemp();
+
+    double sTunablePercentOut = floorPercentOutTunable.get();
 
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
@@ -72,10 +81,12 @@ public class Floor extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Update local tunable variable and log data
-        sTunablePercentOut = 0;
-        DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mFloor.getVelocity().getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Floor/AppliedVoltage", mFloor.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Floor/Temperature", mFloor.getDeviceTemp().getValueAsDouble());
+    sTunablePercentOut = floorPercentOutTunable.get(); // was being reset to 0 — bug fix
+
+    BaseStatusSignal.refreshAll(mVelocity, mVoltage, mTemp);
+
+    DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
+    DogLog.log("Floor/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("Floor/Temperature",    mTemp.getValueAsDouble());
     }
 }

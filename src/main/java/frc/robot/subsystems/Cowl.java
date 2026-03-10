@@ -2,12 +2,18 @@ package frc.robot.subsystems;
 
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
@@ -28,8 +34,14 @@ public class Cowl extends SubsystemBase {
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.5);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
-    double cTunablePosition = 0;
-    double cTunablePercentout = 0;
+
+    private final StatusSignal<Angle> mPosition     = mCowl.getPosition();
+    private final StatusSignal<Voltage> mVoltage       = mCowl.getMotorVoltage();
+    private final StatusSignal<Current> mSupplyCurrent = mCowl.getSupplyCurrent();
+    private final StatusSignal<Temperature> mTemp          = mCowl.getDeviceTemp();
+
+    double cTunablePosition = cowlPositionTunable.get();
+    double cTunablePercentout = cowlPercentOutTunable.get();
 
     /**
      * Creates a new Cowl subsystem.
@@ -103,17 +115,16 @@ public class Cowl extends SubsystemBase {
 
     // Re-zero the cowl motor
 
-    public Command home() {
-        return run(() -> {
-            mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
-        }).until(
-            () -> mCowl.getSupplyCurrent().getValueAsDouble() > SystemConstants.Cowl.kCowlStallCurrent
-        ).andThen(runOnce(() -> {
-            mCowl.setPosition(0);
-            mCowl.set(0);
-        }));
-    }
-
+public Command home() {
+    return run(() -> {
+        mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
+    }).until(
+        () -> mSupplyCurrent.getValueAsDouble() > SystemConstants.Cowl.kCowlStallCurrent 
+    ).andThen(runOnce(() -> {
+        mCowl.setPosition(0);
+        mCowl.set(0);
+    }));
+}
     public Command zero() {
         return runOnce(() -> mCowl.setPosition(0));
     }
@@ -121,13 +132,14 @@ public class Cowl extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePosition = 0;
-        cTunablePercentout = 0;
+        cTunablePosition = cowlPositionTunable.get();
+        cTunablePercentout = cowlPercentOutTunable.get();
+    // Batch refresh all CAN signals in one JNI call
+    BaseStatusSignal.refreshAll(mPosition, mVoltage, mSupplyCurrent, mTemp);
 
-        // Log current position
-        DogLog.log("Cowl/Position", mCowl.getPosition().getValueAsDouble());
-        DogLog.log("Cowl/AppliedVoltage", mCowl.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Cowl/SupplyCurrent", mCowl.getSupplyCurrent().getValueAsDouble());
-        DogLog.log("Cowl/Temperature", mCowl.getDeviceTemp().getValueAsDouble());
+    DogLog.log("Cowl/Position",       mPosition.getValueAsDouble());
+    DogLog.log("Cowl/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("Cowl/SupplyCurrent",  mSupplyCurrent.getValueAsDouble());
+    DogLog.log("Cowl/Temperature",    mTemp.getValueAsDouble());
     }
 }

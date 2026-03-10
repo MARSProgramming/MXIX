@@ -1,11 +1,16 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,7 +30,11 @@ public class IntakePivot extends SubsystemBase {
     private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
     double cTunablePivotOut = 0;
     
-    VoltageOut floorVoltageOut = new VoltageOut(0);
+    private final StatusSignal<Angle> mPosition = mIntakePivot.getPosition();
+    private final StatusSignal<Voltage> mVoltage  = mIntakePivot.getMotorVoltage();
+    private final StatusSignal<Temperature> mTemp     = mIntakePivot.getDeviceTemp();
+
+    VoltageOut pivotVoltageOut = new VoltageOut(0);
 
     /**
      * Creates a new Cowl subsystem.
@@ -39,7 +48,7 @@ public class IntakePivot extends SubsystemBase {
 
     public Command setPercentOut(double percentOut) {
         return runEnd(() -> {
-            mIntakePivot.setControl(floorVoltageOut.withOutput(percentOut * 12.0));
+            mIntakePivot.setControl(pivotVoltageOut.withOutput(percentOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
@@ -48,7 +57,7 @@ public class IntakePivot extends SubsystemBase {
     public Command deployCommand() {
         return runEnd(
             () -> {
-                mIntakePivot.setControl(floorVoltageOut.withOutput(Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+                mIntakePivot.setControl(pivotVoltageOut.withOutput(Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
             },
             () -> {
                 mIntakePivot.set(0);
@@ -59,7 +68,7 @@ public class IntakePivot extends SubsystemBase {
     public Command retractCommand() {
         return runEnd(
             () -> {
-                mIntakePivot.setControl(floorVoltageOut.withOutput(-Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+                mIntakePivot.setControl(pivotVoltageOut.withOutput(-Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
             },
             () -> {
                 mIntakePivot.set(0);
@@ -70,7 +79,7 @@ public class IntakePivot extends SubsystemBase {
 
     public Command forwardTunable() {
         return runEnd(() -> {
-            mIntakePivot.setControl(floorVoltageOut.withOutput(cTunablePivotOut * 12.0));
+            mIntakePivot.setControl(pivotVoltageOut.withOutput(cTunablePivotOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
@@ -78,7 +87,7 @@ public class IntakePivot extends SubsystemBase {
 
         public Command backwardTunable() {
         return runEnd(() -> {
-            mIntakePivot.setControl(floorVoltageOut.withOutput(-cTunablePivotOut * 12.0));
+            mIntakePivot.setControl(pivotVoltageOut.withOutput(-cTunablePivotOut * 12.0));
         }, () -> {
             mIntakePivot.set(0);
         });
@@ -98,11 +107,12 @@ public class IntakePivot extends SubsystemBase {
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables
-        cTunablePivotOut = 0;
+    cTunablePivotOut = pivotPercentOutTunable.get(); // was being reset to 0 — bug fix
 
-        // Log current position
-        DogLog.log("Intake/Pivot/Position", mIntakePivot.getPosition().getValueAsDouble());
-        DogLog.log("Intake/Pivot/AppliedVoltage", mIntakePivot.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Intake/Pivot/Temperature", mIntakePivot.getDeviceTemp().getValueAsDouble());
+    BaseStatusSignal.refreshAll(mPosition, mVoltage, mTemp);
+
+    DogLog.log("Intake/Pivot/Position",       mPosition.getValueAsDouble());
+    DogLog.log("Intake/Pivot/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("Intake/Pivot/Temperature",    mTemp.getValueAsDouble());
     }
 }

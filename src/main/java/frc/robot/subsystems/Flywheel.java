@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -14,6 +16,8 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,8 +40,13 @@ public class Flywheel extends SubsystemBase {
     private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 3400.0);
     private final DoubleSubscriber shooterPercentOutTunable = DogLog.tunable("Shooter/TunableShooterOutput", 0.5);
 
-    double sTunableRpm = 0;
-    double sTunablePercentOut = 0;
+
+    private final StatusSignal<AngularVelocity> rmVelocity, rfVelocity, lmVelocity, lfVelocity;
+    private final StatusSignal<Voltage> rmVoltage, lmVoltage;
+    private final StatusSignal<Temperature> rmTemp, rfTemp, lmTemp, lfTemp;
+
+    double sTunableRpm = shooterRpmTunable.get();
+    double sTunablePercentOut = shooterPercentOutTunable.get();
 
     // Control requests
     VoltageOut flywheelVoltageOut = new VoltageOut(0);
@@ -64,6 +73,16 @@ public class Flywheel extends SubsystemBase {
 
         motors = List.of(rm, rf, lm, lf);
 
+        rmVelocity = rm.getVelocity();
+        rfVelocity = rf.getVelocity();
+        lmVelocity = lm.getVelocity();
+        lfVelocity = lf.getVelocity();
+        rmVoltage  = rm.getMotorVoltage();
+        lmVoltage  = lm.getMotorVoltage();
+        rmTemp     = rm.getDeviceTemp();
+        rfTemp     = rf.getDeviceTemp();
+        lmTemp     = lm.getDeviceTemp();
+        lfTemp     = lf.getDeviceTemp();
     }
 
     /**
@@ -153,34 +172,44 @@ public class Flywheel extends SubsystemBase {
      * @return true if all motors are in velocity mode and near the target velocity.
      */
     public boolean isVelocityWithinTolerance() {
-        return motors.stream().allMatch(motor -> {
-            final boolean isInVelocityMode = motor.getAppliedControl().equals(flywheelVelocityOut);
-            final AngularVelocity currentVelocity = motor.getVelocity().getValue();
-            final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
-            return isInVelocityMode && currentVelocity.isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
-        });
-    }
+    final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
 
+    boolean rmOk = rm.getAppliedControl().equals(flywheelVelocityOut) && rmVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean rfOk = rf.getAppliedControl().equals(flywheelVelocityOut) && rfVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean lmOk = lm.getAppliedControl().equals(flywheelVelocityOut) && lmVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean lfOk = lf.getAppliedControl().equals(flywheelVelocityOut) && lfVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+
+    return rmOk && rfOk && lmOk && lfOk;
+    }
 
     @Override
     public void periodic() {
         // Update local tunable variables from NetworkTables
-        sTunableRpm = 0;
-        sTunablePercentOut = 0;
+        sTunableRpm = shooterRpmTunable.get();
+        sTunablePercentOut = shooterPercentOutTunable.get();
 
-        // Logging
-        DogLog.log("Shooter/RightMaster/VelocityRPM", Units.RotationsPerSecond.of(rm.getVelocity().getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Shooter/RightFollower/VelocityRPM", Units.RotationsPerSecond.of(rf.getVelocity().getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Shooter/LeftMaster/VelocityRPM", Units.RotationsPerSecond.of(lm.getVelocity().getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Shooter/LeftFollower/VelocityRPM", Units.RotationsPerSecond.of(lf.getVelocity().getValueAsDouble()).in(Units.RPM));
+    BaseStatusSignal.refreshAll(
+        rmVelocity, rfVelocity, lmVelocity, lfVelocity,
+        rmVoltage, lmVoltage,
+        rmTemp, rfTemp, lmTemp, lfTemp
+    );
 
-        DogLog.log("Shooter/RightMaster/AppliedVoltage", rm.getMotorVoltage().getValueAsDouble());
-        DogLog.log("Shooter/LeftMaster/AppliedVoltage", lm.getMotorVoltage().getValueAsDouble());
+    DogLog.log("Shooter/RightMaster/VelocityRPM",
+        Units.RotationsPerSecond.of(rmVelocity.getValueAsDouble()).in(Units.RPM));
+    DogLog.log("Shooter/RightFollower/VelocityRPM",
+        Units.RotationsPerSecond.of(rfVelocity.getValueAsDouble()).in(Units.RPM));
+    DogLog.log("Shooter/LeftMaster/VelocityRPM",
+        Units.RotationsPerSecond.of(lmVelocity.getValueAsDouble()).in(Units.RPM));
+    DogLog.log("Shooter/LeftFollower/VelocityRPM",
+        Units.RotationsPerSecond.of(lfVelocity.getValueAsDouble()).in(Units.RPM));
 
-        DogLog.log("Shooter/RightMaster/Temperature", rm.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Shooter/RightFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Shooter/LeftMaster/Temperature", rm.getDeviceTemp().getValueAsDouble());
-        DogLog.log("Shooter/LeftFollower/Temperature", rf.getDeviceTemp().getValueAsDouble());
+    DogLog.log("Shooter/RightMaster/AppliedVoltage", rmVoltage.getValueAsDouble());
+    DogLog.log("Shooter/LeftMaster/AppliedVoltage",  lmVoltage.getValueAsDouble());
+
+    DogLog.log("Shooter/RightMaster/Temperature", rmTemp.getValueAsDouble());
+    DogLog.log("Shooter/RightFollower/Temperature", rfTemp.getValueAsDouble());
+    DogLog.log("Shooter/LeftMaster/Temperature",  lmTemp.getValueAsDouble()); 
+    DogLog.log("Shooter/LeftFollower/Temperature", lfTemp.getValueAsDouble()); 
         
     }
 }

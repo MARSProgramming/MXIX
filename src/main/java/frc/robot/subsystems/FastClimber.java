@@ -1,10 +1,15 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.networktables.DoubleSubscriber;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
@@ -22,10 +27,12 @@ public class FastClimber extends SubsystemBase {
 
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.4);
-    private final DoubleSubscriber climbPositionTunable = DogLog.tunable("FastClimber/TunableClimbPosition", 0.1);
 
-    double cTunableOutput = 0;
-    double cTunablePosition = 0;
+    private final StatusSignal<Angle> mPosition = mFastClimber.getPosition();
+    private final StatusSignal<Voltage> mVoltage   = mFastClimber.getMotorVoltage();
+    private final StatusSignal<Temperature> mTemp      = mFastClimber.getDeviceTemp();
+
+    double cTunableOutput = climbPercentDoubleSubscriber.get();
 
     /**
      * Creates a new Cowl subsystem.
@@ -51,20 +58,6 @@ public class FastClimber extends SubsystemBase {
         });
     }
 
-    /**
-     * Sets the cowl to the position specified by the tunable NetworkTable value.
-     * Useful for tuning the position setpoint without redeploying code.
-     *
-     * @return A Command that moves the cowl to the tunable position.
-     */
-    public Command setPositionTunable() {
-        return runEnd(() -> {
-            mFastClimber.setControl(fcPositionOut.withPosition(cTunablePosition));
-        }, () -> {
-            mFastClimber.set(0);
-        });
-    }
-
     public Command setPercentOut(double output) {
         return runEnd(() -> {
             mFastClimber.set(output);
@@ -75,7 +68,7 @@ public class FastClimber extends SubsystemBase {
 
     public Command setPercentOutTunable() {
         return runEnd(() -> {
-            mFastClimber.set(climbPercentDoubleSubscriber.get());
+            mFastClimber.set(cTunableOutput);
         }, () -> {
             mFastClimber.set(0);
         });
@@ -83,7 +76,7 @@ public class FastClimber extends SubsystemBase {
 
     public Command setPercentOutTunableReverse() {
         return runEnd(() -> {
-            mFastClimber.set(-climbPercentDoubleSubscriber.get());
+            mFastClimber.set(-cTunableOutput);
         }, () -> {
             mFastClimber.set(0);
         });
@@ -92,12 +85,15 @@ public class FastClimber extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Update local tunable variable from NetworkTables
+    // Read tunables from NetworkTables
+    cTunableOutput   = climbPercentDoubleSubscriber.get(); // was never being updated — bug fix
 
-        // Log current position
-        DogLog.log("FastClimber/Position", mFastClimber.getPosition().getValueAsDouble());
-        DogLog.log("FastClimber/AppliedVoltage", mFastClimber.getMotorVoltage().getValueAsDouble());
-        DogLog.log("FastClimber/Temperature", mFastClimber.getDeviceTemp().getValueAsDouble());
+    // Batch refresh all CAN signals in one JNI call
+    BaseStatusSignal.refreshAll(mPosition, mVoltage, mTemp);
+
+    DogLog.log("FastClimber/Position",       mPosition.getValueAsDouble());
+    DogLog.log("FastClimber/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("FastClimber/Temperature",    mTemp.getValueAsDouble());
 
     }
 }
