@@ -4,13 +4,10 @@
 
 package frc.robot.commands;
 
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineNoSweep$0;
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineNoSweep$1;
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineNoSweep$2;
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$0;
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$1;
-import static frc.robot.util.ChoreoTraj.LeftCenterBeelineSweep$2;
-import static frc.robot.util.ChoreoTraj.ShootPreloaded;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$0;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$1;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$2;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$3;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -88,9 +85,8 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
-        autoChooser.addRoutine("driveToPreloaded pos", this::drivetoPreloadShootPos);
-        autoChooser.addRoutine("Left Side Center Beeline", this::leftBumpBeelineToCenter);
-        autoChooser.addRoutine("Left Side Center Beeline Sweep", this::leftBumpBeelineAndSweepCenter);
+        autoChooser.addRoutine("C_BEELINE", this::C_BEELINE);
+        autoChooser.addRoutine("C_BEELINE_GREED", this::C_BEELINE_GREED);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -98,26 +94,13 @@ public final class AutoRoutines {
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler());
     }
 
-    private AutoRoutine drivetoPreloadShootPos() {
-        final AutoRoutine routine = autoFactory.newRoutine("Drive to preload shot");
-        final AutoTrajectory posTrajectory = ShootPreloaded.asAutoTraj(routine);
 
-        routine.active().onTrue(
-            Commands.sequence(
-                posTrajectory.resetOdometry(), // Reset pose to start of path
-                posTrajectory.cmd()
-            )
-        );
 
-        posTrajectory.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem, () -> 0, () -> 0));
-        return routine;
-    }
-
-    private AutoRoutine leftBumpBeelineToCenter() {
-        final AutoRoutine routine = autoFactory.newRoutine("LEFT SIDE BUMP beeline to center");
-        final AutoTrajectory goOverBumpTraj = LeftCenterBeelineNoSweep$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = LeftCenterBeelineNoSweep$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = LeftCenterBeelineNoSweep$2.asAutoTraj(routine);
+    private AutoRoutine C_BEELINE() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = C_BEELINE_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = C_BEELINE_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = C_BEELINE_FAMILY$2.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -138,11 +121,13 @@ public final class AutoRoutines {
 
     }
 
-    private AutoRoutine leftBumpBeelineAndSweepCenter() {
-        final AutoRoutine routine = autoFactory.newRoutine("LEFT SIDE BUMP beeline and sweep center");
-        final AutoTrajectory goOverBumpTraj = LeftCenterBeelineSweep$0.asAutoTraj(routine);
-        final AutoTrajectory sweepTraj = LeftCenterBeelineSweep$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = LeftCenterBeelineSweep$2.asAutoTraj(routine);
+    
+    private AutoRoutine C_BEELINE_GREED() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_GREED_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = C_BEELINE_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = C_BEELINE_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = C_BEELINE_FAMILY$2.asAutoTraj(routine);
+        final AutoTrajectory resetFromFinal = C_BEELINE_FAMILY$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -150,22 +135,27 @@ public final class AutoRoutines {
                 goOverBumpTraj.cmd()
             )
         );
+
+        goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand().alongWith(floor.setPercentOutCommand(0.1).alongWith(feeder.setPercentOutCommand(-0.1)))));
+
+
+  
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+        returnToShoot.done().onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+            .withTimeout(5)
+            .andThen(resetFromFinal.cmd()));
+
+
+        resetFromFinal.done().onTrue(
+            goOverBumpTraj.cmd().andThen(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()))
+        );
         
-        goOverBumpTraj.done().onTrue(
-            intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT)
-            .alongWith(sweepTraj.cmd())
-            );
-
-        sweepTraj.active().whileTrue(intakeRollers.intakeCommand());
-        sweepTraj.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem, () -> 0, () -> 0));
-
+ 
         return routine;
 
     }
-
-
 
 
 }

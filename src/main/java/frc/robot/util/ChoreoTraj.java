@@ -24,96 +24,68 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj LeftCenterBeelineNoSweep = new ChoreoTraj(
-	    "LeftCenterBeelineNoSweep",
+    public static final ChoreoTraj C_BEELINE = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.empty(),
-	    10.03805,
+	    8.32057,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356))
 	);
-	public static final ChoreoTraj LeftCenterBeelineNoSweep$0 = new ChoreoTraj(
-	    "LeftCenterBeelineNoSweep",
+	public static final ChoreoTraj C_BEELINE$0 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(0),
 	    1.16249,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj LeftCenterBeelineNoSweep$1 = new ChoreoTraj(
-	    "LeftCenterBeelineNoSweep",
+	public static final ChoreoTraj C_BEELINE$1 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(1),
-	    7.2132000000000005,
+	    5.49572,
 	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336))
 	);
-	public static final ChoreoTraj LeftCenterBeelineNoSweep$2 = new ChoreoTraj(
-	    "LeftCenterBeelineNoSweep",
+	public static final ChoreoTraj C_BEELINE$2 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(2),
 	    1.6623599999999996,
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336)),
 	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356))
 	);
-	public static final ChoreoTraj LeftCenterBeelineSweep = new ChoreoTraj(
-	    "LeftCenterBeelineSweep",
+	public static final ChoreoTraj C_BEELINE_FAMILY = new ChoreoTraj(
+	    "C_BEELINE_FAMILY",
 	    OptionalInt.empty(),
-	    8.98527,
-	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
-	);
-	public static final ChoreoTraj LeftCenterBeelineSweep$0 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep",
-	    OptionalInt.of(0),
-	    1.09145,
-	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj LeftCenterBeelineSweep$1 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep",
-	    OptionalInt.of(1),
-	    6.59349,
-	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356))
-	);
-	public static final ChoreoTraj LeftCenterBeelineSweep$2 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep",
-	    OptionalInt.of(2),
-	    1.3003299999999998,
-	    new Pose2d(6.263, 5.5, Rotation2d.fromRadians(-2.356)),
-	    new Pose2d(2.697, 5.5, Rotation2d.fromRadians(-2.356))
-	);
-	public static final ChoreoTraj LeftCenterBeelineSweep_copy1 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep_copy1",
-	    OptionalInt.empty(),
-	    7.89758,
+	    9.23715,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(2.896, 5.382, Rotation2d.fromRadians(-0.76))
+	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj LeftCenterBeelineSweep_copy1$0 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep_copy1",
+	public static final ChoreoTraj C_BEELINE_FAMILY$0 = new ChoreoTraj(
+	    "C_BEELINE_FAMILY",
 	    OptionalInt.of(0),
-	    1.09145,
+	    1.16249,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(-0.785))
+	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj LeftCenterBeelineSweep_copy1$1 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep_copy1",
+	public static final ChoreoTraj C_BEELINE_FAMILY$1 = new ChoreoTraj(
+	    "C_BEELINE_FAMILY",
 	    OptionalInt.of(1),
-	    4.63965,
-	    new Pose2d(5.863, 5.5, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(6.622, 5.392, Rotation2d.fromRadians(2.336))
+	    5.49572,
+	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336))
 	);
-	public static final ChoreoTraj LeftCenterBeelineSweep_copy1$2 = new ChoreoTraj(
-	    "LeftCenterBeelineSweep_copy1",
+	public static final ChoreoTraj C_BEELINE_FAMILY$2 = new ChoreoTraj(
+	    "C_BEELINE_FAMILY",
 	    OptionalInt.of(2),
-	    2.16648,
-	    new Pose2d(6.622, 5.392, Rotation2d.fromRadians(2.336)),
-	    new Pose2d(2.896, 5.382, Rotation2d.fromRadians(-0.76))
+	    1.6623599999999996,
+	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336)),
+	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356))
 	);
-	public static final ChoreoTraj ShootPreloaded = new ChoreoTraj(
-	    "ShootPreloaded",
-	    OptionalInt.empty(),
-	    1.33637,
-	    new Pose2d(3.554, 0.897, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.151, 2.631, Rotation2d.fromRadians(0.588))
+	public static final ChoreoTraj C_BEELINE_FAMILY$3 = new ChoreoTraj(
+	    "C_BEELINE_FAMILY",
+	    OptionalInt.of(3),
+	    0.9165799999999997,
+	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785))
 	);
 
     /**
@@ -121,19 +93,15 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("LeftCenterBeelineNoSweep", LeftCenterBeelineNoSweep),
-		Map.entry("LeftCenterBeelineNoSweep$0", LeftCenterBeelineNoSweep$0),
-		Map.entry("LeftCenterBeelineNoSweep$1", LeftCenterBeelineNoSweep$1),
-		Map.entry("LeftCenterBeelineNoSweep$2", LeftCenterBeelineNoSweep$2),
-		Map.entry("LeftCenterBeelineSweep", LeftCenterBeelineSweep),
-		Map.entry("LeftCenterBeelineSweep$0", LeftCenterBeelineSweep$0),
-		Map.entry("LeftCenterBeelineSweep$1", LeftCenterBeelineSweep$1),
-		Map.entry("LeftCenterBeelineSweep$2", LeftCenterBeelineSweep$2),
-		Map.entry("LeftCenterBeelineSweep_copy1", LeftCenterBeelineSweep_copy1),
-		Map.entry("LeftCenterBeelineSweep_copy1$0", LeftCenterBeelineSweep_copy1$0),
-		Map.entry("LeftCenterBeelineSweep_copy1$1", LeftCenterBeelineSweep_copy1$1),
-		Map.entry("LeftCenterBeelineSweep_copy1$2", LeftCenterBeelineSweep_copy1$2),
-		Map.entry("ShootPreloaded", ShootPreloaded)
+    	Map.entry("C_BEELINE", C_BEELINE),
+		Map.entry("C_BEELINE$0", C_BEELINE$0),
+		Map.entry("C_BEELINE$1", C_BEELINE$1),
+		Map.entry("C_BEELINE$2", C_BEELINE$2),
+		Map.entry("C_BEELINE_FAMILY", C_BEELINE_FAMILY),
+		Map.entry("C_BEELINE_FAMILY$0", C_BEELINE_FAMILY$0),
+		Map.entry("C_BEELINE_FAMILY$1", C_BEELINE_FAMILY$1),
+		Map.entry("C_BEELINE_FAMILY$2", C_BEELINE_FAMILY$2),
+		Map.entry("C_BEELINE_FAMILY$3", C_BEELINE_FAMILY$3)
     );
 
     /**
