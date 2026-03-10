@@ -65,8 +65,8 @@ public class AimAndShoot extends Command {
         Feeder feeder,
         Floor floor,
         IntakeRollers intakeRollers,
-        DoubleSupplier forwardInput,
         LEDSubsystem ledsubsystem,
+        DoubleSupplier forwardInput,
         DoubleSupplier leftInput
     ) {
         this.swerve = swerve;
@@ -80,11 +80,11 @@ public class AimAndShoot extends Command {
         shotSetup = new ShotSetup();
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
-        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
+        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem);
     }
 
     public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
-        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, ledSubsystem, () -> 0);
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers,ledSubsystem, () -> 0, () -> 0);
     }
 
 
