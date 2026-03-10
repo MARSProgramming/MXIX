@@ -109,7 +109,7 @@ public final class AutoRoutines {
             )
         );
 
-        posTrajectory.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, ledsubsystem, () -> 0));
+        posTrajectory.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem, () -> 0, () -> 0));
         return routine;
     }
 
@@ -159,7 +159,7 @@ public final class AutoRoutines {
         sweepTraj.active().whileTrue(intakeRollers.intakeCommand());
         sweepTraj.done().onTrue(returnToShoot.cmd());
 
-        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, ledsubsystem, () -> 0));
+        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem, () -> 0, () -> 0));
 
         return routine;
 

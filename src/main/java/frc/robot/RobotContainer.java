@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimAndDriveCommand;
 import frc.robot.commands.AimAndShoot;
+import frc.robot.commands.AimAndShuttle;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
 import frc.robot.commands.Unjam;
@@ -52,7 +53,8 @@ public class RobotContainer {
 
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
-    private final CommandXboxController testPilot = new CommandXboxController(1);
+    private final CommandXboxController coPilot = new CommandXboxController(1);
+    private final CommandXboxController testPilot = new CommandXboxController(2);
 
     // Subsystems
     Cowl mCowl = new Cowl();
@@ -103,8 +105,10 @@ public class RobotContainer {
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
 
-      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, () -> -drivePilot.getLeftY(), leds,  () -> -drivePilot.getLeftX()));
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
+
+      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
