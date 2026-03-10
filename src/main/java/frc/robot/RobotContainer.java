@@ -20,6 +20,7 @@ import frc.robot.commands.AimAndShoot;
 import frc.robot.commands.AimAndShuttle;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.ShootOnly;
 import frc.robot.commands.Unjam;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Settings;
@@ -103,7 +104,9 @@ public class RobotContainer {
        shooterLimelight.setDefaultCommand(updateShooterVision());
       // backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE));
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand()
+      .alongWith(mFloor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE))
+      .alongWith(mFeeder.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)));
 
       drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
@@ -117,6 +120,20 @@ public class RobotContainer {
 
       drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE));
       drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE));
+
+
+      // Manual feed on Copilot:  
+      coPilot.leftBumper().whileTrue(
+        mFeeder.setPercentOutCommand(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE)
+        .alongWith(mFloor.setPercentOutCommand(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE))
+        .alongWith(mIntakeRollers.setPercentOutCommand(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE)));
+
+    
+        // Manual Hub base shot. Requires manual servoing of drivetrain.
+      coPilot.rightTrigger().whileTrue(new ShootOnly(mCowl, mFlywheel, 
+      Settings.ReferenceShotSettings.HUB_REFERENCE_FLYWHEEL_VELOCITY, 
+      Settings.ReferenceShotSettings.HUB_REFERENCE_COWL_POSITION));
+      
 
     }
 

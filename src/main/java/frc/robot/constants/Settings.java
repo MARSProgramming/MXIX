@@ -18,6 +18,8 @@ public class Settings {
 
     public static class IntakeSystemSettings {
         public static double INTAKING_STANDARD_DUTYCYCLE = 0.9;
+        public static double INTAKING_FLOOR_DUTYCYCLE = 0.1;
+        public static double INTAKING_FEEDER_DUTYCYCLE = -0.1;
     }
 
 
@@ -29,5 +31,10 @@ public class Settings {
 
     public static class ClimbSettings {
         public static double CLIMB_DUTYCYCLE = 0.4;
+    }
+
+    public static class ReferenceShotSettings {
+        public static double HUB_REFERENCE_FLYWHEEL_VELOCITY = 3400;
+        public static double HUB_REFERENCE_COWL_POSITION = 0.4;
     }
 }
