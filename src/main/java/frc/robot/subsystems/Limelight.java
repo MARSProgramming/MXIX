@@ -29,6 +29,11 @@ public class Limelight extends SubsystemBase {
         this.name = name;
         this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
         this.posePublisher = telemetryTable.getStructTopic("Estimated Robot Pose", Pose2d.struct).publish();
+
+        LimelightHelpers.SetIMUMode(name, 4);
+        LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
+        LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
+
     }
 
     public Optional<Measurement> getMeasurement(Pose2d currentRobotPose) {
@@ -45,15 +50,11 @@ public class Limelight extends SubsystemBase {
             return Optional.empty();
         }
 
-        poseEstimate_MegaTag1.pose = new Pose2d(
-            poseEstimate_MegaTag1.pose.getTranslation(),
-            poseEstimate_MegaTag1.pose.getRotation()
-        );
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
         posePublisher.set(poseEstimate_MegaTag1.pose);
 
-        return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
+        return Optional.of(new Measurement(poseEstimate_MegaTag1, standardDeviations));
     }
 
     public static class Measurement {
@@ -68,16 +69,6 @@ public class Limelight extends SubsystemBase {
 
     @Override
     public void periodic() {  
-        if (RobotState.isDisabled()) {
-            LimelightHelpers.SetThrottle(name, 100);
-        } else {
-            LimelightHelpers.SetThrottle(name, 0);
-        }
-
-
-        LimelightHelpers.SetIMUMode(name, 4);
-        LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
-        LimelightHelpers.SetFiducialIDFiltersOverride(name, Limelights.getValidTagIDs());
-
-}
+        LimelightHelpers.SetThrottle(name, RobotState.isDisabled() ? 100 : 0);
+    }
 }
