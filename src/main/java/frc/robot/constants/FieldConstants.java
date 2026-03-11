@@ -4,6 +4,8 @@ package frc.robot.constants;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,6 +19,10 @@ import frc.robot.subsystems.Swerve;
  * Includes target locations and orientation helpers.
  */
 public class FieldConstants {
+
+
+  public static final double fieldLength = 16.540988;
+  public static final double fieldWidth = 8.069326; // http://firstfrc.blob.core.windows.net/frc2026/FieldAssets/2026-field-dimension-dwgs.pdf
 
     // Orientations to target
     /**
