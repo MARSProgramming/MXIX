@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.generated.TunerConstants;
 
-/**
+/** CLAUDE SUGGESTION
  * Contains system-wide constants and hardware configurations for subsystems.
  * This includes physical constants (gear ratios, max speeds) and CTRE Phoenix 6 configurations.
  */
@@ -36,7 +36,7 @@ public class SystemConstants {
         public static final String kClimbLimelightName = "limelight-back";
 
         public static int[] getValidTagIDs() {
-            return new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32}; // Valid blue tags
+            return new int[]{1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32}; // Valid
         }
 
         // we don't need to change based on alliance, the filtering is useless.
@@ -86,9 +86,10 @@ public class SystemConstants {
             // Current limits
             masterConfig.Voltage.PeakReverseVoltage = 0; // Software lock reversal of flywheel 
             masterConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            masterConfig.CurrentLimits.SupplyCurrentLimit = 50;
+            masterConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            
             masterConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            masterConfig.CurrentLimits.StatorCurrentLimit = 80;
+            masterConfig.CurrentLimits.StatorCurrentLimit = 120;
         }
     }
 
@@ -156,7 +157,7 @@ public class SystemConstants {
             pivotConfig.Feedback.SensorToMechanismRatio = kIntakePivotReduction; // Gear ratio
 
             pivotConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            pivotConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            pivotConfig.CurrentLimits.SupplyCurrentLimit = 40;
             pivotConfig.CurrentLimits.StatorCurrentLimitEnable = true;
             pivotConfig.CurrentLimits.StatorCurrentLimit = 80;
         }
@@ -174,9 +175,9 @@ public class SystemConstants {
             rollerConfig.Feedback.SensorToMechanismRatio = kIntakeRollerReduction; 
 
             rollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            rollerConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            rollerConfig.CurrentLimits.SupplyCurrentLimit = 60;
             rollerConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            rollerConfig.CurrentLimits.StatorCurrentLimit = 80;
+            rollerConfig.CurrentLimits.StatorCurrentLimit = 100;
         }
     }
 
@@ -202,9 +203,9 @@ public class SystemConstants {
             floorConfig.Feedback.SensorToMechanismRatio = kFloorReduction; 
 
             floorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            floorConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            floorConfig.CurrentLimits.SupplyCurrentLimit = 60;
             floorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            floorConfig.CurrentLimits.StatorCurrentLimit = 80;
+            floorConfig.CurrentLimits.StatorCurrentLimit = 100;
         }
     }
 
@@ -231,9 +232,9 @@ public class SystemConstants {
             feederConfig.Feedback.SensorToMechanismRatio = kFeederReduction; 
 
             feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            feederConfig.CurrentLimits.SupplyCurrentLimit = 70;
+            feederConfig.CurrentLimits.SupplyCurrentLimit = 60;
             feederConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            feederConfig.CurrentLimits.StatorCurrentLimit = 80;
+            feederConfig.CurrentLimits.StatorCurrentLimit = 100;
         }
     }
 
@@ -263,35 +264,6 @@ public class SystemConstants {
             fastClimberConfig.CurrentLimits.SupplyCurrentLimit = 70;
             fastClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
             fastClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
-        }
-    }
-
-    
-    /**
-     * Constants and configuration for the Flip Climber subsystem.
-     */
-    public static class FlipClimber {
-        public static final double kFlipClimberReduction = 80 / 1;
-        private static final AngularVelocity kMaxFastClimberSpeed = KrakenX60.kFreeSpeed.div(kFlipClimberReduction);
-        
-        public static TalonFXConfiguration flipClimberConfig = new TalonFXConfiguration();
-
-        static {
-            // position control (if needed)
-            flipClimberConfig.Slot0.kP = 1; // definitely too low if we need position control
-            flipClimberConfig.Slot0.kI = 0;
-            flipClimberConfig.Slot0.kD = 0;
-            flipClimberConfig.Slot0.kV = 12.0 / kMaxFastClimberSpeed.in(Units.RotationsPerSecond);
-
-            flipClimberConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-            flipClimberConfig.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive; // TODO: Find out
-
-            flipClimberConfig.Feedback.SensorToMechanismRatio = kFlipClimberReduction; 
-
-            flipClimberConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-            flipClimberConfig.CurrentLimits.SupplyCurrentLimit = 70;
-            flipClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-            flipClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
         }
     }
 }

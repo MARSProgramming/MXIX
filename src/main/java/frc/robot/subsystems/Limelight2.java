@@ -119,7 +119,11 @@ public class Limelight2 extends SubsystemBase {
         DogLog.log("limelight-" + name + "/estimatedPose", combinedPose);
         poseEstimate_MegaTag2.pose = combinedPose;
         
+        DogLog.log("limelight-" + name + "/xyStdDev", xyStdDev);
+        DogLog.log("limelight-" + name + "/rotDiff", rotationDifference);
+
         return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
+
     }
 
     public static class Measurement {

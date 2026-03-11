@@ -45,9 +45,7 @@ public class LimelightHelpers {
     static final long ONE_SECOND_IN_MILI = (long) Seconds.of(1).in(Milliseconds);
     private static final Map<String, DoubleArrayEntry> doubleArrayEntries = new ConcurrentHashMap<>();
 
-    /**
-     * Represents a Color/Retroreflective Target Result extracted from JSON Output
-     */
+
 
        @SuppressWarnings("resource")
   public static boolean isAvailable(String limelightName)
@@ -80,6 +78,10 @@ public class LimelightHelpers {
     new Alert(errMsg, AlertType.kError).set(true);
     return false;
   }
+
+      /**
+     * Represents a Color/Retroreflective Target Result extracted from JSON Output
+     */
     public static class LimelightTarget_Retro {
 
         @JsonProperty("t6c_ts")

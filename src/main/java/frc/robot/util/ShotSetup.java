@@ -69,8 +69,7 @@ public class ShotSetup {
         SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3450), 1.2));  // Close
         
         // Transition range - common shooting zone, add extra points
-        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3700  
-        ), 1.3));  // Mid-close
+        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3700), 1.3));  // Mid-close
         SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3750), 1.4));  // Sweet spot start
         SHOT_MAP.put(4.7,  new ShotInfo(new Shot(4000), 1.5));  // Sweet spot
 
