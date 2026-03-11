@@ -2,6 +2,9 @@
 
 package frc.robot.util;
 
+import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.Seconds;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -10,6 +13,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -30,18 +34,52 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 
 /**
  * LimelightHelpers provides static methods and classes for interfacing with Limelight vision cameras in FRC.
  * This library supports all Limelight features including AprilTag tracking, Neural Networks, and standard color/retroreflective tracking.
  */
 public class LimelightHelpers {
-
+    static final long ONE_SECOND_IN_MILI = (long) Seconds.of(1).in(Milliseconds);
     private static final Map<String, DoubleArrayEntry> doubleArrayEntries = new ConcurrentHashMap<>();
 
     /**
      * Represents a Color/Retroreflective Target Result extracted from JSON Output
      */
+
+       @SuppressWarnings("resource")
+  public static boolean isAvailable(String limelightName)
+  {
+    // LL sends key "getpipe" if it's on so check that
+    // put in a delay if needed to help assure NT has latched onto the LL if it is
+    // transmitting
+    for (int i = 1; i <= 2; i++)
+    {
+      if (NetworkTableInstance.getDefault().getTable(limelightName).containsKey("getpipe"))
+      {
+        return true;
+      }
+      // System.out.println("waiting " + i + " of 15 seconds for limelight to
+      // attach");
+      try
+      {
+        Thread.sleep(ONE_SECOND_IN_MILI);
+      } catch (InterruptedException e)
+      {
+        e.printStackTrace();
+      }
+    }
+    String errMsg = "Your limelight name \"" + limelightName +
+                    "\" is invalid.  doesn't exist on the network (no getpipe key).\n" +
+                    "These may be available:" +
+                    NetworkTableInstance.getDefault().getTable("/").getSubTables().stream()
+                                        .filter(ntName -> ((String) (ntName)).startsWith("limelight"))
+                                        .collect(Collectors.joining("\n"));
+    new Alert(errMsg, AlertType.kError).set(true);
+    return false;
+  }
     public static class LimelightTarget_Retro {
 
         @JsonProperty("t6c_ts")

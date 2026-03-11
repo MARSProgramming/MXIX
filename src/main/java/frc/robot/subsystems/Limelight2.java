@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.Optional;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -11,35 +12,29 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SystemConstants;
 import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 
-/**
- * A disconnect-robust subsystem for interfacing with a Limelight camera for vision-based pose estimation.
- **/
 public class Limelight2 extends SubsystemBase {
     private final String name;
-    private final NetworkTable telemetryTable;
-    private final StructPublisher<Pose2d> posePublisher;
 
     // Vision filtering constants
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MAX_POSE_DIFFERENCE = 0.5; // meters
     private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
     private static final double MIN_TAG_AREA = 0.1; // percent
-    private static final double LATENCY_THRESHOLD = 0.1;
+    private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
     
-    // Standard deviation calculation constants (similar to Northstar)
+    // Standard deviation calculation constants
     private static final double XY_STD_DEV_COEFFICIENT = 0.01;
-    private static final double THETA_STD_DEV_COEFFICIENT = 0.01;
+    private static final double THETA_STD_DEV_COEFFICIENT = 0.03;
 
     public Limelight2(String name) {
         this.name = name;
-        this.telemetryTable = NetworkTableInstance.getDefault().getTable("SmartDashboard/" + name);
-        this.posePublisher = telemetryTable.getStructTopic("Estimated Robot Pose", Pose2d.struct).publish();
 
         LimelightHelpers.SetIMUMode(name, 3);
         LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
@@ -60,19 +55,25 @@ public class Limelight2 extends SubsystemBase {
             return Optional.empty();
         }
 
-        // Combine the readings from MegaTag1 and MegaTag2
+        // Combine the readings
         final Pose2d combinedPose = new Pose2d(
             poseEstimate_MegaTag2.pose.getTranslation(),
             poseEstimate_MegaTag1.pose.getRotation()
         );
 
-        // --- REJECTION LOGIC (inspired by Northstar) ---
+        // --- REJECTION LOGIC ---
+
+        // 0. Reject if latency is too high
+        double latency = Timer.getFPGATimestamp() - poseEstimate_MegaTag2.timestampSeconds;
+        if (latency > MAX_LATENCY_SECONDS) {
+            return Optional.empty();
+        }
 
         // 1. Reject if robot pose is off the field
         if (combinedPose.getX() < -FIELD_BORDER_MARGIN
-                || combinedPose.getX() > FieldConstants.fieldLength
+                || combinedPose.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
                 || combinedPose.getY() < -FIELD_BORDER_MARGIN
-                || combinedPose.getY() > FieldConstants.fieldWidth) {
+                || combinedPose.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
             return Optional.empty();
         }
 
@@ -93,41 +94,29 @@ public class Limelight2 extends SubsystemBase {
             return Optional.empty();
         }
 
-        // 4. Reject if target area is too small (far away or ambiguous)
+        // 4. Reject if target area is too small
         double targetArea = LimelightHelpers.getTA(name);
         if (targetArea < MIN_TAG_AREA) {
             return Optional.empty();
         }
 
-        // 5. Reject if latency is too high (for single-tag detections)
-        if (poseEstimate_MegaTag2.tagCount == 1) {
-            double latency = LimelightHelpers.getLatency_Pipeline(name);
-            if (latency > LATENCY_THRESHOLD) {
-                return Optional.empty();
-            }
-        }
-
-        // --- DYNAMIC STANDARD DEVIATIONS (Northstar-style) ---
+        // --- DYNAMIC STANDARD DEVIATIONS ---
         
-        // Calculate average distance to tags
         double avgDistance = poseEstimate_MegaTag2.avgTagDist;
         int tagCount = poseEstimate_MegaTag2.tagCount;
 
-        // Calculate standard deviations based on distance and tag count
-        // More tags and closer distance = lower std dev (higher confidence)
         double xyStdDev = XY_STD_DEV_COEFFICIENT 
             * Math.pow(avgDistance, 1.2) 
             / Math.pow(tagCount, 2.0);
         
-        // Use high theta std dev to avoid trusting vision rotation too much
-        // (Northstar style: only trust rotation with multi-tag)
-        double thetaStdDev = 25.0;
+        // Use very high theta std dev - we don't trust vision rotation
+        double thetaStdDev = tagCount > 1
+            ? THETA_STD_DEV_COEFFICIENT * Math.pow(avgDistance, 1.2) / Math.pow(tagCount, 2.0)
+            : 9999.0; // Effectively ignore single-tag rotation
 
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev);
 
-        posePublisher.set(combinedPose);
-
-        // Update the pose estimate with combined pose
+        DogLog.log("limelight-" + name + "/estimatedPose", combinedPose);
         poseEstimate_MegaTag2.pose = combinedPose;
         
         return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
@@ -150,5 +139,14 @@ public class Limelight2 extends SubsystemBase {
         } else {
             LimelightHelpers.SetThrottle(name, 0);
         }
+        
+        // Optional: Log diagnostics
+
+        int targCount = LimelightHelpers.getTargetCount(name);
+        boolean isConnected = LimelightHelpers.isAvailable(name);
+
+        DogLog.log("limelight-" + name + "/targCount", targCount);
+        DogLog.log("limelight-" + name + "/isConnected", isConnected);
+
     }
 }
