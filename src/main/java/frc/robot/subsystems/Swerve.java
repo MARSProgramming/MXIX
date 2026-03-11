@@ -207,6 +207,33 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return hubDirectionInOperatorPerspective;
     }
 
+    public boolean isAimedAtShuttle() {
+        final Rotation2d targetHeading = getShooterDirectionToShuttle();
+        
+        // Get current heading in Blue Alliance perspective (standard field coordinates)
+        final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
+        
+        // Convert to Operator Perspective to match the request's frame of reference
+        final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
+        
+        return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
+    }
+
+    public Rotation2d getShooterDirectionToShuttle() {
+        final Pose2d robotPose = this.getState().Pose;
+        Pose2d launcherPosition = robotPose.transformBy(GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
+        final Translation2d shooterPos = launcherPosition.getTranslation();
+        Translation2d closestShuttlingPos = FieldConstants.Locations.getClosestShuttlingPosition(getState().Pose).getTranslation();
+        final Rotation2d hubDirectionInBlueAlliancePerspective = closestShuttlingPos.minus(shooterPos).getAngle();
+        
+        // Adjust for the driver's perspective (Red vs Blue alliance)
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
+        
+        return hubDirectionInOperatorPerspective;
+
+
+    }
+
     /**
      * Adds a vision measurement to the Kalman Filter. This will correct the odometry pose estimate
      * while still accounting for measurement noise.

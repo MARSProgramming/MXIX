@@ -35,10 +35,10 @@ public class Cowl extends SubsystemBase {
     private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.5);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
 
-    private final StatusSignal<Angle> mPosition     = mCowl.getPosition();
-    private final StatusSignal<Voltage> mVoltage       = mCowl.getMotorVoltage();
-    private final StatusSignal<Current> mSupplyCurrent = mCowl.getSupplyCurrent();
-    private final StatusSignal<Temperature> mTemp          = mCowl.getDeviceTemp();
+    private final StatusSignal<Angle> mPosition;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Current> mSupplyCurrent;
+    private final StatusSignal<Temperature> mTemp;
 
     double cTunablePosition = cowlPositionTunable.get();
     double cTunablePercentout = cowlPercentOutTunable.get();
@@ -50,6 +50,11 @@ public class Cowl extends SubsystemBase {
     public Cowl() {
         mCowl = new TalonFX(Ports.Cowl.kCowlMotor);
         mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
+
+        mPosition = mCowl.getPosition();
+        mVoltage = mCowl.getMotorVoltage();
+        mSupplyCurrent = mCowl.getSupplyCurrent();
+        mTemp = mCowl.getDeviceTemp();
 
         mCowl.setPosition(0);
     }

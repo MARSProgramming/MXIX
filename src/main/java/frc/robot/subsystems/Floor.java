@@ -28,9 +28,9 @@ public class Floor extends SubsystemBase {
     // Tunable value for testing percent output via NetworkTables
     private final DoubleSubscriber floorPercentOutTunable = DogLog.tunable("Floor/TunableFloorOutput", 0.8);
 
-    private final StatusSignal<AngularVelocity> mVelocity = mFloor.getVelocity();
-    private final StatusSignal<Voltage> mVoltage  = mFloor.getMotorVoltage();
-    private final StatusSignal<Temperature> mTemp     = mFloor.getDeviceTemp();
+    private final StatusSignal<AngularVelocity> mVelocity;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Temperature> mTemp;
 
     double sTunablePercentOut = floorPercentOutTunable.get();
 
@@ -43,6 +43,10 @@ public class Floor extends SubsystemBase {
     public Floor() {
         mFloor = new TalonFX(Ports.Floor.kFloorRollers);
         mFloor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
+
+        mVelocity = mFloor.getVelocity();
+        mVoltage = mFloor.getMotorVoltage();
+        mTemp = mFloor.getDeviceTemp();
     }
 
     /**

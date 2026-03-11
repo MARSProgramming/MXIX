@@ -28,9 +28,9 @@ public class FastClimber extends SubsystemBase {
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber climbPercentDoubleSubscriber = DogLog.tunable("FastClimber/TunableClimbOutput", 0.4);
 
-    private final StatusSignal<Angle> mPosition = mFastClimber.getPosition();
-    private final StatusSignal<Voltage> mVoltage   = mFastClimber.getMotorVoltage();
-    private final StatusSignal<Temperature> mTemp      = mFastClimber.getDeviceTemp();
+    private final StatusSignal<Angle> mPosition;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Temperature> mTemp;
 
     double cTunableOutput = climbPercentDoubleSubscriber.get();
 
@@ -41,6 +41,10 @@ public class FastClimber extends SubsystemBase {
     public FastClimber() {
         mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber);
         mFastClimber.getConfigurator().apply(SystemConstants.FastClimber.fastClimberConfig);
+
+        mPosition = mFastClimber.getPosition();
+        mVoltage = mFastClimber.getMotorVoltage();
+        mTemp = mFastClimber.getDeviceTemp();
     }
 
     /**

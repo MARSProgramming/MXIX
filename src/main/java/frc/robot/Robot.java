@@ -8,6 +8,8 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.signals.RGBWColor;
 
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -34,6 +36,11 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         SmartDashboard.putData(CommandScheduler.getInstance());
         //  RobotController.setBrownoutVoltage(Volts.of(6.1)); 
+    }
+
+
+    @Override
+    public void robotInit() {
     }
     
 

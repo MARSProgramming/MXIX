@@ -30,9 +30,9 @@ public class IntakePivot extends SubsystemBase {
     private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
     double cTunablePivotOut = 0;
     
-    private final StatusSignal<Angle> mPosition = mIntakePivot.getPosition();
-    private final StatusSignal<Voltage> mVoltage  = mIntakePivot.getMotorVoltage();
-    private final StatusSignal<Temperature> mTemp     = mIntakePivot.getDeviceTemp();
+    private final StatusSignal<Angle> mPosition;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Temperature> mTemp;
 
     VoltageOut pivotVoltageOut = new VoltageOut(0);
 
@@ -43,6 +43,10 @@ public class IntakePivot extends SubsystemBase {
     public IntakePivot() {
         mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot);
         mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
+
+        mPosition = mIntakePivot.getPosition();
+        mVoltage = mIntakePivot.getMotorVoltage();
+        mTemp = mIntakePivot.getDeviceTemp();
     }
 
 

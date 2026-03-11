@@ -113,7 +113,7 @@ public class AimAndShuttle extends Command {
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtHub()) {
+        if (swerve.isAimedAtShuttle()) {
             readyToShootBoolean = true;
         }
 

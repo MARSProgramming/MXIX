@@ -66,10 +66,11 @@ public class ShotSetup {
         // Close range - flatter cowl, lower speeds
         SHOT_MAP.put(1.4,  new ShotInfo(new Shot(3400), 0.4));   // Point blank
         SHOT_MAP.put(2.3,  new ShotInfo(new Shot(3450), 0.7));  // Very close
-        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3480), 1.2));  // Close
+        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3450), 1.2));  // Close
         
         // Transition range - common shooting zone, add extra points
-        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3600), 1.3));  // Mid-close
+        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3700  
+        ), 1.3));  // Mid-close
         SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3750), 1.4));  // Sweet spot start
         SHOT_MAP.put(4.7,  new ShotInfo(new Shot(4000), 1.5));  // Sweet spot
 

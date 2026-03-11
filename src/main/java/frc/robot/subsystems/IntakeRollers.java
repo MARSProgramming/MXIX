@@ -30,9 +30,9 @@ public class IntakeRollers extends SubsystemBase {
     private final DoubleSubscriber intakePercentOutTunable = DogLog.tunable("Intake/TunableIntakeRollerOutput", 0.8);
     double sTunablePercentOut = intakePercentOutTunable.get();
 
-    private final StatusSignal<AngularVelocity> mVelocity = mIntakeRollers.getVelocity();
-    private final StatusSignal<Voltage> mVoltage  = mIntakeRollers.getMotorVoltage();
-    private final StatusSignal<Temperature> mTemp     = mIntakeRollers.getDeviceTemp();
+    private final StatusSignal<AngularVelocity> mVelocity;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Temperature> mTemp;
 
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
@@ -43,6 +43,10 @@ public class IntakeRollers extends SubsystemBase {
     public IntakeRollers() {
         mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers);
         mIntakeRollers.getConfigurator().apply(SystemConstants.Intake.rollerConfig);
+
+        mVelocity = mIntakeRollers.getVelocity();
+        mVoltage = mIntakeRollers.getMotorVoltage();
+        mTemp = mIntakeRollers.getDeviceTemp();
     }
 
     /**

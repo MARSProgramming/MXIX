@@ -28,9 +28,9 @@ public class Feeder extends SubsystemBase {
 
     private final DoubleSubscriber feederPercOutTunable = DogLog.tunable("Feeder/TunableFeederPercOut", 1.0);
 
-    private final StatusSignal<AngularVelocity> mVelocity = mFeeder.getVelocity();
-    private final StatusSignal<Voltage> mVoltage  = mFeeder.getMotorVoltage();
-    private final StatusSignal<Temperature> mTemp     = mFeeder.getDeviceTemp();
+    private final StatusSignal<AngularVelocity> mVelocity;
+    private final StatusSignal<Voltage> mVoltage;
+    private final StatusSignal<Temperature> mTemp;
 
     double stunablePercOut = feederPercOutTunable.get(); 
 
@@ -46,6 +46,10 @@ public class Feeder extends SubsystemBase {
         mFeeder = new TalonFX(Ports.Feeder.kFeederMotor);
         // Apply the configuration.
         mFeeder.getConfigurator().apply(SystemConstants.Feeder.feederConfig);
+
+        mVelocity = mFeeder.getVelocity();
+        mVoltage = mFeeder.getMotorVoltage();
+        mTemp = mFeeder.getDeviceTemp();
     }
 
     /**
