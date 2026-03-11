@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,7 +43,7 @@ public class Flywheel extends SubsystemBase {
 
 
     private final StatusSignal<AngularVelocity> rmVelocity, rfVelocity, lmVelocity, lfVelocity;
-    private final StatusSignal<Voltage> rmVoltage, lmVoltage;
+    private final StatusSignal<Current> rmCurrent, lmCurrent;
     private final StatusSignal<Temperature> rmTemp, rfTemp, lmTemp, lfTemp;
 
     double sTunableRpm = shooterRpmTunable.get();
@@ -77,8 +78,8 @@ public class Flywheel extends SubsystemBase {
         rfVelocity = rf.getVelocity();
         lmVelocity = lm.getVelocity();
         lfVelocity = lf.getVelocity();
-        rmVoltage  = rm.getMotorVoltage();
-        lmVoltage  = lm.getMotorVoltage();
+        rmCurrent  = rm.getSupplyCurrent();
+        lmCurrent  = lm.getSupplyCurrent();
         rmTemp     = rm.getDeviceTemp();
         rfTemp     = rf.getDeviceTemp();
         lmTemp     = lm.getDeviceTemp();
@@ -190,7 +191,7 @@ public class Flywheel extends SubsystemBase {
 
     BaseStatusSignal.refreshAll(
         rmVelocity, rfVelocity, lmVelocity, lfVelocity,
-        rmVoltage, lmVoltage,
+        rmCurrent, lmCurrent,
         rmTemp, rfTemp, lmTemp, lfTemp
     );
 
@@ -203,8 +204,8 @@ public class Flywheel extends SubsystemBase {
     DogLog.log("Shooter/LeftFollower/VelocityRPM",
         Units.RotationsPerSecond.of(lfVelocity.getValueAsDouble()).in(Units.RPM));
 
-    DogLog.log("Shooter/RightMaster/AppliedVoltage", rmVoltage.getValueAsDouble());
-    DogLog.log("Shooter/LeftMaster/AppliedVoltage",  lmVoltage.getValueAsDouble());
+    DogLog.log("Shooter/RightMaster/AppliedCurrent", rmCurrent.getValueAsDouble());
+    DogLog.log("Shooter/LeftMaster/AppliedCurrent",  lmCurrent.getValueAsDouble());
 
     DogLog.log("Shooter/RightMaster/Temperature", rmTemp.getValueAsDouble());
     DogLog.log("Shooter/RightFollower/Temperature", rfTemp.getValueAsDouble());

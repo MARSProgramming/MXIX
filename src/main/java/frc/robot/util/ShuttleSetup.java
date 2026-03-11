@@ -45,7 +45,7 @@ public class ShuttleSetup {
         SHUTTLE_MAP.put(2.0,  new ShuttleShotInfo(new Shot(3500), 1.7));  // Close
         SHUTTLE_MAP.put(3.0,  new ShuttleShotInfo(new Shot(4000), 1.7));  // Mid-close
         SHUTTLE_MAP.put(4.0,  new ShuttleShotInfo(new Shot(4500), 1.7));  // Sweet spot start
-        SHUTTLE_MAP.put(5.0,  new ShuttleShotInfo(new Shot(5000), 1.7));  // Sweet spot
+        SHUTTLE_MAP.put(5.0,  new ShuttleShotInfo(new Shot(4700), 1.7));  // Sweet spot
 
     }
     

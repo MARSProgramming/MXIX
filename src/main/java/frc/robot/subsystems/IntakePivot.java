@@ -119,8 +119,8 @@ public class IntakePivot extends SubsystemBase {
 
     BaseStatusSignal.refreshAll(mPosition, mVoltage, mTemp);
 
-    DogLog.log("Intake/Pivot/Position",       mPosition.getValueAsDouble());
-    DogLog.log("Intake/Pivot/AppliedVoltage", mVoltage.getValueAsDouble());
-    DogLog.log("Intake/Pivot/Temperature",    mTemp.getValueAsDouble());
+    DogLog.log("IntakePivot/Position",       mPosition.getValueAsDouble());
+    DogLog.log("IntakePivot/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("IntakePivot/Temperature",    mTemp.getValueAsDouble());
     }
 }
