@@ -4,6 +4,7 @@ import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.SystemConstants.Flywheel;
+import frc.robot.util.ShotSetup.ShotInfo;
 
 public class ShuttleSetup {
 
@@ -41,11 +42,13 @@ public class ShuttleSetup {
     
     private static void loadMap() {
         // Close range - flatter cowl, lower speeds
-        SHUTTLE_MAP.put(1.0,  new ShuttleShotInfo(new Shot(3000), 1.7));  // Very close
-        SHUTTLE_MAP.put(2.0,  new ShuttleShotInfo(new Shot(3500), 1.7));  // Close
-        SHUTTLE_MAP.put(3.0,  new ShuttleShotInfo(new Shot(4000), 1.7));  // Mid-close
-        SHUTTLE_MAP.put(4.0,  new ShuttleShotInfo(new Shot(4500), 1.7));  // Sweet spot start
-        SHUTTLE_MAP.put(5.0,  new ShuttleShotInfo(new Shot(4700), 1.7));  // Sweet spot
+        SHUTTLE_MAP.put(1.4,  new ShuttleShotInfo(new Shot(3400), 0.4));   // Point blank
+        SHUTTLE_MAP.put(2.3,  new ShuttleShotInfo(new Shot(3450), 0.7));  // Very close
+        SHUTTLE_MAP.put(3.0,  new ShuttleShotInfo(new Shot(3450), 1.2));  // Close
+        
+        SHUTTLE_MAP.put(3.6,  new ShuttleShotInfo(new Shot(3700), 1.3));  // Mid-close
+        SHUTTLE_MAP.put(4.0,  new ShuttleShotInfo(new Shot(3750), 1.4));  // Sweet spot start
+        SHUTTLE_MAP.put(4.7,  new ShuttleShotInfo(new Shot(4000), 1.5));  // Sweet spot
 
     }
     

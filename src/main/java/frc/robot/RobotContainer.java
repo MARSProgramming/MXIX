@@ -104,13 +104,9 @@ public class RobotContainer {
        shooterLimelight.setDefaultCommand(updateShooterVision());
       // backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand()
-      .alongWith(mFloor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE))
-      .alongWith(mFeeder.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)));
-
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand());
       drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers));
-
       drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());

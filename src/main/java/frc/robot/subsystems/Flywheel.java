@@ -12,6 +12,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import dev.doglog.DogLog;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
@@ -36,6 +37,8 @@ public class Flywheel extends SubsystemBase {
     private TalonFX lm;
     private TalonFX lf;
     private final List<TalonFX> motors;
+
+    private SlewRateLimiter spinUpLimiter = new SlewRateLimiter(300);
 
     // Tunable values for testing velocity and percent output via NetworkTables
     private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 3400.0);
@@ -68,6 +71,8 @@ public class Flywheel extends SubsystemBase {
         lf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         rf.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
 
+        
+
         // Configure followers to oppose the masters (since they are on opposite sides/gearing)
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
         lf.setControl(new Follower(Ports.Flywheel.kLeftFlywheelMaster, MotorAlignmentValue.Opposed));
@@ -93,9 +98,13 @@ public class Flywheel extends SubsystemBase {
      * @param velocityRPM The target velocity in RPM.
      * @return A Command that sets the RPM and waits for the flywheel to be within tolerance.
      */
-    public Command spinUp(double velocityRPM) {
-        return runOnce(() -> setRPM(velocityRPM))
-        .andThen(Commands.waitUntil(this::isVelocityWithinTolerance));
+    public Command setVelocitySlew(double velocityRPM) {
+        return run(() -> {
+            double desiredRpms = spinUpLimiter.calculate(velocityRPM);
+            rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+            lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+        })
+        .until(() -> isVelocityWithinTolerance(getVelocity()));
     }
 
     /**
@@ -107,6 +116,14 @@ public class Flywheel extends SubsystemBase {
     public void setRPM(double velocityRPM) {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
+    }
+
+    public AngularVelocity getVelocity() {
+        return rm.getVelocity().getValue();          
+    }
+
+    public void setSlewRPM(double velocityRPM) {
+        double desiredRpms = spinUpLimiter.calculate(velocityRPM);
     }
 
     /**
@@ -142,10 +159,14 @@ public class Flywheel extends SubsystemBase {
     }
 
     public Command setVelocity(DoubleSupplier velo) {
-        return runEnd(() -> {
+        return runOnce(() -> {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velo.getAsDouble())));
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velo.getAsDouble())));
-        }, () -> {
+        });
+    }
+
+    public Command stop() {
+        return runOnce(() -> {
             rm.set(0);
             lm.set(0);
         });
@@ -172,13 +193,12 @@ public class Flywheel extends SubsystemBase {
      *
      * @return true if all motors are in velocity mode and near the target velocity.
      */
-    public boolean isVelocityWithinTolerance() {
-    final AngularVelocity targetVelocity = flywheelVelocityOut.getVelocityMeasure();
+    public boolean isVelocityWithinTolerance(AngularVelocity targetVelo) {
 
-    boolean rmOk = rm.getAppliedControl().equals(flywheelVelocityOut) && rmVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
-    boolean rfOk = rf.getAppliedControl().equals(flywheelVelocityOut) && rfVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
-    boolean lmOk = lm.getAppliedControl().equals(flywheelVelocityOut) && lmVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
-    boolean lfOk = lf.getAppliedControl().equals(flywheelVelocityOut) && lfVelocity.getValue().isNear(targetVelocity, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean rmOk = rmVelocity.getValue().isNear(targetVelo, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean rfOk = rfVelocity.getValue().isNear(targetVelo, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean lmOk = lmVelocity.getValue().isNear(targetVelo, SystemConstants.Flywheel.kVelocityTolerance);
+    boolean lfOk = lfVelocity.getValue().isNear(targetVelo, SystemConstants.Flywheel.kVelocityTolerance);
 
     return rmOk && rfOk && lmOk && lfOk;
     }

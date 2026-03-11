@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import java.util.function.DoubleSupplier;
 
@@ -125,7 +126,7 @@ public class AimAndShootOnTheMove extends Command {
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtVirtualTarget(virtualTargetAngle) && flywheel.isVelocityWithinTolerance()) {
+        if (swerve.isAimedAtVirtualTarget(virtualTargetAngle) && flywheel.isVelocityWithinTolerance(RPM.of(shooterRPM))) {
             readyToShootBoolean = true;
         }
 
