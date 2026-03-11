@@ -9,6 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -36,7 +37,6 @@ import frc.robot.util.ShuttleSetup;
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
 public class AimAndShuttle extends Command {
-    private boolean readyToShootBoolean = false;
 
     private final Swerve swerve;
     private final Cowl cowl;
@@ -49,6 +49,7 @@ public class AimAndShuttle extends Command {
 
     private final ShuttleSetup shuttleSetup;
     private final DriveInputSmoother inputSmoother;
+    private Pose2d selectedShuttleTarget;
 
     // Request to drive field-centric while facing a specific angle
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
@@ -87,7 +88,8 @@ public class AimAndShuttle extends Command {
 
     @Override
     public void initialize() {
-      readyToShootBoolean = false;
+        selectedShuttleTarget = FieldConstants.Locations.getClosestShuttlingPosition(swerve.getState().Pose);
+
     }
 
     @Override
@@ -114,15 +116,12 @@ public class AimAndShuttle extends Command {
         flywheel.setRPM(shooterRPM);
 
         if (swerve.isAimedAtShuttle()) {
-            readyToShootBoolean = true;
-        }
-
-        if (readyToShootBoolean) {
+    
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
 
-            ledsubsystem.setColor(Color.kGreen, LEDSegment.ALL);
+            ledsubsystem.setColor(Color.kBlue, LEDSegment.ALL);
         }
     }
 
@@ -133,7 +132,10 @@ public class AimAndShuttle extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
+
+        if (interrupted) {
         ledsubsystem.rainbow(LEDSegment.ALL);
+        }
     }
 
     @Override
