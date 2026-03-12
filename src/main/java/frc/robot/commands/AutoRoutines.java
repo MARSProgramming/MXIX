@@ -4,23 +4,18 @@
 
 package frc.robot.commands;
 
-import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$0;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$1;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$2;
-import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY;
-import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$0;
-import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$1;
-import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$2;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$0;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$1;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$2;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$3;
-import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$0;
-import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$1;
-import static frc.robot.util.ChoreoTraj.C_HOME_FAMILY$2;
-import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$0;
-import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$1;
-import static frc.robot.util.ChoreoTraj.D_HOME_FAMILY$2;
+
+import static frc.robot.util.ChoreoTraj.B_BEELINE;
+import static frc.robot.util.ChoreoTraj.B_BEELINE$0;
+import static frc.robot.util.ChoreoTraj.B_BEELINE$1;
+import static frc.robot.util.ChoreoTraj.B_BEELINE$2;
+import static frc.robot.util.ChoreoTraj.B_BEELINE$3;
+import static frc.robot.util.ChoreoTraj.C_BEELINE$0;
+import static frc.robot.util.ChoreoTraj.C_BEELINE$1;
+import static frc.robot.util.ChoreoTraj.C_BEELINE$2;
+import static frc.robot.util.ChoreoTraj.C_BEELINE$3;
+import static frc.robot.util.ChoreoTraj.X_CLIMB$0;
+import static frc.robot.util.ChoreoTraj.X_CLIMB$1;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -99,18 +94,11 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
-        autoChooser.addRoutine("B_PRELOAD", this::B_PRELOAD);
-        autoChooser.addRoutine("D_PRELOAD", this::D_PRELOAD);
-        autoChooser.addRoutine("C_DEPOT", this::C_DEPOT);
-        autoChooser.addRoutine("D_DEPOT", this::D_DEPOT);
-
-        autoChooser.addRoutine("B_BEELINE", this::B_BEELINE);
-        autoChooser.addRoutine("C_BEELINE", this::C_BEELINE);
-        autoChooser.addRoutine("B_OUTPOST", this::B_OUTPOST);
-        autoChooser.addRoutine("B_OUTPOST_CLIMB", this::B_OUTPOST_CLIMB);
-        autoChooser.addRoutine("C_PRELOAD", this::C_PRELOAD);
-
-
+        autoChooser.addRoutine("C Beeline", this::CBeeline);
+        autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
+        autoChooser.addRoutine("B Beeline", this::BBeeline);
+        autoChooser.addRoutine("B Beeline Greed", this::BBeelineGreed);
+        autoChooser.addRoutine("X Climb", this::XClimb);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -120,11 +108,11 @@ public final class AutoRoutines {
 
 
 
-    private AutoRoutine C_BEELINE() {
+    private AutoRoutine CBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = C_BEELINE_FAMILY$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = C_BEELINE_FAMILY$2.asAutoTraj(routine);
+        final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = C_BEELINE$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = C_BEELINE$2.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -143,104 +131,16 @@ public final class AutoRoutines {
         returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
         ));
 
-
-        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
- 
         return routine;
-
     }
 
     
-
-    private AutoRoutine C_PRELOAD() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_PRELOAD_ROUTINE");
-
-        final AutoTrajectory lineUpToDepot = C_HOME_FAMILY$0.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            lineUpToDepot.resetOdometry()
-            .andThen(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake())
-                .withTimeout(6)
-            )
-        );
-        return routine;
-    }
-
-    private AutoRoutine C_DEPOT() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
-        final AutoTrajectory lineUpToDepot = C_HOME_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory getDepots = C_HOME_FAMILY$1.asAutoTraj(routine);
-        final AutoTrajectory goToScoringPos = C_HOME_FAMILY$2.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                lineUpToDepot.resetOdometry(),
-                lineUpToDepot.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
-        );
-
-        lineUpToDepot.done().onTrue(
-            getDepots.cmd().alongWith(intakeRollers.intakeCommand())
-        );
-
-        getDepots.done().onTrue(goToScoringPos.cmd());
-
-        goToScoringPos.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
-
-        return routine;
-    }
-
-    private AutoRoutine D_PRELOAD() {
-        final AutoRoutine routine = autoFactory.newRoutine("D_PRELOAD_ROUTINE");
-
-        final AutoTrajectory lineUpToDepot = D_HOME_FAMILY$0.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            lineUpToDepot.resetOdometry()
-            .andThen(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake())
-                .withTimeout(6)
-            )
-        );
-
-
-        return routine;
-    }
-
-    private AutoRoutine D_DEPOT() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
-        final AutoTrajectory lineUpToDepot = D_HOME_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory getDepots = D_HOME_FAMILY$1.asAutoTraj(routine);
-        final AutoTrajectory goToScoringPos = D_HOME_FAMILY$2.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                lineUpToDepot.resetOdometry(),
-                lineUpToDepot.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
-        );
-
-        lineUpToDepot.done().onTrue(
-            getDepots.cmd().alongWith(intakeRollers.intakeCommand())
-        );
-
-        getDepots.done().onTrue(goToScoringPos.cmd());
-
-        goToScoringPos.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
-
-        return routine;
-    }
-
-
-    
-    private AutoRoutine B_BEELINE() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = B_BEELINE_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = B_BEELINE_FAMILY$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = B_BEELINE_FAMILY$2.asAutoTraj(routine);
+    private AutoRoutine CBeelineGreed() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_GREED_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = C_BEELINE$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = C_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory prepBump = C_BEELINE$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -249,84 +149,95 @@ public final class AutoRoutines {
             )
         );
 
-        goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
+        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
         goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
         .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
         .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
         getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
 
-        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve)
-        .until(() -> swerve.isAimedAtHub())
-        .andThen(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+        .alongWith(intakePivot.slamtake())
+        .withTimeout(5)
+        .andThen(prepBump.cmd())
         ));
 
+        prepBump.done().onTrue(goOverBumpTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
-        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
- 
         return routine;
-
     }
 
-    
-    private AutoRoutine B_PRELOAD() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_PRELOAD_ROUTINE");
-
-        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
+    private AutoRoutine BBeeline() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = B_BEELINE$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = B_BEELINE$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = B_BEELINE$2.asAutoTraj(routine);
 
         routine.active().onTrue(
-            goToOutpost.resetOdometry()
-            .andThen(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake())
-                .withTimeout(6)
+            Commands.sequence(
+                goOverBumpTraj.resetOdometry(),
+                goOverBumpTraj.cmd()
             )
         );
+
+        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
+
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+
+        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+        ));
+
         return routine;
     }
 
-    private AutoRoutine B_OUTPOST() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_OUTPOST_ROUTINE");
-        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory lineUpToShot = B_HOME_FAMILY$1.asAutoTraj(routine);
+    private AutoRoutine BBeelineGreed() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_GREED_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = B_BEELINE$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = B_BEELINE$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = B_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory prepBump = B_BEELINE$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-            goToOutpost.resetOdometry(),
-            goToOutpost.cmd()             
-            ) 
+                goOverBumpTraj.resetOdometry(),
+                goOverBumpTraj.cmd()
+            )
         );
 
-        goToOutpost.done().onTrue(
-            Commands.waitSeconds(3)
-            .andThen(lineUpToShot.cmd()));
+        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
-        lineUpToShot.done().onTrue(
-                        new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake()));
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+
+        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+        .alongWith(intakePivot.slamtake())
+        .withTimeout(5)
+        .andThen(prepBump.cmd())
+        ));
+
+        prepBump.done().onTrue(goOverBumpTraj.cmd().alongWith(intakeRollers.intakeCommand()));
+
         return routine;
     }
 
-    
-    private AutoRoutine B_OUTPOST_CLIMB() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_OUTPOST_ROUTINE");
-        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
-        final AutoTrajectory lineUpToShot = B_HOME_FAMILY$1.asAutoTraj(routine);
-        final AutoTrajectory prelineupClimb = B_HOME_FAMILY$2.asAutoTraj(routine);
+    private AutoRoutine XClimb() {
+        final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_ROUTINE");
+        final AutoTrajectory goToShotPos = X_CLIMB$0.asAutoTraj(routine);
+        final AutoTrajectory prelineupClimb = X_CLIMB$1.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-            goToOutpost.resetOdometry(),
-            goToOutpost.cmd()             
+            goToShotPos.resetOdometry(),
+            goToShotPos.cmd()             
             ) 
         );
 
-        goToOutpost.done().onTrue(
-            Commands.waitSeconds(3)
-            .andThen(lineUpToShot.cmd()));
-
-        lineUpToShot.done().onTrue(
+        goToShotPos.done().onTrue(
                         new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
                 .alongWith(intakePivot.slamtake())
                 .withTimeout(5)
@@ -337,5 +248,6 @@ public final class AutoRoutines {
 
 
         return routine;
+
     }
 }
