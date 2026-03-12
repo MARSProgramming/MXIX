@@ -6,6 +6,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.pathplanner.lib.util.GeometryUtil;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
@@ -26,7 +27,8 @@ import frc.robot.constants.SystemConstants;
 public class Cowl extends SubsystemBase {
     TalonFX mCowl;
 
-    double COWL_POSITION_TOLERANCE = 0.05; // Tolerance in rotations for considering the cowl "at position"
+    double COWL_POSITION_TOLERANCE = 0.1; // Tolerance in rotations for considering the cowl "at position"
+    // can trigger early, because it takes about 200ms to get to position.
 
     // Control request for position control using voltage
     PositionVoltage cowlPositionOut = new PositionVoltage(0).withSlot(0);
@@ -83,6 +85,11 @@ public class Cowl extends SubsystemBase {
         return run(() -> {
             mCowl.setControl(cowlPositionOut.withPosition(position));
         });
+    }
+
+    public boolean isAtTolerance(double setpoint) {
+        double currPos = mCowl.getPosition().getValueAsDouble();
+     return MathUtil.isNear(setpoint, currPos, COWL_POSITION_TOLERANCE);
     }
     
 

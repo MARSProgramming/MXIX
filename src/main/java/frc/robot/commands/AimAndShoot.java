@@ -109,6 +109,10 @@ public class AimAndShoot extends Command {
         double cowlAngle = info.cowlPosition;
         double shooterRPM = info.shot.shooterRPM;
 
+        DogLog.log("AimAndShootCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
+        DogLog.log("AimAndShootCommand/TargetVelocityRPM", shooterRPM);
+        DogLog.log("AimAndShootCommand/cowlInTolerance", cowl.isAtTolerance(cowlAngle));
+
         // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
@@ -122,8 +126,6 @@ public class AimAndShoot extends Command {
 
         if (swerve.isAimedAtHub()) {
             readyToShootBoolean = true;
-            DogLog.log("AimAndShootCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
-            DogLog.log("AimAndShootCommand/TargetVelocityRPM", shooterRPM);
         }
 
         if (readyToShootBoolean) {

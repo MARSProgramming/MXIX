@@ -36,7 +36,9 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.Settings;
 import frc.robot.constants.FieldConstants.Locations;
 import frc.robot.constants.Settings.kAutoAlign;
 import frc.robot.constants.SystemConstants;
@@ -328,6 +330,23 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public ChassisSpeeds getFieldRelativeSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+    }
+
+    public Command finalClimbLineupCommand() {
+        return Commands.sequence(
+            this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
+                new ChassisSpeeds(0, 
+                Settings.ClimbLineupSettings.SIDELINEUP_VELOCITY, 
+                0)
+            )).withTimeout(Settings.ClimbLineupSettings.SIDEWAYS_LINEUP_TIMEOUT),
+            Commands.run(() -> this.stop(), this).withTimeout(0.2),
+            this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
+                new ChassisSpeeds(
+                Settings.ClimbLineupSettings.FORWLINEUP_VELOCITY,
+                0,
+                0)
+            )).withTimeout(Settings.ClimbLineupSettings.FORWARD_LINEUP_TIMEOUT)
+            );
     }
 
 

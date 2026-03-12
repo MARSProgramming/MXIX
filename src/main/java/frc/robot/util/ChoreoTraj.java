@@ -153,28 +153,28 @@ public record ChoreoTraj(
 	public static final ChoreoTraj B_HOME_FAMILY = new ChoreoTraj(
 	    "B_HOME_FAMILY",
 	    OptionalInt.empty(),
-	    4.66843,
-	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(3.142)),
+	    4.66885,
+	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj B_HOME_FAMILY$0 = new ChoreoTraj(
 	    "B_HOME_FAMILY",
 	    OptionalInt.of(0),
-	    1.89557,
-	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(3.142)),
+	    1.89599,
+	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(0)),
 	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj B_HOME_FAMILY$1 = new ChoreoTraj(
 	    "B_HOME_FAMILY",
 	    OptionalInt.of(1),
-	    1.6815300000000002,
+	    1.6815299999999997,
 	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
 	);
 	public static final ChoreoTraj B_HOME_FAMILY$2 = new ChoreoTraj(
 	    "B_HOME_FAMILY",
 	    OptionalInt.of(2),
-	    1.0913299999999997,
+	    1.0913300000000001,
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);

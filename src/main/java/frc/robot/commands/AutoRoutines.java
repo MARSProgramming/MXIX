@@ -4,6 +4,14 @@
 
 package frc.robot.commands;
 
+import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$0;
+import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$1;
+import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$2;
+import static frc.robot.util.ChoreoTraj.B_BEELINE_FAMILY$3;
+import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY;
+import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$0;
+import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$1;
+import static frc.robot.util.ChoreoTraj.B_HOME_FAMILY$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$0;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$1;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_FAMILY$2;
@@ -22,6 +30,7 @@ import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Settings;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.FastClimber;
@@ -91,12 +100,18 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
+
+        autoChooser.addRoutine("B_BEELINE", this::B_BEELINE);
         autoChooser.addRoutine("C_BEELINE", this::C_BEELINE);
+        autoChooser.addRoutine("B_BEELINE_GREED", this::B_BEELINE_GREED);
         autoChooser.addRoutine("C_BEELINE_GREED", this::C_BEELINE_GREED);
+        autoChooser.addRoutine("B_OUTPOST", this::B_OUTPOST);
+        autoChooser.addRoutine("B_OUTPOST_CLIMB", this::B_OUTPOST_CLIMB);
+        autoChooser.addRoutine("B_PRELOAD", this::B_PRELOAD);
         autoChooser.addRoutine("C_PRELOAD", this::C_PRELOAD);
-        autoChooser.addRoutine("C_DEPOT", this::C_DEPOT);
         autoChooser.addRoutine("D_PRELOAD", this::D_PRELOAD);
         autoChooser.addRoutine("D_DEPOT", this::D_DEPOT);
+        autoChooser.addRoutine("C_DEPOT", this::C_DEPOT);
 
 
 
@@ -128,10 +143,7 @@ public final class AutoRoutines {
 
         getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
 
-        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve)
-        .until(() -> swerve.isAimedAtHub())
-        .andThen(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
         ));
 
 
@@ -260,5 +272,142 @@ public final class AutoRoutines {
     }
 
 
+    
+    private AutoRoutine B_BEELINE() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = B_BEELINE_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = B_BEELINE_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = B_BEELINE_FAMILY$2.asAutoTraj(routine);
 
+        routine.active().onTrue(
+            Commands.sequence(
+                goOverBumpTraj.resetOdometry(),
+                goOverBumpTraj.cmd()
+            )
+        );
+
+        goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
+
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+
+        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve)
+        .until(() -> swerve.isAimedAtHub())
+        .andThen(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+        ));
+
+
+        returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
+ 
+        return routine;
+
+    }
+
+    private AutoRoutine B_BEELINE_GREED() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_GREED_ROUTINE");
+        final AutoTrajectory goOverBumpTraj = B_BEELINE_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsInCenterTraj = B_BEELINE_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = B_BEELINE_FAMILY$2.asAutoTraj(routine);
+        final AutoTrajectory resetFromFinal = B_BEELINE_FAMILY$3.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+                goOverBumpTraj.resetOdometry(),
+                goOverBumpTraj.cmd()
+            )
+        );
+
+        goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
+
+
+  
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+        returnToShoot.done().onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+            .withTimeout(5)
+            .andThen(resetFromFinal.cmd()
+            .alongWith(intakePivot.confirmDeploy())));
+
+        resetFromFinal.done().onTrue(
+            goOverBumpTraj.cmd().andThen(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()))
+        );
+        
+        return routine;
+    }
+
+    
+    private AutoRoutine B_PRELOAD() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_PRELOAD_ROUTINE");
+
+        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            goToOutpost.resetOdometry()
+            .andThen(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                .alongWith(intakePivot.slamtake())
+                .withTimeout(6)
+            )
+        );
+        return routine;
+    }
+
+    private AutoRoutine B_OUTPOST() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_OUTPOST_ROUTINE");
+        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory lineUpToShot = B_HOME_FAMILY$1.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+            goToOutpost.resetOdometry(),
+            goToOutpost.cmd()             
+            ) 
+        );
+
+        goToOutpost.done().onTrue(
+            Commands.waitSeconds(3)
+            .andThen(lineUpToShot.cmd()));
+
+        lineUpToShot.done().onTrue(
+                        new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                .alongWith(intakePivot.slamtake()));
+        return routine;
+    }
+
+    
+    private AutoRoutine B_OUTPOST_CLIMB() {
+        final AutoRoutine routine = autoFactory.newRoutine("B_OUTPOST_ROUTINE");
+        final AutoTrajectory goToOutpost = B_HOME_FAMILY$0.asAutoTraj(routine);
+        final AutoTrajectory lineUpToShot = B_HOME_FAMILY$1.asAutoTraj(routine);
+        final AutoTrajectory prelineupClimb = B_HOME_FAMILY$2.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+            goToOutpost.resetOdometry(),
+            goToOutpost.cmd()             
+            ) 
+        );
+
+        goToOutpost.done().onTrue(
+            Commands.waitSeconds(3)
+            .andThen(lineUpToShot.cmd()));
+
+        lineUpToShot.done().onTrue(
+                        new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                .alongWith(intakePivot.slamtake())
+                .withTimeout(5)
+        .andThen(prelineupClimb.cmd()));
+        prelineupClimb.done().onTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
+        .withTimeout(1.5)
+        .andThen(swerve.finalClimbLineupCommand()));
+
+
+        return routine;
+    }
 }
