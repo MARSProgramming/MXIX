@@ -329,7 +329,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     public ChassisSpeeds getFieldRelativeSpeeds() {
-        return ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
+        ChassisSpeeds speeds = getState().Speeds;
+        Rotation2d rot = getState().Pose.getRotation();
+        return ChassisSpeeds.fromRobotRelativeSpeeds(speeds, rot);
     }
 
     public Command finalClimbLineupCommand() {

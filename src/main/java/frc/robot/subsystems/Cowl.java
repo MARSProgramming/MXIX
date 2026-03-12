@@ -89,7 +89,7 @@ public class Cowl extends SubsystemBase {
 
     public boolean isAtTolerance(double setpoint) {
         double currPos = mCowl.getPosition().getValueAsDouble();
-     return MathUtil.isNear(setpoint, currPos, COWL_POSITION_TOLERANCE);
+         return MathUtil.isNear(setpoint, currPos, COWL_POSITION_TOLERANCE);
     }
     
 

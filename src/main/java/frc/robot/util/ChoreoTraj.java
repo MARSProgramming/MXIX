@@ -335,15 +335,15 @@ public record ChoreoTraj(
 	public static final ChoreoTraj D_DEPOT = new ChoreoTraj(
 	    "D_DEPOT",
 	    OptionalInt.empty(),
-	    8.15274,
-	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(0)),
+	    8.05092,
+	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj D_DEPOT$0 = new ChoreoTraj(
 	    "D_DEPOT",
 	    OptionalInt.of(0),
-	    1.06792,
-	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(0)),
+	    0.9661,
+	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj D_DEPOT$1 = new ChoreoTraj(
