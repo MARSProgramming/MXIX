@@ -77,12 +77,6 @@ public class Limelight2 extends SubsystemBase {
             return Optional.empty();
         }
 
-        // 2. Reject if pose is too far from odometry estimate
-        double poseDistance = currentRobotPose.getTranslation()
-            .getDistance(combinedPose.getTranslation());
-        if (poseDistance > MAX_POSE_DIFFERENCE) {
-            return Optional.empty();
-        }
 
         // 3. Reject if rotation difference is too large
         double rotationDifference = Math.abs(

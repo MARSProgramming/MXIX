@@ -36,8 +36,8 @@ public class Settings {
     public static class ClimbLineupSettings {
         public static double SIDELINEUP_VELOCITY = 0.3; // M/s
         public static double FORWLINEUP_VELOCITY = 0.2; // M/s
-        public static double SIDEWAYS_LINEUP_TIMEOUT = 0.5;
-        public static double FORWARD_LINEUP_TIMEOUT = 0.3;
+        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.0;
+        public static double FORWARD_LINEUP_TIMEOUT = 1.5;
     }
 
     public static class ClimbSettings {

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.Limelight2;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.ShotSetup;
@@ -49,6 +51,7 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
+    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
@@ -99,12 +102,12 @@ public class RobotContainer {
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
        shooterLimelight.setDefaultCommand(updateShooterVision());
-       backLimelight.setDefaultCommand(updateBackVision());
+       //backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kBlue, LEDSegment.ALL)));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
+      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
@@ -132,7 +135,7 @@ public class RobotContainer {
       );
 
       coPilot.x().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
-      
+      coPilot.y().onTrue(swerve.finalClimbLineupCommand());
 
     }
 
@@ -178,13 +181,21 @@ public class RobotContainer {
     private Command updateShooterVision() {
         return shooterLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
-
+            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
               return;
             }
-
-            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
+
+                 double rotationDifference = Math.abs(
+                swerve.getState().Pose.getRotation()
+                .minus(measurement.get().poseEstimate.pose.getRotation())
+                .getRadians());
+        
+                 if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
+                 return;
+                }
+
                 swerve.addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,

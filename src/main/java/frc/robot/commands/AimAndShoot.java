@@ -129,7 +129,6 @@ public class AimAndShoot extends Command {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
-            ledsubsystem.strobe(Color.kGreen, LEDSegment.ALL);
         }
     }
 
@@ -140,10 +139,6 @@ public class AimAndShoot extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
-        if (interrupted) {
-            ledsubsystem.rainbow(LEDSegment.BOTH_BARS);
-        }
-
     }
 
     @Override

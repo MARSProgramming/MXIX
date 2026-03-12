@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.ALL);
     }
     
 
