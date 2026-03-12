@@ -150,6 +150,20 @@ public record ChoreoTraj(
 	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341)),
 	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785))
 	);
+	public static final ChoreoTraj CLIMB_POSES_BLUE = new ChoreoTraj(
+	    "CLIMB_POSES_BLUE",
+	    OptionalInt.empty(),
+	    1.11466,
+	    new Pose2d(0.98, 4.86, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.15, 2.6, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj CLIMB_POSES_RED = new ChoreoTraj(
+	    "CLIMB_POSES_RED",
+	    OptionalInt.empty(),
+	    1.11466,
+	    new Pose2d(0.98, 4.86, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.15, 2.6, Rotation2d.fromRadians(0))
+	);
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -173,7 +187,9 @@ public record ChoreoTraj(
 		Map.entry("B_BEELINE_FAMILY$0", B_BEELINE_FAMILY$0),
 		Map.entry("B_BEELINE_FAMILY$1", B_BEELINE_FAMILY$1),
 		Map.entry("B_BEELINE_FAMILY$2", B_BEELINE_FAMILY$2),
-		Map.entry("B_BEELINE_FAMILY$3", B_BEELINE_FAMILY$3)
+		Map.entry("B_BEELINE_FAMILY$3", B_BEELINE_FAMILY$3),
+		Map.entry("CLIMB_POSES_BLUE", CLIMB_POSES_BLUE),
+		Map.entry("CLIMB_POSES_RED", CLIMB_POSES_RED)
     );
 
     /**

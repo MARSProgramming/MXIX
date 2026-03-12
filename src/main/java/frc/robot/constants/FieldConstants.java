@@ -1,6 +1,8 @@
 package frc.robot.constants;
 
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -127,6 +129,30 @@ public class FieldConstants {
            return currentRobotPose.nearest(shuttlingPosesRed);
         }
         }  
-    }
+
+        static Pose2d BLUE_NEARDEPOT_CLIMB_POSE = new Pose2d(0.98, 4.86, new Rotation2d(Degrees.of(180)));
+        static Pose2d BLUE_OUTPOST_CLIMB_POSE = new Pose2d(1.15, 2.6, new Rotation2d(Degrees.of(0)));
+        static Pose2d RED_NEARDEPOT_CLIMB_POSE = new Pose2d(15.55, 3.2, new Rotation2d(Degrees.of(0)));
+        static Pose2d RED_NEAROUTPOST_CLIMB_POSE = new Pose2d(15.4, 5.45, new Rotation2d(Degrees.of(180)));
+
+        public static ArrayList<Pose2d> climbPosesBlue = new ArrayList<Pose2d>();
+        public static ArrayList<Pose2d> climbPosesRed = new ArrayList<Pose2d>();
+
+        static {
+            climbPosesBlue.add(BLUE_NEARDEPOT_CLIMB_POSE);
+            climbPosesBlue.add(BLUE_OUTPOST_CLIMB_POSE);
+            climbPosesRed.add(RED_NEARDEPOT_CLIMB_POSE);
+            climbPosesRed.add(RED_NEAROUTPOST_CLIMB_POSE);
+        }
+
+        public static Pose2d getClosestClimbingPosition(Pose2d currentRobotPose) {
+                     final Optional<Alliance> alliance = DriverStation.getAlliance();
+            if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+                return currentRobotPose.nearest(climbPosesBlue);
+            }
+           return currentRobotPose.nearest(climbPosesRed);
+        }
+    }  
+    
 
     

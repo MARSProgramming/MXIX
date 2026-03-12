@@ -56,9 +56,9 @@ public class Settings {
     public static final PIDConstants ALIGN_PID = new PIDConstants(4.9, 0.0, 0.28);
 
     public static final LinearVelocity     MAX_AUTO_ALIGN_VELOCITY_SLOW     = Units.MetersPerSecond.of(2.00);
-    public static final LinearVelocity     MAX_AUTO_ALIGN_VELOCITY_FAST     = Units.MetersPerSecond.of(2.75);
+    public static final LinearVelocity     MAX_AUTO_ALIGN_VELOCITY_FAST     = Units.MetersPerSecond.of(1.0);
     public static final LinearAcceleration MAX_AUTO_ALIGN_ACCELERATION_SLOW = Units.MetersPerSecondPerSecond.of(8.00);
-    public static final LinearAcceleration MAX_AUTO_ALIGN_ACCELERATION_FAST = Units.MetersPerSecondPerSecond.of(16.0);
+    public static final LinearAcceleration MAX_AUTO_ALIGN_ACCELERATION_FAST = Units.MetersPerSecondPerSecond.of(4.0);
 
     /* ------------ WHO'S IN THE HOUSE?? ------------- */
     public static final Distance TRANSLATION_TOLERANCE;
@@ -66,8 +66,8 @@ public class Settings {
     public static final LinearVelocity VELOCITY_TOLERANCE = Units.MetersPerSecond.of(0.18);
     public static final LinearVelocity AUTO_VELOCITY_TOLERANCE = Units.MetersPerSecond.of(0.15);
     static {
-            TRANSLATION_TOLERANCE = Units.Centimeters.of(2.00);
-            ROTATION_TOLERANCE    = Units.Degrees.of(1.25);
+            TRANSLATION_TOLERANCE = Units.Centimeters.of(3.0);
+            ROTATION_TOLERANCE    = Units.Degrees.of(2);
         }
     }    
 }

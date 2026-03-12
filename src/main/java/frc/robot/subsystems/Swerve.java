@@ -17,6 +17,7 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -24,6 +25,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
@@ -74,10 +76,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private static final double DEADBAND = 0.1;
     private static final double TRIGGER_DEADBAND = 0.05;
-    private static final double ANGLE_KP = 7.0;
-    private static final double ANGLE_KD = 0.4;
-    private static final double ANGLE_MAX_VELOCITY = 8.0;
-    private static final double ANGLE_MAX_ACCELERATION = 20.0;
+    private static final double ANGLE_KP = 5.0;
+    private static final double ANGLE_KD = 0;
+    private static final double ANGLE_MAX_VELOCITY = 2.0;
+    private static final double ANGLE_MAX_ACCELERATION = 5.0;
 
 
     private final ProfiledController translationController =
@@ -87,13 +89,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_FAST.in(Units.MetersPerSecondPerSecond)
             );
 
-    private final PIDController angleController =
-            new PIDController(
-                ANGLE_KP,
-                0.0,
-                ANGLE_KD
-            );
-
+    private final ProfiledPIDController angleController = new ProfiledPIDController(
+        ANGLE_KP,
+         0.0,
+        ANGLE_KD,
+    new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION)
+    );
 
     /**
      * Creates a new Swerve subsystem.
@@ -340,14 +341,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 ChassisSpeeds speeds = getFieldRelativeSpeeds();
 
                 translationController.reset(-Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
-                angleController.reset();
+                angleController.reset(this.getState().Pose.getRotation().getRadians());
             }),
             Commands.run(() -> {
                 // Update the contraints of the controller
                 Pose2d robotPose = this.getState().Pose;
                 Pose2d targetPose = target.get();
 
-                // Red alliance flip
                 
                 double xDiff = targetPose.getX() - robotPose.getX();
                 double yDiff = targetPose.getY() - robotPose.getY();
