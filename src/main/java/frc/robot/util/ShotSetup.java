@@ -64,14 +64,14 @@ public class ShotSetup {
     
     private static void loadMap() {
         // Close range - flatter cowl, lower speeds
-        SHOT_MAP.put(1.4,  new ShotInfo(new Shot(3400), 0.4));   // Point blank
-        SHOT_MAP.put(2.3,  new ShotInfo(new Shot(3450), 0.7));  // Very close
-        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3450), 1.2));  // Close
+        SHOT_MAP.put(1.3,  new ShotInfo(new Shot(3400), 0.5));   // tuned
+        SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3450), 0.7));  // tuned
+        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3800), 1.2));  // needs tuning
         
         // Transition range - common shooting zone, add extra points
-        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3700), 1.3));  // Mid-close
-        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3750), 1.4));  // Sweet spot start
-        SHOT_MAP.put(4.7,  new ShotInfo(new Shot(4000), 1.5));  // Sweet spot
+        SHOT_MAP.put(3.6,  new ShotInfo(new Shot(3900), 1.3));  // needs tuning
+        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(4000), 1.4));  // needs tuning
+        SHOT_MAP.put(4.7,  new ShotInfo(new Shot(4100), 1.5));  // needs tuning
 
         timeOfFlightMap.put(5.68, 1.16);
         timeOfFlightMap.put(4.55, 1.12);
