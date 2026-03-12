@@ -39,4 +39,8 @@ public class Settings {
         public static double HUB_REFERENCE_FLYWHEEL_VELOCITY = 3400;
         public static double HUB_REFERENCE_COWL_POSITION = 0.4;
     }
+
+    public static class ShooterSettings {
+        public static double FLYWHEEL_MIN_RPMs = 3000;
+    }
 }

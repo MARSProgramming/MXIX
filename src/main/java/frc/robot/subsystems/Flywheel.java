@@ -98,15 +98,7 @@ public class Flywheel extends SubsystemBase {
      * @param velocityRPM The target velocity in RPM.
      * @return A Command that sets the RPM and waits for the flywheel to be within tolerance.
      */
-    public Command setVelocitySlew(double velocityRPM) {
-        return run(() -> {
-            double desiredRpms = spinUpLimiter.calculate(velocityRPM);
-            rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
-            lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
-        })
-        .until(() -> isVelocityWithinTolerance(getVelocity()));
-    }
-
+    
     /**
      * Sets the target velocity for the flywheels in RPM.
      * This method sets the control request but does not manage the command lifecycle.
@@ -120,10 +112,6 @@ public class Flywheel extends SubsystemBase {
 
     public AngularVelocity getVelocity() {
         return rm.getVelocity().getValue();          
-    }
-
-    public void setSlewRPM(double velocityRPM) {
-        double desiredRpms = spinUpLimiter.calculate(velocityRPM);
     }
 
     /**

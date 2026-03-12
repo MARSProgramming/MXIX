@@ -9,6 +9,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import dev.doglog.DogLog;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -119,6 +122,8 @@ public class AimAndShoot extends Command {
 
         if (swerve.isAimedAtHub()) {
             readyToShootBoolean = true;
+            DogLog.log("AimAndShootCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
+            DogLog.log("AimAndShootCommand/TargetVelocityRPM", shooterRPM);
         }
 
         if (readyToShootBoolean) {
@@ -137,10 +142,8 @@ public class AimAndShoot extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
-
-        if (interrupted) {
-            ledsubsystem.rainbow(LEDSegment.ALL);
-        }
+        ledsubsystem.rainbow(LEDSegment.ALL);
+        
     }
 
     @Override

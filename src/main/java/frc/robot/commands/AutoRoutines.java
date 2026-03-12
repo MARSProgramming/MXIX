@@ -127,6 +127,14 @@ public final class AutoRoutines {
         .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
         getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+
+        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve)
+        .until(() -> swerve.isAimedAtHub())
+        .andThen(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
+        ));
+
+
         returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
  
         return routine;

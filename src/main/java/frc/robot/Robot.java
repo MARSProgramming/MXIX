@@ -35,7 +35,7 @@ public class Robot extends TimedRobot {
         // autonomous chooser on the dashboard.
         m_robotContainer = new RobotContainer();
         SmartDashboard.putData(CommandScheduler.getInstance());
-        //  RobotController.setBrownoutVoltage(Volts.of(6.1)); 
+        //RobotController.setBrownoutVoltage(Volts.of(6.1)); 
     }
 
 
@@ -43,14 +43,6 @@ public class Robot extends TimedRobot {
     public void robotInit() {
     }
     
-
-
-
-
-    @Override
-    public void disabledInit() {
-        m_robotContainer.getLedSubsystem().rainbow(LEDSegment.ALL);
-    }
 
 
     /**

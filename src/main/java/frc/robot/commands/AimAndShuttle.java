@@ -9,7 +9,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -116,7 +118,10 @@ public class AimAndShuttle extends Command {
         flywheel.setRPM(shooterRPM);
 
         if (swerve.isAimedAtShuttle()) {
-    
+            DogLog.log("AimAndShuttleCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
+            DogLog.log("AimAndShuttleCommand/TargetVelocityRPM", shooterRPM);
+
+
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
