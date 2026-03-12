@@ -24,278 +24,369 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj C_BEELINE_FAMILY = new ChoreoTraj(
-	    "C_BEELINE_FAMILY",
+    public static final ChoreoTraj C_BEELINE = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.empty(),
-	    9.13839,
+	    9.66579,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj C_BEELINE_FAMILY$0 = new ChoreoTraj(
-	    "C_BEELINE_FAMILY",
+	public static final ChoreoTraj C_BEELINE$0 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(0),
 	    1.16249,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj C_BEELINE_FAMILY$1 = new ChoreoTraj(
-	    "C_BEELINE_FAMILY",
+	public static final ChoreoTraj C_BEELINE$1 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(1),
 	    5.39697,
 	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336))
 	);
-	public static final ChoreoTraj C_BEELINE_FAMILY$2 = new ChoreoTraj(
-	    "C_BEELINE_FAMILY",
+	public static final ChoreoTraj C_BEELINE$2 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(2),
-	    1.66235,
+	    2.350430000000001,
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336)),
-	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356))
+	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj C_BEELINE_FAMILY$3 = new ChoreoTraj(
-	    "C_BEELINE_FAMILY",
+	public static final ChoreoTraj C_BEELINE$3 = new ChoreoTraj(
+	    "C_BEELINE",
 	    OptionalInt.of(3),
-	    0.9165799999999997,
-	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356)),
+	    0.7558999999999987,
+	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785))
 	);
-	public static final ChoreoTraj C_HOME_FAMILY = new ChoreoTraj(
-	    "C_HOME_FAMILY",
+	public static final ChoreoTraj C_DEPOT = new ChoreoTraj(
+	    "C_DEPOT",
 	    OptionalInt.empty(),
-	    6.77324,
-	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785)),
-	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
+	    8.39025,
+	    new Pose2d(3.557, 5.494, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_HOME_FAMILY$0 = new ChoreoTraj(
-	    "C_HOME_FAMILY",
+	public static final ChoreoTraj C_DEPOT$0 = new ChoreoTraj(
+	    "C_DEPOT",
 	    OptionalInt.of(0),
-	    0.89094,
-	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785)),
+	    0.85375,
+	    new Pose2d(3.557, 5.494, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_HOME_FAMILY$1 = new ChoreoTraj(
-	    "C_HOME_FAMILY",
+	public static final ChoreoTraj C_DEPOT$1 = new ChoreoTraj(
+	    "C_DEPOT",
 	    OptionalInt.of(1),
 	    4.23446,
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_HOME_FAMILY$2 = new ChoreoTraj(
-	    "C_HOME_FAMILY",
+	public static final ChoreoTraj C_DEPOT$2 = new ChoreoTraj(
+	    "C_DEPOT",
 	    OptionalInt.of(2),
-	    1.6478400000000004,
+	    1.6478399999999995,
 	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj D_HOME_FAMILY = new ChoreoTraj(
-	    "D_HOME_FAMILY",
+	public static final ChoreoTraj C_DEPOT$3 = new ChoreoTraj(
+	    "C_DEPOT",
+	    OptionalInt.of(3),
+	    1.6542000000000003,
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj B_BEELINE = new ChoreoTraj(
+	    "B_BEELINE",
 	    OptionalInt.empty(),
-	    7.63329,
-	    new Pose2d(3.529, 7.432, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.189, 5.048, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj D_HOME_FAMILY$0 = new ChoreoTraj(
-	    "D_HOME_FAMILY",
-	    OptionalInt.of(0),
-	    1.0957,
-	    new Pose2d(3.529, 7.432, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj D_HOME_FAMILY$1 = new ChoreoTraj(
-	    "D_HOME_FAMILY",
-	    OptionalInt.of(1),
-	    4.47511,
-	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj D_HOME_FAMILY$2 = new ChoreoTraj(
-	    "D_HOME_FAMILY",
-	    OptionalInt.of(2),
-	    2.06248,
-	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.189, 5.048, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj B_BEELINE_FAMILY = new ChoreoTraj(
-	    "B_BEELINE_FAMILY",
-	    OptionalInt.empty(),
-	    7.92388,
+	    9.43788,
 	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
-	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341))
+	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785))
 	);
-	public static final ChoreoTraj B_BEELINE_FAMILY$0 = new ChoreoTraj(
-	    "B_BEELINE_FAMILY",
+	public static final ChoreoTraj B_BEELINE$0 = new ChoreoTraj(
+	    "B_BEELINE",
 	    OptionalInt.of(0),
 	    1.13558,
 	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(6.062, 2.44, Rotation2d.fromRadians(0.785))
 	);
-	public static final ChoreoTraj B_BEELINE_FAMILY$1 = new ChoreoTraj(
-	    "B_BEELINE_FAMILY",
+	public static final ChoreoTraj B_BEELINE$1 = new ChoreoTraj(
+	    "B_BEELINE",
 	    OptionalInt.of(1),
 	    4.87591,
 	    new Pose2d(6.062, 2.44, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(6.062, 2.455, Rotation2d.fromRadians(-2.367))
 	);
-	public static final ChoreoTraj B_BEELINE_FAMILY$2 = new ChoreoTraj(
-	    "B_BEELINE_FAMILY",
+	public static final ChoreoTraj B_BEELINE$2 = new ChoreoTraj(
+	    "B_BEELINE",
 	    OptionalInt.of(2),
 	    1.9123899999999994,
 	    new Pose2d(6.062, 2.455, Rotation2d.fromRadians(-2.367)),
-	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341))
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.356))
 	);
-	public static final ChoreoTraj B_HOME_FAMILY = new ChoreoTraj(
-	    "B_HOME_FAMILY",
+	public static final ChoreoTraj B_BEELINE$3 = new ChoreoTraj(
+	    "B_BEELINE",
+	    OptionalInt.of(3),
+	    0.6880800000000002,
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj B_BEELINE$4 = new ChoreoTraj(
+	    "B_BEELINE",
+	    OptionalInt.of(4),
+	    0.82592,
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj B_OUTPOST = new ChoreoTraj(
+	    "B_OUTPOST",
 	    OptionalInt.empty(),
-	    4.60852,
-	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
+	    4.66408,
+	    new Pose2d(3.526, 2.476, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj B_HOME_FAMILY$0 = new ChoreoTraj(
-	    "B_HOME_FAMILY",
+	public static final ChoreoTraj B_OUTPOST$0 = new ChoreoTraj(
+	    "B_OUTPOST",
 	    OptionalInt.of(0),
-	    1.83565,
-	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
+	    1.89122,
+	    new Pose2d(3.526, 2.476, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj B_HOME_FAMILY$1 = new ChoreoTraj(
-	    "B_HOME_FAMILY",
+	public static final ChoreoTraj B_OUTPOST$1 = new ChoreoTraj(
+	    "B_OUTPOST",
 	    OptionalInt.of(1),
 	    1.6815300000000002,
 	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
 	);
-	public static final ChoreoTraj B_HOME_FAMILY$2 = new ChoreoTraj(
-	    "B_HOME_FAMILY",
-	    OptionalInt.of(2),
-	    1.0913400000000002,
-	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj A_HOME_FAMILY = new ChoreoTraj(
-	    "A_HOME_FAMILY",
-	    OptionalInt.empty(),
-	    5.091,
-	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj A_HOME_FAMILY$0 = new ChoreoTraj(
-	    "A_HOME_FAMILY",
-	    OptionalInt.of(0),
-	    1.72479,
-	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj A_HOME_FAMILY$1 = new ChoreoTraj(
-	    "A_HOME_FAMILY",
-	    OptionalInt.of(1),
-	    1.68147,
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709))
-	);
-	public static final ChoreoTraj A_HOME_FAMILY$2 = new ChoreoTraj(
-	    "A_HOME_FAMILY",
-	    OptionalInt.of(2),
-	    1.6847400000000001,
-	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj X_HOME_OUTPOST = new ChoreoTraj(
-	    "X_HOME_OUTPOST",
-	    OptionalInt.empty(),
-	    5.73826,
-	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj X_HOME_OUTPOST$0 = new ChoreoTraj(
-	    "X_HOME_OUTPOST",
-	    OptionalInt.of(0),
-	    2.9654,
-	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj X_HOME_OUTPOST$1 = new ChoreoTraj(
-	    "X_HOME_OUTPOST",
-	    OptionalInt.of(1),
-	    1.6815300000000004,
-	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
-	);
-	public static final ChoreoTraj X_HOME_OUTPOST$2 = new ChoreoTraj(
-	    "X_HOME_OUTPOST",
+	public static final ChoreoTraj B_OUTPOST$2 = new ChoreoTraj(
+	    "B_OUTPOST",
 	    OptionalInt.of(2),
 	    1.0913300000000001,
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_HOME_CLIMB = new ChoreoTraj(
-	    "X_HOME_CLIMB",
+	public static final ChoreoTraj A_OUTPOST = new ChoreoTraj(
+	    "A_OUTPOST",
 	    OptionalInt.empty(),
-	    2.8457,
+	    4.68709,
+	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj A_OUTPOST$0 = new ChoreoTraj(
+	    "A_OUTPOST",
+	    OptionalInt.of(0),
+	    1.71033,
+	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj A_OUTPOST$1 = new ChoreoTraj(
+	    "A_OUTPOST",
+	    OptionalInt.of(1),
+	    1.2933400000000002,
+	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709))
+	);
+	public static final ChoreoTraj A_OUTPOST$2 = new ChoreoTraj(
+	    "A_OUTPOST",
+	    OptionalInt.of(2),
+	    1.6834200000000004,
+	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj X_OUTPOST = new ChoreoTraj(
+	    "X_OUTPOST",
+	    OptionalInt.empty(),
+	    5.73826,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj X_OUTPOST$0 = new ChoreoTraj(
+	    "X_OUTPOST",
+	    OptionalInt.of(0),
+	    2.96539,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj X_OUTPOST$1 = new ChoreoTraj(
+	    "X_OUTPOST",
+	    OptionalInt.of(1),
+	    1.6815299999999995,
+	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
+	);
+	public static final ChoreoTraj X_OUTPOST$2 = new ChoreoTraj(
+	    "X_OUTPOST",
+	    OptionalInt.of(2),
+	    1.0913400000000006,
+	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj X_CLIMB = new ChoreoTraj(
+	    "X_CLIMB",
+	    OptionalInt.empty(),
+	    4.11746,
 	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.148, 2.504, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_HOME_CLIMB$0 = new ChoreoTraj(
-	    "X_HOME_CLIMB",
+	public static final ChoreoTraj X_CLIMB$0 = new ChoreoTraj(
+	    "X_CLIMB",
 	    OptionalInt.of(0),
 	    1.35053,
 	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_HOME_CLIMB$1 = new ChoreoTraj(
-	    "X_HOME_CLIMB",
+	public static final ChoreoTraj X_CLIMB$1 = new ChoreoTraj(
+	    "X_CLIMB",
 	    OptionalInt.of(1),
-	    1.4951699999999999,
+	    2.7669300000000003,
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.148, 2.504, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj A_HOME_CLIMB = new ChoreoTraj(
-	    "A_HOME_CLIMB",
+	public static final ChoreoTraj A_CLIMB = new ChoreoTraj(
+	    "A_CLIMB",
 	    OptionalInt.empty(),
 	    2.8344,
 	    new Pose2d(3.528, 0.693, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.132, 2.488, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj A_HOME_CLIMB$0 = new ChoreoTraj(
-	    "A_HOME_CLIMB",
+	public static final ChoreoTraj A_CLIMB$0 = new ChoreoTraj(
+	    "A_CLIMB",
 	    OptionalInt.of(0),
 	    1.46618,
 	    new Pose2d(3.528, 0.693, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.514, 1.438, Rotation2d.fromRadians(0.709))
 	);
-	public static final ChoreoTraj A_HOME_CLIMB$1 = new ChoreoTraj(
-	    "A_HOME_CLIMB",
+	public static final ChoreoTraj A_CLIMB$1 = new ChoreoTraj(
+	    "A_CLIMB",
 	    OptionalInt.of(1),
 	    1.36822,
 	    new Pose2d(1.514, 1.438, Rotation2d.fromRadians(0.709)),
 	    new Pose2d(1.132, 2.488, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_HOME_DEPOT = new ChoreoTraj(
-	    "X_HOME_DEPOT",
+	public static final ChoreoTraj X_DEPOT = new ChoreoTraj(
+	    "X_DEPOT",
 	    OptionalInt.empty(),
 	    7.88629,
 	    new Pose2d(3.545, 4.019, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_HOME_DEPOT$0 = new ChoreoTraj(
-	    "X_HOME_DEPOT",
+	public static final ChoreoTraj X_DEPOT$0 = new ChoreoTraj(
+	    "X_DEPOT",
 	    OptionalInt.of(0),
 	    2.00398,
 	    new Pose2d(3.545, 4.019, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj X_HOME_DEPOT$1 = new ChoreoTraj(
-	    "X_HOME_DEPOT",
+	public static final ChoreoTraj X_DEPOT$1 = new ChoreoTraj(
+	    "X_DEPOT",
 	    OptionalInt.of(1),
 	    4.23447,
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj X_HOME_DEPOT$2 = new ChoreoTraj(
-	    "X_HOME_DEPOT",
+	public static final ChoreoTraj X_DEPOT$2 = new ChoreoTraj(
+	    "X_DEPOT",
 	    OptionalInt.of(2),
 	    1.6478399999999995,
 	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj D_CLIMB = new ChoreoTraj(
+	    "D_CLIMB",
+	    OptionalInt.empty(),
+	    3.04989,
+	    new Pose2d(3.533, 7.224, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.011, 4.889, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj D_CLIMB$0 = new ChoreoTraj(
+	    "D_CLIMB",
+	    OptionalInt.of(0),
+	    0.94436,
+	    new Pose2d(3.533, 7.224, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.931, 6.29, Rotation2d.fromRadians(-0.689))
+	);
+	public static final ChoreoTraj D_CLIMB$1 = new ChoreoTraj(
+	    "D_CLIMB",
+	    OptionalInt.of(1),
+	    2.10553,
+	    new Pose2d(1.931, 6.29, Rotation2d.fromRadians(-0.689)),
+	    new Pose2d(1.011, 4.889, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_CLIMB = new ChoreoTraj(
+	    "C_CLIMB",
+	    OptionalInt.empty(),
+	    2.90753,
+	    new Pose2d(3.526, 5.564, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.011, 4.889, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_CLIMB$0 = new ChoreoTraj(
+	    "C_CLIMB",
+	    OptionalInt.of(0),
+	    0.80226,
+	    new Pose2d(3.526, 5.564, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.217, 5.728, Rotation2d.fromRadians(-0.689))
+	);
+	public static final ChoreoTraj C_CLIMB$1 = new ChoreoTraj(
+	    "C_CLIMB",
+	    OptionalInt.of(1),
+	    2.10527,
+	    new Pose2d(2.217, 5.728, Rotation2d.fromRadians(-0.689)),
+	    new Pose2d(1.011, 4.889, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj D_DEPOT = new ChoreoTraj(
+	    "D_DEPOT",
+	    OptionalInt.empty(),
+	    8.60442,
+	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj D_DEPOT$0 = new ChoreoTraj(
+	    "D_DEPOT",
+	    OptionalInt.of(0),
+	    1.06792,
+	    new Pose2d(3.536, 7.213, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj D_DEPOT$1 = new ChoreoTraj(
+	    "D_DEPOT",
+	    OptionalInt.of(1),
+	    4.23447,
+	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj D_DEPOT$2 = new ChoreoTraj(
+	    "D_DEPOT",
+	    OptionalInt.of(2),
+	    1.6478400000000004,
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj D_DEPOT$3 = new ChoreoTraj(
+	    "D_DEPOT",
+	    OptionalInt.of(3),
+	    1.654189999999999,
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj B_CLIMB = new ChoreoTraj(
+	    "B_CLIMB",
+	    OptionalInt.empty(),
+	    2.89106,
+	    new Pose2d(3.546, 2.549, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.132, 2.488, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_CLIMB$0 = new ChoreoTraj(
+	    "B_CLIMB",
+	    OptionalInt.of(0),
+	    1.52284,
+	    new Pose2d(3.546, 2.549, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.514, 1.438, Rotation2d.fromRadians(0.709))
+	);
+	public static final ChoreoTraj B_CLIMB$1 = new ChoreoTraj(
+	    "B_CLIMB",
+	    OptionalInt.of(1),
+	    1.36822,
+	    new Pose2d(1.514, 1.438, Rotation2d.fromRadians(0.709)),
+	    new Pose2d(1.132, 2.488, Rotation2d.fromRadians(0))
 	);
 
     /**
@@ -303,45 +394,58 @@ public record ChoreoTraj(
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("C_BEELINE_FAMILY", C_BEELINE_FAMILY),
-		Map.entry("C_BEELINE_FAMILY$0", C_BEELINE_FAMILY$0),
-		Map.entry("C_BEELINE_FAMILY$1", C_BEELINE_FAMILY$1),
-		Map.entry("C_BEELINE_FAMILY$2", C_BEELINE_FAMILY$2),
-		Map.entry("C_BEELINE_FAMILY$3", C_BEELINE_FAMILY$3),
-		Map.entry("C_HOME_FAMILY", C_HOME_FAMILY),
-		Map.entry("C_HOME_FAMILY$0", C_HOME_FAMILY$0),
-		Map.entry("C_HOME_FAMILY$1", C_HOME_FAMILY$1),
-		Map.entry("C_HOME_FAMILY$2", C_HOME_FAMILY$2),
-		Map.entry("D_HOME_FAMILY", D_HOME_FAMILY),
-		Map.entry("D_HOME_FAMILY$0", D_HOME_FAMILY$0),
-		Map.entry("D_HOME_FAMILY$1", D_HOME_FAMILY$1),
-		Map.entry("D_HOME_FAMILY$2", D_HOME_FAMILY$2),
-		Map.entry("B_BEELINE_FAMILY", B_BEELINE_FAMILY),
-		Map.entry("B_BEELINE_FAMILY$0", B_BEELINE_FAMILY$0),
-		Map.entry("B_BEELINE_FAMILY$1", B_BEELINE_FAMILY$1),
-		Map.entry("B_BEELINE_FAMILY$2", B_BEELINE_FAMILY$2),
-		Map.entry("B_HOME_FAMILY", B_HOME_FAMILY),
-		Map.entry("B_HOME_FAMILY$0", B_HOME_FAMILY$0),
-		Map.entry("B_HOME_FAMILY$1", B_HOME_FAMILY$1),
-		Map.entry("B_HOME_FAMILY$2", B_HOME_FAMILY$2),
-		Map.entry("A_HOME_FAMILY", A_HOME_FAMILY),
-		Map.entry("A_HOME_FAMILY$0", A_HOME_FAMILY$0),
-		Map.entry("A_HOME_FAMILY$1", A_HOME_FAMILY$1),
-		Map.entry("A_HOME_FAMILY$2", A_HOME_FAMILY$2),
-		Map.entry("X_HOME_OUTPOST", X_HOME_OUTPOST),
-		Map.entry("X_HOME_OUTPOST$0", X_HOME_OUTPOST$0),
-		Map.entry("X_HOME_OUTPOST$1", X_HOME_OUTPOST$1),
-		Map.entry("X_HOME_OUTPOST$2", X_HOME_OUTPOST$2),
-		Map.entry("X_HOME_CLIMB", X_HOME_CLIMB),
-		Map.entry("X_HOME_CLIMB$0", X_HOME_CLIMB$0),
-		Map.entry("X_HOME_CLIMB$1", X_HOME_CLIMB$1),
-		Map.entry("A_HOME_CLIMB", A_HOME_CLIMB),
-		Map.entry("A_HOME_CLIMB$0", A_HOME_CLIMB$0),
-		Map.entry("A_HOME_CLIMB$1", A_HOME_CLIMB$1),
-		Map.entry("X_HOME_DEPOT", X_HOME_DEPOT),
-		Map.entry("X_HOME_DEPOT$0", X_HOME_DEPOT$0),
-		Map.entry("X_HOME_DEPOT$1", X_HOME_DEPOT$1),
-		Map.entry("X_HOME_DEPOT$2", X_HOME_DEPOT$2)
+    	Map.entry("C_BEELINE", C_BEELINE),
+		Map.entry("C_BEELINE$0", C_BEELINE$0),
+		Map.entry("C_BEELINE$1", C_BEELINE$1),
+		Map.entry("C_BEELINE$2", C_BEELINE$2),
+		Map.entry("C_BEELINE$3", C_BEELINE$3),
+		Map.entry("C_DEPOT", C_DEPOT),
+		Map.entry("C_DEPOT$0", C_DEPOT$0),
+		Map.entry("C_DEPOT$1", C_DEPOT$1),
+		Map.entry("C_DEPOT$2", C_DEPOT$2),
+		Map.entry("C_DEPOT$3", C_DEPOT$3),
+		Map.entry("B_BEELINE", B_BEELINE),
+		Map.entry("B_BEELINE$0", B_BEELINE$0),
+		Map.entry("B_BEELINE$1", B_BEELINE$1),
+		Map.entry("B_BEELINE$2", B_BEELINE$2),
+		Map.entry("B_BEELINE$3", B_BEELINE$3),
+		Map.entry("B_BEELINE$4", B_BEELINE$4),
+		Map.entry("B_OUTPOST", B_OUTPOST),
+		Map.entry("B_OUTPOST$0", B_OUTPOST$0),
+		Map.entry("B_OUTPOST$1", B_OUTPOST$1),
+		Map.entry("B_OUTPOST$2", B_OUTPOST$2),
+		Map.entry("A_OUTPOST", A_OUTPOST),
+		Map.entry("A_OUTPOST$0", A_OUTPOST$0),
+		Map.entry("A_OUTPOST$1", A_OUTPOST$1),
+		Map.entry("A_OUTPOST$2", A_OUTPOST$2),
+		Map.entry("X_OUTPOST", X_OUTPOST),
+		Map.entry("X_OUTPOST$0", X_OUTPOST$0),
+		Map.entry("X_OUTPOST$1", X_OUTPOST$1),
+		Map.entry("X_OUTPOST$2", X_OUTPOST$2),
+		Map.entry("X_CLIMB", X_CLIMB),
+		Map.entry("X_CLIMB$0", X_CLIMB$0),
+		Map.entry("X_CLIMB$1", X_CLIMB$1),
+		Map.entry("A_CLIMB", A_CLIMB),
+		Map.entry("A_CLIMB$0", A_CLIMB$0),
+		Map.entry("A_CLIMB$1", A_CLIMB$1),
+		Map.entry("X_DEPOT", X_DEPOT),
+		Map.entry("X_DEPOT$0", X_DEPOT$0),
+		Map.entry("X_DEPOT$1", X_DEPOT$1),
+		Map.entry("X_DEPOT$2", X_DEPOT$2),
+		Map.entry("D_CLIMB", D_CLIMB),
+		Map.entry("D_CLIMB$0", D_CLIMB$0),
+		Map.entry("D_CLIMB$1", D_CLIMB$1),
+		Map.entry("C_CLIMB", C_CLIMB),
+		Map.entry("C_CLIMB$0", C_CLIMB$0),
+		Map.entry("C_CLIMB$1", C_CLIMB$1),
+		Map.entry("D_DEPOT", D_DEPOT),
+		Map.entry("D_DEPOT$0", D_DEPOT$0),
+		Map.entry("D_DEPOT$1", D_DEPOT$1),
+		Map.entry("D_DEPOT$2", D_DEPOT$2),
+		Map.entry("D_DEPOT$3", D_DEPOT$3),
+		Map.entry("B_CLIMB", B_CLIMB),
+		Map.entry("B_CLIMB$0", B_CLIMB$0),
+		Map.entry("B_CLIMB$1", B_CLIMB$1)
     );
 
     /**
