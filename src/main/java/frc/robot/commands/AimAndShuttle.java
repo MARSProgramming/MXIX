@@ -120,6 +120,7 @@ public class AimAndShuttle extends Command {
         if (swerve.isAimedAtShuttle()) {
             DogLog.log("AimAndShuttleCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
             DogLog.log("AimAndShuttleCommand/TargetVelocityRPM", shooterRPM);
+            DogLog.log("AimAndShuttleCommand/cowlInTolerance", cowl.isAtTolerance(cowlAngle));
 
 
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);

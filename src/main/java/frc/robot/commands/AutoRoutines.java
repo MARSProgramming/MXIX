@@ -53,6 +53,8 @@ public final class AutoRoutines {
     private final LEDSubsystem ledsubsystem;
     
     private final Limelight shooterLimelight;
+    private final Limelight backLimelight;
+
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
 
@@ -73,7 +75,8 @@ public final class AutoRoutines {
         IntakePivot intakePivot,
         IntakeRollers intakeRollers,
         LEDSubsystem ledsubsystem,
-        Limelight shooterLimelight
+        Limelight shooterLimelight,
+        Limelight backLimelight
     ) {
         this.swerve = swerve;
         this.cowl = cowl;
@@ -84,6 +87,7 @@ public final class AutoRoutines {
         this.intakePivot = intakePivot;
         this.intakeRollers = intakeRollers;
         this.shooterLimelight = shooterLimelight;
+        this.backLimelight = backLimelight;
         this.ledsubsystem = ledsubsystem;
         this.autoFactory = swerve.createAutoFactory();
         this.autoChooser = new AutoChooser();
@@ -98,6 +102,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
         autoChooser.addRoutine("B Beeline", this::BBeeline);
         autoChooser.addRoutine("B Beeline Greed", this::BBeelineGreed);
+        autoChooser.addRoutine("D Depot", this::BBeelineGreed);
         autoChooser.addRoutine("X Climb", this::XClimb);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -233,18 +238,23 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             goToShotPos.resetOdometry(),
-            goToShotPos.cmd()             
+            goToShotPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
 
         goToShotPos.done().onTrue(
                         new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
                 .alongWith(intakePivot.slamtake())
-                .withTimeout(5)
+                .withTimeout(4)
         .andThen(prelineupClimb.cmd()));
-        prelineupClimb.done().onTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
+        prelineupClimb.done().onTrue(
+            swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
+            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
         .withTimeout(1.5)
-        .andThen(swerve.finalClimbLineupCommand()));
+        .andThen(
+            swerve.finalClimbLineupCommand()
+            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
+            ));
 
 
         return routine;

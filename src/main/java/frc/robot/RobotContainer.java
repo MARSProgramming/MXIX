@@ -69,7 +69,7 @@ public class RobotContainer {
 
 
     // Autonomous routines manager
-    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds, shooterLimelight);
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds, shooterLimelight, backLimelight);
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
