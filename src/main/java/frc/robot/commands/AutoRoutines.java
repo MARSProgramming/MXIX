@@ -122,10 +122,10 @@ public final class AutoRoutines {
         );
 
         goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand().alongWith(floor.setPercentOutCommand(0.1).alongWith(feeder.setPercentOutCommand(-0.1)))));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
-
-  
         getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
         returnToShoot.doneDelayed(0.5).onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake()));
  
@@ -149,7 +149,9 @@ public final class AutoRoutines {
         );
 
         goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand().alongWith(floor.setPercentOutCommand(0.1).alongWith(feeder.setPercentOutCommand(-0.1)))));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
+        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
+        .alongWith(feeder.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
 
   
@@ -157,8 +159,8 @@ public final class AutoRoutines {
         returnToShoot.done().onTrue(
             new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
             .withTimeout(5)
-            .andThen(resetFromFinal.cmd()));
-
+            .andThen(resetFromFinal.cmd()
+            .alongWith(intakePivot.confirmDeploy())));
 
         resetFromFinal.done().onTrue(
             goOverBumpTraj.cmd().andThen(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()))
@@ -177,11 +179,9 @@ public final class AutoRoutines {
             .andThen(
                 new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
                 .alongWith(intakePivot.slamtake())
-                .withTimeout(5)
+                .withTimeout(6)
             )
         );
-
-
         return routine;
     }
 
@@ -219,7 +219,7 @@ public final class AutoRoutines {
             .andThen(
                 new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
                 .alongWith(intakePivot.slamtake())
-                .withTimeout(5)
+                .withTimeout(6)
             )
         );
 

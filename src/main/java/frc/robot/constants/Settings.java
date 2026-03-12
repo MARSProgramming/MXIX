@@ -6,6 +6,8 @@ public class Settings {
         public static double INTAKE_DEPLOY_TIMEOUT = 0.3;
         public static double INTAKE_RETRACT_TIMEOUT = 0.3;
         public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.6;
+        public static double INTAKE_LIFT_DUTYCYCLE = 0.7;
+
     }
 
     public static class FeedSystemSettings {
@@ -18,8 +20,8 @@ public class Settings {
 
     public static class IntakeSystemSettings {
         public static double INTAKING_STANDARD_DUTYCYCLE = 0.9;
-        public static double INTAKING_FLOOR_DUTYCYCLE = 0.1;
-        public static double INTAKING_FEEDER_DUTYCYCLE = -0.1;
+        public static double INTAKING_FLOOR_DUTYCYCLE = 0.05;
+        public static double INTAKING_FEEDER_DUTYCYCLE = -0.05;
     }
 
 

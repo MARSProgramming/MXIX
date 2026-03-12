@@ -105,12 +105,19 @@ public class IntakePivot extends SubsystemBase {
     public Command slamtake() {
     // assumes intake is deployed. 
     return Commands.repeatingSequence(
-        this.setPercentOut(-IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
-        Commands.waitSeconds(1),
-        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
-        Commands.waitSeconds(1)
+        this.setPercentOut(-IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
+        Commands.waitSeconds(0.2),
+        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
+        Commands.waitSeconds(0.2)
         );
     }
+
+    public Command confirmDeploy() {
+    return Commands.sequence(
+        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT)
+        );
+    }
+
 
     @Override
     public void periodic() {

@@ -27,7 +27,7 @@ public record ChoreoTraj(
     public static final ChoreoTraj C_BEELINE_FAMILY = new ChoreoTraj(
 	    "C_BEELINE_FAMILY",
 	    OptionalInt.empty(),
-	    9.23715,
+	    9.13839,
 	    new Pose2d(3.35, 5.5, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(3.349, 5.49, Rotation2d.fromRadians(-0.785))
 	);
@@ -41,14 +41,14 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_BEELINE_FAMILY$1 = new ChoreoTraj(
 	    "C_BEELINE_FAMILY",
 	    OptionalInt.of(1),
-	    5.49572,
+	    5.39697,
 	    new Pose2d(6.2, 5.551, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336))
 	);
 	public static final ChoreoTraj C_BEELINE_FAMILY$2 = new ChoreoTraj(
 	    "C_BEELINE_FAMILY",
 	    OptionalInt.of(2),
-	    1.6623599999999996,
+	    1.66235,
 	    new Pose2d(6.503, 5.628, Rotation2d.fromRadians(2.336)),
 	    new Pose2d(2.147, 5.402, Rotation2d.fromRadians(2.356))
 	);
@@ -62,9 +62,9 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_HOME_FAMILY = new ChoreoTraj(
 	    "C_HOME_FAMILY",
 	    OptionalInt.empty(),
-	    6.08677,
+	    6.85414,
 	    new Pose2d(3.553, 5.499, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.749, 4.942, Rotation2d.fromRadians(-0.399))
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj C_HOME_FAMILY$0 = new ChoreoTraj(
 	    "C_HOME_FAMILY",
@@ -76,23 +76,23 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_HOME_FAMILY$1 = new ChoreoTraj(
 	    "C_HOME_FAMILY",
 	    OptionalInt.of(1),
-	    4.19406,
+	    4.23447,
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.761, 6.33, Rotation2d.fromRadians(3.142))
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj C_HOME_FAMILY$2 = new ChoreoTraj(
 	    "C_HOME_FAMILY",
 	    OptionalInt.of(2),
-	    0.9208799999999995,
-	    new Pose2d(1.761, 6.33, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.749, 4.942, Rotation2d.fromRadians(-0.399))
+	    1.6478400000000004,
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj D_HOME_FAMILY = new ChoreoTraj(
 	    "D_HOME_FAMILY",
 	    OptionalInt.empty(),
-	    6.21064,
+	    7.63329,
 	    new Pose2d(3.529, 7.432, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.749, 4.942, Rotation2d.fromRadians(-0.399))
+	    new Pose2d(1.189, 5.048, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj D_HOME_FAMILY$0 = new ChoreoTraj(
 	    "D_HOME_FAMILY",
@@ -104,16 +104,51 @@ public record ChoreoTraj(
 	public static final ChoreoTraj D_HOME_FAMILY$1 = new ChoreoTraj(
 	    "D_HOME_FAMILY",
 	    OptionalInt.of(1),
-	    4.19405,
+	    4.47511,
 	    new Pose2d(2.073, 5.895, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.761, 6.33, Rotation2d.fromRadians(3.142))
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj D_HOME_FAMILY$2 = new ChoreoTraj(
 	    "D_HOME_FAMILY",
 	    OptionalInt.of(2),
-	    0.92089,
-	    new Pose2d(1.761, 6.33, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.749, 4.942, Rotation2d.fromRadians(-0.399))
+	    2.06248,
+	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.189, 5.048, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_BEELINE_FAMILY = new ChoreoTraj(
+	    "B_BEELINE_FAMILY",
+	    OptionalInt.empty(),
+	    9.04348,
+	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(3.337, 2.435, Rotation2d.fromRadians(0.76))
+	);
+	public static final ChoreoTraj B_BEELINE_FAMILY$0 = new ChoreoTraj(
+	    "B_BEELINE_FAMILY",
+	    OptionalInt.of(0),
+	    1.13558,
+	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(6.062, 2.44, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj B_BEELINE_FAMILY$1 = new ChoreoTraj(
+	    "B_BEELINE_FAMILY",
+	    OptionalInt.of(1),
+	    5.05832,
+	    new Pose2d(6.062, 2.44, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(6.062, 2.455, Rotation2d.fromRadians(-2.367))
+	);
+	public static final ChoreoTraj B_BEELINE_FAMILY$2 = new ChoreoTraj(
+	    "B_BEELINE_FAMILY",
+	    OptionalInt.of(2),
+	    1.9123799999999997,
+	    new Pose2d(6.062, 2.455, Rotation2d.fromRadians(-2.367)),
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341))
+	);
+	public static final ChoreoTraj B_BEELINE_FAMILY$3 = new ChoreoTraj(
+	    "B_BEELINE_FAMILY",
+	    OptionalInt.of(3),
+	    0.9372000000000007,
+	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341)),
+	    new Pose2d(3.337, 2.435, Rotation2d.fromRadians(0.76))
 	);
 
     /**
@@ -133,7 +168,12 @@ public record ChoreoTraj(
 		Map.entry("D_HOME_FAMILY", D_HOME_FAMILY),
 		Map.entry("D_HOME_FAMILY$0", D_HOME_FAMILY$0),
 		Map.entry("D_HOME_FAMILY$1", D_HOME_FAMILY$1),
-		Map.entry("D_HOME_FAMILY$2", D_HOME_FAMILY$2)
+		Map.entry("D_HOME_FAMILY$2", D_HOME_FAMILY$2),
+		Map.entry("B_BEELINE_FAMILY", B_BEELINE_FAMILY),
+		Map.entry("B_BEELINE_FAMILY$0", B_BEELINE_FAMILY$0),
+		Map.entry("B_BEELINE_FAMILY$1", B_BEELINE_FAMILY$1),
+		Map.entry("B_BEELINE_FAMILY$2", B_BEELINE_FAMILY$2),
+		Map.entry("B_BEELINE_FAMILY$3", B_BEELINE_FAMILY$3)
     );
 
     /**
