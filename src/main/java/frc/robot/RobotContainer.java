@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -124,11 +125,17 @@ public class RobotContainer {
         .alongWith(mFloor.setPercentOutCommand(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE))
         .alongWith(mIntakeRollers.setPercentOutCommand(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE)));
 
-    
         // Manual Hub base shot. Requires manual servoing of drivetrain.
       coPilot.rightTrigger().whileTrue(new ShootOnly(mCowl, mFlywheel, 
       Settings.ReferenceShotSettings.HUB_REFERENCE_FLYWHEEL_VELOCITY, 
       Settings.ReferenceShotSettings.HUB_REFERENCE_COWL_POSITION));
+
+      // manual cowl homing
+      coPilot.leftBumper().onTrue(
+        mCowl.home()
+      );
+
+      coPilot.x().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
       
 
     }

@@ -150,6 +150,13 @@ public record ChoreoTraj(
 	    new Pose2d(2.025, 2.486, Rotation2d.fromRadians(-2.341)),
 	    new Pose2d(3.347, 2.445, Rotation2d.fromRadians(0.785))
 	);
+	public static final ChoreoTraj CLIMB_POSES_RED = new ChoreoTraj(
+	    "CLIMB_POSES_RED",
+	    OptionalInt.empty(),
+	    1.11246,
+	    new Pose2d(15.4, 5.45, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(15.55, 3.2, Rotation2d.fromRadians(0))
+	);
 	public static final ChoreoTraj CLIMB_POSES_BLUE = new ChoreoTraj(
 	    "CLIMB_POSES_BLUE",
 	    OptionalInt.empty(),
@@ -157,12 +164,33 @@ public record ChoreoTraj(
 	    new Pose2d(0.98, 4.86, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.15, 2.6, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj CLIMB_POSES_RED = new ChoreoTraj(
-	    "CLIMB_POSES_RED",
+	public static final ChoreoTraj B_HOME_FAMILY = new ChoreoTraj(
+	    "B_HOME_FAMILY",
 	    OptionalInt.empty(),
-	    1.11466,
-	    new Pose2d(0.98, 4.86, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.15, 2.6, Rotation2d.fromRadians(0))
+	    4.27511,
+	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_HOME_FAMILY$0 = new ChoreoTraj(
+	    "B_HOME_FAMILY",
+	    OptionalInt.of(0),
+	    1.50227,
+	    new Pose2d(3.551, 2.461, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj B_HOME_FAMILY$1 = new ChoreoTraj(
+	    "B_HOME_FAMILY",
+	    OptionalInt.of(1),
+	    1.6815200000000001,
+	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
+	);
+	public static final ChoreoTraj B_HOME_FAMILY$2 = new ChoreoTraj(
+	    "B_HOME_FAMILY",
+	    OptionalInt.of(2),
+	    1.0913199999999996,
+	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
+	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
 
     /**
@@ -188,8 +216,12 @@ public record ChoreoTraj(
 		Map.entry("B_BEELINE_FAMILY$1", B_BEELINE_FAMILY$1),
 		Map.entry("B_BEELINE_FAMILY$2", B_BEELINE_FAMILY$2),
 		Map.entry("B_BEELINE_FAMILY$3", B_BEELINE_FAMILY$3),
+		Map.entry("CLIMB_POSES_RED", CLIMB_POSES_RED),
 		Map.entry("CLIMB_POSES_BLUE", CLIMB_POSES_BLUE),
-		Map.entry("CLIMB_POSES_RED", CLIMB_POSES_RED)
+		Map.entry("B_HOME_FAMILY", B_HOME_FAMILY),
+		Map.entry("B_HOME_FAMILY$0", B_HOME_FAMILY$0),
+		Map.entry("B_HOME_FAMILY$1", B_HOME_FAMILY$1),
+		Map.entry("B_HOME_FAMILY$2", B_HOME_FAMILY$2)
     );
 
     /**
