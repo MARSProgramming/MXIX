@@ -1,5 +1,13 @@
 package frc.robot.constants;
 
+import com.pathplanner.lib.config.PIDConstants;
+
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
+
 public class Settings {
     
     public static class IntakePivotSettings {
@@ -43,4 +51,23 @@ public class Settings {
     public static class ShooterSettings {
         public static double FLYWHEEL_MIN_RPMs = 3000;
     }
+
+      public static final class kAutoAlign {
+    public static final PIDConstants ALIGN_PID = new PIDConstants(4.9, 0.0, 0.28);
+
+    public static final LinearVelocity     MAX_AUTO_ALIGN_VELOCITY_SLOW     = Units.MetersPerSecond.of(2.00);
+    public static final LinearVelocity     MAX_AUTO_ALIGN_VELOCITY_FAST     = Units.MetersPerSecond.of(2.75);
+    public static final LinearAcceleration MAX_AUTO_ALIGN_ACCELERATION_SLOW = Units.MetersPerSecondPerSecond.of(8.00);
+    public static final LinearAcceleration MAX_AUTO_ALIGN_ACCELERATION_FAST = Units.MetersPerSecondPerSecond.of(16.0);
+
+    /* ------------ WHO'S IN THE HOUSE?? ------------- */
+    public static final Distance TRANSLATION_TOLERANCE;
+    public static final Angle    ROTATION_TOLERANCE   ;
+    public static final LinearVelocity VELOCITY_TOLERANCE = Units.MetersPerSecond.of(0.18);
+    public static final LinearVelocity AUTO_VELOCITY_TOLERANCE = Units.MetersPerSecond.of(0.15);
+    static {
+            TRANSLATION_TOLERANCE = Units.Centimeters.of(2.00);
+            ROTATION_TOLERANCE    = Units.Degrees.of(1.25);
+        }
+    }    
 }

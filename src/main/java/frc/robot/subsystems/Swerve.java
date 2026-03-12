@@ -7,6 +7,8 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import choreo.Choreo.TrajectoryLogger;
 import choreo.auto.AutoFactory;
@@ -25,17 +27,23 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearAcceleration;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.FieldConstants.Locations;
+import frc.robot.constants.Settings.kAutoAlign;
 import frc.robot.constants.SystemConstants;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.AlignHelper;
 import frc.robot.util.GeometryUtil;
+import frc.robot.util.ProfiledController;
 
 /**
  * Subsystem representing the Swerve Drivetrain.
@@ -50,13 +58,42 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private boolean m_hasAppliedOperatorPerspective = false;
 
     /** Swerve request to apply during field-centric path following */
-    private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds();
+    private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds()
+    .withDriveRequestType(DriveRequestType.Velocity);
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
+    private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds()
+    .withDriveRequestType(DriveRequestType.Velocity);
+    
+    private static boolean aligned = false;
+
 
     private static final Angle kAimTolerance = Units.Degrees.of(5);
+
+    private static final double DEADBAND = 0.1;
+    private static final double TRIGGER_DEADBAND = 0.05;
+    private static final double ANGLE_KP = 7.0;
+    private static final double ANGLE_KD = 0.4;
+    private static final double ANGLE_MAX_VELOCITY = 8.0;
+    private static final double ANGLE_MAX_ACCELERATION = 20.0;
+
+
+    private final ProfiledController translationController =
+            new ProfiledController(
+                kAutoAlign.ALIGN_PID,
+                kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_FAST.in(Units.MetersPerSecond),
+                kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_FAST.in(Units.MetersPerSecondPerSecond)
+            );
+
+    private final PIDController angleController =
+            new PIDController(
+                ANGLE_KP,
+                0.0,
+                ANGLE_KD
+            );
+
 
     /**
      * Creates a new Swerve subsystem.
@@ -73,6 +110,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             TunerConstants.BackLeft, 
             TunerConstants.BackRight
         );
+
+        angleController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     /**
@@ -108,9 +147,19 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      * @param request Function returning the request to apply
      * @return Command to run
      */
-    public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
+    public Command applyRequestCommand(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
     }
+
+    public void applyRequest(Supplier<SwerveRequest> requestSupplier) {
+        this.setControl(requestSupplier.get());
+    }
+
+    public void stop() {
+        this.setControl(new SwerveRequest.Idle());
+    }
+
+
 
     /**
      * Follows the given field-centric path sample with PID.
@@ -231,7 +280,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         
         return hubDirectionInOperatorPerspective;
 
-
     }
 
     /**
@@ -280,6 +328,86 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public ChassisSpeeds getFieldRelativeSpeeds() {
         return ChassisSpeeds.fromRobotRelativeSpeeds(getState().Speeds, getState().Pose.getRotation());
     }
+
+
+
+    public Command alignToPoint(Supplier<Pose2d> target) {
+        return Commands.sequence(
+            Commands.runOnce(() -> {
+                // Reset speeds of the controller
+                aligned = false;
+
+                ChassisSpeeds speeds = getFieldRelativeSpeeds();
+
+                translationController.reset(-Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+                angleController.reset();
+            }),
+            Commands.run(() -> {
+                // Update the contraints of the controller
+                Pose2d robotPose = this.getState().Pose;
+                Pose2d targetPose = target.get();
+
+                // Red alliance flip
+                
+                double xDiff = targetPose.getX() - robotPose.getX();
+                double yDiff = targetPose.getY() - robotPose.getY();
+
+                double totalDiff = Math.hypot(xDiff, yDiff);
+
+                double speed = Math.abs(translationController.calculate(totalDiff, 0.0));
+        
+                double omega =
+                angleController.calculate(
+                    robotPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
+                                            
+                // Trig cacl for converting back to field relative
+                double speedX = speed * (xDiff / totalDiff);
+                double speedY = speed * (yDiff / totalDiff);
+
+
+                
+                this.applyRequest(() -> robotSpeedsRequest.withSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, omega, this.getState().Pose.getRotation())));
+
+                DogLog.log("AutoAlign/Target", targetPose);
+                DogLog.log("AutoAlign/SpeedOutput", speed);
+                DogLog.log("AutoAlign/OmegaOutput", omega);
+                DogLog.log("AutoAlign/MaxVelo [m per s]", translationController.getMaxVelocity());
+                DogLog.log("AutoAlign/MaxAccel [m per s^2]", translationController.getMaxAcceleration());
+            }, this)
+        ).until(() -> {
+            Pose2d robotPose = this.getState().Pose;
+            Pose2d targetPose = target.get();
+
+            Angle difference = AlignHelper.rotationDifference(targetPose.getRotation(), robotPose.getRotation());
+
+            Distance distance = Units.Meters.of(Math.hypot(robotPose.getX() - targetPose.getX(), robotPose.getY() - targetPose.getY()));
+
+            ChassisSpeeds speeds = this.getState().Speeds;
+            LinearVelocity robotSpeed = Units.MetersPerSecond.of(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+
+            DogLog.log("AutoAlign/Distance To Alignment [cm]", distance.in(Units.Centimeters));
+            DogLog.log("AutoAlign/Angle To Alignment [degrees]", difference.in(Units.Degrees));
+            DogLog.log("AutoAlign/Velocity [m per s]", robotSpeed.in(Units.MetersPerSecond));
+        
+            if (DriverStation.isAutonomous())
+                return
+                    distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
+                    difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
+                    robotSpeed.lte(kAutoAlign.VELOCITY_TOLERANCE);
+            else
+                return
+                    distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
+                    difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
+                    robotSpeed.lte(kAutoAlign.AUTO_VELOCITY_TOLERANCE);
+        }
+    ).andThen(
+        Commands.runOnce(() -> {
+            this.stop();
+            aligned = true;
+        }, this)
+    );
+    }
+
 
      /**
      * Seeds the Kalman Filter with a reasonable initial pose estimate based on the driver's perspective.
