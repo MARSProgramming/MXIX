@@ -367,6 +367,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             Commands.run(() -> {
                 // Update the contraints of the controller
                 Pose2d robotPose = this.getState().Pose;
+                Rotation2d rot = robotPose.getRotation();
                 Pose2d targetPose = target.get();
 
                 
@@ -386,8 +387,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 double speedY = speed * (yDiff / totalDiff);
 
 
+
+                this.setControl(robotSpeedsRequest.withSpeeds(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, omega, rot)
+                ));
                 
-                this.applyRequest(() -> robotSpeedsRequest.withSpeeds(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, omega, this.getState().Pose.getRotation())));
 
                 DogLog.log("AutoAlign/Target", targetPose);
                 DogLog.log("AutoAlign/SpeedOutput", speed);
