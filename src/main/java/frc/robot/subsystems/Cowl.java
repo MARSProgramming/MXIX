@@ -124,8 +124,9 @@ public Command home() {
     return run(() -> {
         mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
     }).until(
-        () -> mSupplyCurrent.getValueAsDouble() > SystemConstants.Cowl.kCowlStallCurrent 
-    ).andThen(runOnce(() -> {
+        () -> Math.abs(mSupplyCurrent.getValueAsDouble()) > SystemConstants.Cowl.kCowlStallCurrent 
+    ).withTimeout(SystemConstants.Cowl.kCowlStallTimeout)
+    .andThen(runOnce(() -> {
         mCowl.setPosition(0);
         mCowl.set(0);
     }));

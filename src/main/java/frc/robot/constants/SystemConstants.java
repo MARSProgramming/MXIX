@@ -98,6 +98,7 @@ public class SystemConstants {
      */
     public static class Cowl {
         public static final double kCowlStallCurrent = 7.0; // Configure with testing
+        public static final double kCowlStallTimeout = 0.4; // 400 ms
         public static final double kCowlHomingOutput = -0.18; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
