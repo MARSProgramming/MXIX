@@ -126,7 +126,7 @@ public class AimAndShuttle extends Command {
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
 
-            ledsubsystem.setColor(Color.kBlue, LEDSegment.ALL);
+            ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL);
         }
     }
 
@@ -139,7 +139,7 @@ public class AimAndShuttle extends Command {
         intakeRollers.setPercentOut(0);
 
         if (interrupted) {
-        ledsubsystem.rainbow(LEDSegment.ALL);
+            ledsubsystem.rainbow(LEDSegment.ALL);
         }
     }
 
