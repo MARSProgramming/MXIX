@@ -102,7 +102,6 @@ public final class AutoRoutines {
         autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
         autoChooser.addRoutine("B Beeline", this::BBeeline);
         autoChooser.addRoutine("B Beeline Greed", this::BBeelineGreed);
-        autoChooser.addRoutine("D Depot", this::BBeelineGreed);
         autoChooser.addRoutine("X Climb", this::XClimb);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);

@@ -32,6 +32,7 @@ import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -100,9 +101,9 @@ public class RobotContainer {
        shooterLimelight.setDefaultCommand(updateShooterVision());
        backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.scanner(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)));
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
-      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.scanner(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)));
+      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());

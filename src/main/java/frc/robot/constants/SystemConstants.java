@@ -66,7 +66,7 @@ public class SystemConstants {
         );        
 
         public static final double kFlywheelReduction = 1.0;
-        public static final AngularVelocity kVelocityTolerance = Units.RPM.of(100);
+        public static final AngularVelocity kVelocityTolerance = Units.RPM.of(200);
         public static final AngularVelocity kMaxFlywheelSpeed = KrakenX60.kFreeSpeed.div(kFlywheelReduction);
 
         public static TalonFXConfiguration masterConfig = new TalonFXConfiguration();        

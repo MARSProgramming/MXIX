@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 public class Settings {
     
     public static class IntakePivotSettings {
-        public static double INTAKE_DEPLOY_TIMEOUT = 0.3;
+        public static double INTAKE_DEPLOY_TIMEOUT = 0.2;
         public static double INTAKE_RETRACT_TIMEOUT = 0.3;
         public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.6;
         public static double INTAKE_LIFT_DUTYCYCLE = 0.7;
