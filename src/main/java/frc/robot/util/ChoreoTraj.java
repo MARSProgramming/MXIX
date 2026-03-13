@@ -174,9 +174,9 @@ public record ChoreoTraj(
 	public static final ChoreoTraj X_DEPOT = new ChoreoTraj(
 	    "X_DEPOT",
 	    OptionalInt.empty(),
-	    6.95361,
+	    8.26533,
 	    new Pose2d(3.545, 4.019, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj X_DEPOT$0 = new ChoreoTraj(
 	    "X_DEPOT",
@@ -195,9 +195,16 @@ public record ChoreoTraj(
 	public static final ChoreoTraj X_DEPOT$2 = new ChoreoTraj(
 	    "X_DEPOT",
 	    OptionalInt.of(2),
-	    1.64785,
+	    1.4764599999999994,
 	    new Pose2d(1.761, 6.405, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(0))
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(-0.343))
+	);
+	public static final ChoreoTraj X_DEPOT$3 = new ChoreoTraj(
+	    "X_DEPOT",
+	    OptionalInt.of(3),
+	    1.4831100000000008,
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(-0.343)),
+	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj X_OUTPOST = new ChoreoTraj(
 	    "X_OUTPOST",
@@ -349,6 +356,7 @@ public record ChoreoTraj(
 		Map.entry("X_DEPOT$0", X_DEPOT$0),
 		Map.entry("X_DEPOT$1", X_DEPOT$1),
 		Map.entry("X_DEPOT$2", X_DEPOT$2),
+		Map.entry("X_DEPOT$3", X_DEPOT$3),
 		Map.entry("X_OUTPOST", X_OUTPOST),
 		Map.entry("X_OUTPOST$0", X_OUTPOST$0),
 		Map.entry("X_OUTPOST$1", X_OUTPOST$1),
