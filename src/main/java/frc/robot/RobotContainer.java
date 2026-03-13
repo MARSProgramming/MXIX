@@ -10,6 +10,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -35,6 +37,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Limelight2;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -52,6 +55,12 @@ public class RobotContainer {
 
 
     private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
+
+    // Vision filtering constants
+    private static final double FIELD_BORDER_MARGIN = 0.5; // meters
+    private static final double MIN_TAG_AREA = 0.1; // percent
+    private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
+    
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
@@ -187,13 +196,33 @@ public class RobotContainer {
             }
             measurement.ifPresent(m -> {
 
-                 double rotationDifference = Math.abs(
-                swerve.getState().Pose.getRotation()
-                .minus(measurement.get().poseEstimate.pose.getRotation())
-                .getRadians());
-        
-                 if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
+                Pose2d measured = measurement.get().poseEstimate.pose;
+                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
+                Rotation2d robotRot = swerve.getState().Pose.getRotation();
+
+                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
+                double targetArea = LimelightHelpers.getTA("limelight-shooter");
+
+                if (latency > MAX_LATENCY_SECONDS) {
+                    return;
+                }
+
+                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
                  return;
+                }
+        
+                if (targetArea < MIN_TAG_AREA) {
+                return;
+                }
+
+                 // 1. Reject if robot pose is off the field
+                if (
+                measured.getX() < -FIELD_BORDER_MARGIN
+                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+                || measured.getY() < -FIELD_BORDER_MARGIN
+                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+                    return;
                 }
 
                 swerve.addVisionMeasurement(
@@ -212,17 +241,44 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
-     
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
-
+            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
               return;
             }
-
-            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
+
+                Pose2d measured = measurement.get().poseEstimate.pose;
+                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
+                Rotation2d robotRot = swerve.getState().Pose.getRotation();
+
+                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
+                double targetArea = LimelightHelpers.getTA("limelight-shooter");
+
+                if (latency > MAX_LATENCY_SECONDS) {
+                    return;
+                }
+
+                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
+                 return;
+                }
+        
+                if (targetArea < MIN_TAG_AREA) {
+                return;
+                }
+
+                 // 1. Reject if robot pose is off the field
+                if (
+                measured.getX() < -FIELD_BORDER_MARGIN
+                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+                || measured.getY() < -FIELD_BORDER_MARGIN
+                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+                    return;
+                }
+
                 swerve.addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
@@ -231,9 +287,5 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
-    } 
-
-    public LEDSubsystem getLedSubsystem() {
-        return this.leds;
     }
 }
