@@ -388,6 +388,34 @@ public record ChoreoTraj(
 	    new Pose2d(1.514, 1.438, Rotation2d.fromRadians(0.709)),
 	    new Pose2d(1.132, 2.488, Rotation2d.fromRadians(0))
 	);
+	public static final ChoreoTraj C_BEELINE_RUNSTART = new ChoreoTraj(
+	    "C_BEELINE_RUNSTART",
+	    OptionalInt.empty(),
+	    9.40967,
+	    new Pose2d(3.557, 5.6, Rotation2d.fromRadians(3.139)),
+	    new Pose2d(2.059, 5.45, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj C_BEELINE_RUNSTART$0 = new ChoreoTraj(
+	    "C_BEELINE_RUNSTART",
+	    OptionalInt.of(0),
+	    0.65615,
+	    new Pose2d(3.557, 5.6, Rotation2d.fromRadians(3.139)),
+	    new Pose2d(2.72, 5.61, Rotation2d.fromRadians(-2.356))
+	);
+	public static final ChoreoTraj C_BEELINE_RUNSTART$1 = new ChoreoTraj(
+	    "C_BEELINE_RUNSTART",
+	    OptionalInt.of(1),
+	    6.40762,
+	    new Pose2d(2.72, 5.61, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(6.404, 5.45, Rotation2d.fromRadians(2.356))
+	);
+	public static final ChoreoTraj C_BEELINE_RUNSTART$2 = new ChoreoTraj(
+	    "C_BEELINE_RUNSTART",
+	    OptionalInt.of(2),
+	    2.3459000000000003,
+	    new Pose2d(6.404, 5.45, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(2.059, 5.45, Rotation2d.fromRadians(-0.785))
+	);
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -443,9 +471,31 @@ public record ChoreoTraj(
 		Map.entry("D_DEPOT$1", D_DEPOT$1),
 		Map.entry("D_DEPOT$2", D_DEPOT$2),
 		Map.entry("D_DEPOT$3", D_DEPOT$3),
+<<<<<<< Updated upstream
 		Map.entry("B_CLIMB", B_CLIMB),
 		Map.entry("B_CLIMB$0", B_CLIMB$0),
 		Map.entry("B_CLIMB$1", B_CLIMB$1)
+=======
+		Map.entry("D_HOME_DEPOT", D_HOME_DEPOT),
+		Map.entry("D_HOME_DEPOT$0", D_HOME_DEPOT$0),
+		Map.entry("D_HOME_DEPOT$1", D_HOME_DEPOT$1),
+		Map.entry("D_HOME_DEPOT$2", D_HOME_DEPOT$2),
+		Map.entry("X_CLIMB", X_CLIMB),
+		Map.entry("X_CLIMB$0", X_CLIMB$0),
+		Map.entry("X_CLIMB$1", X_CLIMB$1),
+		Map.entry("X_DEPOT", X_DEPOT),
+		Map.entry("X_DEPOT$0", X_DEPOT$0),
+		Map.entry("X_DEPOT$1", X_DEPOT$1),
+		Map.entry("X_DEPOT$2", X_DEPOT$2),
+		Map.entry("X_OUTPOST", X_OUTPOST),
+		Map.entry("X_OUTPOST$0", X_OUTPOST$0),
+		Map.entry("X_OUTPOST$1", X_OUTPOST$1),
+		Map.entry("X_OUTPOST$2", X_OUTPOST$2),
+		Map.entry("C_BEELINE_RUNSTART", C_BEELINE_RUNSTART),
+		Map.entry("C_BEELINE_RUNSTART$0", C_BEELINE_RUNSTART$0),
+		Map.entry("C_BEELINE_RUNSTART$1", C_BEELINE_RUNSTART$1),
+		Map.entry("C_BEELINE_RUNSTART$2", C_BEELINE_RUNSTART$2)
+>>>>>>> Stashed changes
     );
 
     /**
