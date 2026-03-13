@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 public class Settings {
     
     public static class IntakePivotSettings {
-        public static double INTAKE_DEPLOY_TIMEOUT = 0.3;
+        public static double INTAKE_DEPLOY_TIMEOUT = 0.2;
         public static double INTAKE_RETRACT_TIMEOUT = 0.3;
         public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.6;
         public static double INTAKE_LIFT_DUTYCYCLE = 0.7;
@@ -36,8 +36,11 @@ public class Settings {
     public static class ClimbLineupSettings {
         public static double SIDELINEUP_VELOCITY = 0.3; // M/s
         public static double FORWLINEUP_VELOCITY = 0.2; // M/s
-        public static double SIDEWAYS_LINEUP_TIMEOUT = 0.5;
-        public static double FORWARD_LINEUP_TIMEOUT = 0.3;
+
+        // probably slwo this down, particularly the forwards one, the forwards one can't
+        // dealign the climber.
+        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.0;
+        public static double FORWARD_LINEUP_TIMEOUT = 1.5;
     }
 
     public static class ClimbSettings {

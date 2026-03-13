@@ -4,11 +4,14 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,6 +35,8 @@ import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -48,6 +53,13 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
+    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
+
+    // Vision filtering constants
+    private static final double FIELD_BORDER_MARGIN = 0.5; // meters
+    private static final double MIN_TAG_AREA = 0.1; // percent
+    private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
+    
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
@@ -98,12 +110,12 @@ public class RobotContainer {
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
        shooterLimelight.setDefaultCommand(updateShooterVision());
-       backLimelight.setDefaultCommand(updateBackVision());
+       //backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.scanner(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)));
-      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()));
-      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.scanner(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)));
-      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kBlue, LEDSegment.ALL)));
+      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
@@ -131,7 +143,7 @@ public class RobotContainer {
       );
 
       coPilot.x().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
-      
+      coPilot.y().onTrue(swerve.finalClimbLineupCommand());
 
     }
 
@@ -177,13 +189,41 @@ public class RobotContainer {
     private Command updateShooterVision() {
         return shooterLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
-
+            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
               return;
             }
-
-            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
+
+                Pose2d measured = measurement.get().poseEstimate.pose;
+                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
+                Rotation2d robotRot = swerve.getState().Pose.getRotation();
+
+                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
+                double targetArea = LimelightHelpers.getTA("limelight-shooter");
+
+                if (latency > MAX_LATENCY_SECONDS) {
+                    return;
+                }
+
+                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
+                 return;
+                }
+        
+                if (targetArea < MIN_TAG_AREA) {
+                return;
+                }
+
+                 // 1. Reject if robot pose is off the field
+                if (
+                measured.getX() < -FIELD_BORDER_MARGIN
+                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+                || measured.getY() < -FIELD_BORDER_MARGIN
+                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+                    return;
+                }
+
                 swerve.addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
@@ -200,17 +240,44 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
-     
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
-
+            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
               return;
             }
-
-            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
             measurement.ifPresent(m -> {
+
+                Pose2d measured = measurement.get().poseEstimate.pose;
+                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
+                Rotation2d robotRot = swerve.getState().Pose.getRotation();
+
+                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
+                double targetArea = LimelightHelpers.getTA("limelight-shooter");
+
+                if (latency > MAX_LATENCY_SECONDS) {
+                    return;
+                }
+
+                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
+                 return;
+                }
+        
+                if (targetArea < MIN_TAG_AREA) {
+                return;
+                }
+
+                 // 1. Reject if robot pose is off the field
+                if (
+                measured.getX() < -FIELD_BORDER_MARGIN
+                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+                || measured.getY() < -FIELD_BORDER_MARGIN
+                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+                    return;
+                }
+
                 swerve.addVisionMeasurement(
                     m.poseEstimate.pose, 
                     m.poseEstimate.timestampSeconds,
@@ -219,9 +286,10 @@ public class RobotContainer {
             });
         })
         .ignoringDisable(true);
-    } 
+    }
 
     public LEDSubsystem getLedSubsystem() {
         return this.leds;
     }
+
 }

@@ -102,7 +102,6 @@ public final class AutoRoutines {
         autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
         autoChooser.addRoutine("B Beeline", this::BBeeline);
         autoChooser.addRoutine("B Beeline Greed", this::BBeelineGreed);
-        autoChooser.addRoutine("D Depot", this::BBeelineGreed);
         autoChooser.addRoutine("X Climb", this::XClimb);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -126,16 +125,11 @@ public final class AutoRoutines {
             )
         );
 
-        goOverBumpTraj.done().onTrue(intakePivot.deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT));
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
-        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
-        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd());
 
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd() .alongWith(shooterLimelight.idle()));
 
-        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
-        ));
-
+        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve));
         return routine;
     }
 
@@ -185,15 +179,11 @@ public final class AutoRoutines {
             )
         );
 
-        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
-        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
-        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
+        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd());
+        getBallsInCenterTraj.done().onTrue(
+            returnToShoot.cmd().alongWith(shooterLimelight.idle()));
 
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).alongWith(intakePivot.slamtake())
-        ));
+        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve));
 
         return routine;
     }
@@ -217,7 +207,7 @@ public final class AutoRoutines {
         .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
         .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
 
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
+        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd().alongWith(shooterLimelight.idle()));
 
         returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
         .alongWith(intakePivot.slamtake())
