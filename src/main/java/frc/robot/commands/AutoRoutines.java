@@ -101,7 +101,6 @@ public final class AutoRoutines {
         autoChooser.addRoutine("C Beeline", this::CBeeline);
         autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
         autoChooser.addRoutine("B Beeline", this::BBeeline);
-        autoChooser.addRoutine("B Beeline Greed", this::BBeelineGreed);
         autoChooser.addRoutine("X Climb", this::XClimb);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -188,37 +187,6 @@ public final class AutoRoutines {
         return routine;
     }
 
-    private AutoRoutine BBeelineGreed() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_GREED_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = B_BEELINE$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = B_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = B_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory prepBump = B_BEELINE$3.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd()
-            )
-        );
-
-        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
-        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
-        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
-
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd().alongWith(shooterLimelight.idle()));
-
-        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-        .alongWith(intakePivot.slamtake())
-        .withTimeout(5)
-        .andThen(prepBump.cmd())
-        ));
-
-        prepBump.done().onTrue(goOverBumpTraj.cmd().alongWith(intakeRollers.intakeCommand()));
-
-        return routine;
-    }
 
     private AutoRoutine XClimb() {
         final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_ROUTINE");

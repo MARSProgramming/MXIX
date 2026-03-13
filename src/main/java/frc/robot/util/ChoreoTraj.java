@@ -150,22 +150,22 @@ public record ChoreoTraj(
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(-0.452)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj X_CLIMB = new ChoreoTraj(
-	    "X_CLIMB",
+	public static final ChoreoTraj X_CLIMB_NEARO = new ChoreoTraj(
+	    "X_CLIMB_NEARO",
 	    OptionalInt.empty(),
 	    4.11746,
 	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.148, 2.504, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_CLIMB$0 = new ChoreoTraj(
-	    "X_CLIMB",
+	public static final ChoreoTraj X_CLIMB_NEARO$0 = new ChoreoTraj(
+	    "X_CLIMB_NEARO",
 	    OptionalInt.of(0),
 	    1.35053,
 	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0))
 	);
-	public static final ChoreoTraj X_CLIMB$1 = new ChoreoTraj(
-	    "X_CLIMB",
+	public static final ChoreoTraj X_CLIMB_NEARO$1 = new ChoreoTraj(
+	    "X_CLIMB_NEARO",
 	    OptionalInt.of(1),
 	    2.7669300000000003,
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0)),
@@ -297,6 +297,27 @@ public record ChoreoTraj(
 	    new Pose2d(6.172, 2.68, Rotation2d.fromRadians(-2.356)),
 	    new Pose2d(2.4, 2.68, Rotation2d.fromRadians(0.785))
 	);
+	public static final ChoreoTraj X_CLIMB_NEARD = new ChoreoTraj(
+	    "X_CLIMB_NEARD",
+	    OptionalInt.empty(),
+	    3.61677,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj X_CLIMB_NEARD$0 = new ChoreoTraj(
+	    "X_CLIMB_NEARD",
+	    OptionalInt.of(0),
+	    1.35053,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj X_CLIMB_NEARD$1 = new ChoreoTraj(
+	    "X_CLIMB_NEARD",
+	    OptionalInt.of(1),
+	    2.26624,
+	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
+	);
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -321,9 +342,9 @@ public record ChoreoTraj(
 		Map.entry("D_DEPOT$1", D_DEPOT$1),
 		Map.entry("D_DEPOT$2", D_DEPOT$2),
 		Map.entry("D_DEPOT$3", D_DEPOT$3),
-		Map.entry("X_CLIMB", X_CLIMB),
-		Map.entry("X_CLIMB$0", X_CLIMB$0),
-		Map.entry("X_CLIMB$1", X_CLIMB$1),
+		Map.entry("X_CLIMB_NEARO", X_CLIMB_NEARO),
+		Map.entry("X_CLIMB_NEARO$0", X_CLIMB_NEARO$0),
+		Map.entry("X_CLIMB_NEARO$1", X_CLIMB_NEARO$1),
 		Map.entry("X_DEPOT", X_DEPOT),
 		Map.entry("X_DEPOT$0", X_DEPOT$0),
 		Map.entry("X_DEPOT$1", X_DEPOT$1),
@@ -341,7 +362,10 @@ public record ChoreoTraj(
 		Map.entry("B_BEELINE$0", B_BEELINE$0),
 		Map.entry("B_BEELINE$1", B_BEELINE$1),
 		Map.entry("B_BEELINE$2", B_BEELINE$2),
-		Map.entry("B_BEELINE$3", B_BEELINE$3)
+		Map.entry("B_BEELINE$3", B_BEELINE$3),
+		Map.entry("X_CLIMB_NEARD", X_CLIMB_NEARD),
+		Map.entry("X_CLIMB_NEARD$0", X_CLIMB_NEARD$0),
+		Map.entry("X_CLIMB_NEARD$1", X_CLIMB_NEARD$1)
     );
 
     /**
