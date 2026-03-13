@@ -351,7 +351,19 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             );
     }
 
-
+    public Command pushIntoOutpostCmd() {
+        return Commands.sequence(
+            this.applyRequestCommand(
+                () -> robotSpeedsRequest.withSpeeds(
+                    new ChassisSpeeds(
+                        Settings.OutpostLineupSettings.FORWLINEUP_VELOCITY,
+                        0,
+                        0
+                    )
+                )
+            ).withTimeout(Settings.OutpostLineupSettings.FORWARD_LINEUP_TIMEOUT)
+        );
+    }
 
     public Command alignToPoint(Supplier<Pose2d> target) {
         return Commands.sequence(

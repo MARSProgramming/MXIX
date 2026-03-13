@@ -13,8 +13,8 @@ public class Settings {
     public static class IntakePivotSettings {
         public static double INTAKE_DEPLOY_TIMEOUT = 0.2;
         public static double INTAKE_RETRACT_TIMEOUT = 0.3;
-        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.6;
-        public static double INTAKE_LIFT_DUTYCYCLE = 0.7;
+        public static double INTAKE_DEPLOYMENT_DUTYCYCLE = 0.2;
+        public static double INTAKE_LIFT_DUTYCYCLE = 0.2;
 
     }
 
@@ -41,6 +41,11 @@ public class Settings {
         // dealign the climber.
         public static double SIDEWAYS_LINEUP_TIMEOUT = 2.0;
         public static double FORWARD_LINEUP_TIMEOUT = 1.5;
+    }
+
+    public static class OutpostLineupSettings {
+        public static double FORWLINEUP_VELOCITY = 0.8; // m/s
+        public static double FORWARD_LINEUP_TIMEOUT = 0.6;
     }
 
     public static class ClimbSettings {

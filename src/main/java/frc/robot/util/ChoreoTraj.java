@@ -27,56 +27,56 @@ public record ChoreoTraj(
     public static final ChoreoTraj A_OUTPOST = new ChoreoTraj(
 	    "A_OUTPOST",
 	    OptionalInt.empty(),
-	    4.68709,
+	    4.4137,
 	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	    new Pose2d(1.203, 2.367, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj A_OUTPOST$0 = new ChoreoTraj(
 	    "A_OUTPOST",
 	    OptionalInt.of(0),
-	    1.71033,
+	    1.65486,
 	    new Pose2d(3.549, 0.697, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
+	    new Pose2d(0.811, 0.67, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj A_OUTPOST$1 = new ChoreoTraj(
 	    "A_OUTPOST",
 	    OptionalInt.of(1),
-	    1.2933400000000002,
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
+	    1.29335,
+	    new Pose2d(0.811, 0.67, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709))
 	);
 	public static final ChoreoTraj A_OUTPOST$2 = new ChoreoTraj(
 	    "A_OUTPOST",
 	    OptionalInt.of(2),
-	    1.6834200000000004,
+	    1.4654900000000004,
 	    new Pose2d(1.262, 1.023, Rotation2d.fromRadians(0.709)),
-	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
+	    new Pose2d(1.203, 2.367, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj B_OUTPOST = new ChoreoTraj(
 	    "B_OUTPOST",
 	    OptionalInt.empty(),
-	    4.66408,
+	    4.63099,
 	    new Pose2d(3.526, 2.476, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj B_OUTPOST$0 = new ChoreoTraj(
 	    "B_OUTPOST",
 	    OptionalInt.of(0),
-	    1.89122,
+	    1.85812,
 	    new Pose2d(3.526, 2.476, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142))
+	    new Pose2d(0.746, 0.659, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj B_OUTPOST$1 = new ChoreoTraj(
 	    "B_OUTPOST",
 	    OptionalInt.of(1),
-	    1.6815300000000002,
-	    new Pose2d(0.627, 0.658, Rotation2d.fromRadians(3.142)),
+	    1.68153,
+	    new Pose2d(0.746, 0.659, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
 	);
 	public static final ChoreoTraj B_OUTPOST$2 = new ChoreoTraj(
 	    "B_OUTPOST",
 	    OptionalInt.of(2),
-	    1.0913300000000001,
+	    1.0913399999999998,
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
@@ -209,22 +209,22 @@ public record ChoreoTraj(
 	public static final ChoreoTraj X_OUTPOST = new ChoreoTraj(
 	    "X_OUTPOST",
 	    OptionalInt.empty(),
-	    5.73826,
-	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
+	    5.77188,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.189, 2.585, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj X_OUTPOST$0 = new ChoreoTraj(
 	    "X_OUTPOST",
 	    OptionalInt.of(0),
-	    2.96539,
-	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142))
+	    2.99901,
+	    new Pose2d(3.508, 3.985, Rotation2d.fromRadians(0)),
+	    new Pose2d(0.79, 0.681, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj X_OUTPOST$1 = new ChoreoTraj(
 	    "X_OUTPOST",
 	    OptionalInt.of(1),
 	    1.6815299999999995,
-	    new Pose2d(0.619, 0.673, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(0.79, 0.681, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(1.412, 1.641, Rotation2d.fromRadians(0.709))
 	);
 	public static final ChoreoTraj X_OUTPOST$2 = new ChoreoTraj(
