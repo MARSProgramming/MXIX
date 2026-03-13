@@ -185,7 +185,7 @@ public class LEDSubsystem extends SubsystemBase {
         candle.setControl(
             new SingleFadeAnimation(start, end)
                 .withColor(toRGBW(color))
-                .withFrameRate(50)
+                .withFrameRate(20)
                 .withSlot(0)
         );
     }

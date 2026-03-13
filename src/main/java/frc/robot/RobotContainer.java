@@ -112,8 +112,8 @@ public class RobotContainer {
        shooterLimelight.setDefaultCommand(updateShooterVision());
        //backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kGreen, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kBlue, LEDSegment.ALL)));
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.fadeColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.rightTrigger().whileTrue(new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kBlue, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
@@ -122,8 +122,10 @@ public class RobotContainer {
 
       drivePilot.x().whileTrue(mIntakePivot.slamtake());
 
-      drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE));
-      drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE));
+      drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE)
+      .beforeStarting(() -> leds.strobe(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.strobe(Color.kRed, LEDSegment.ALL)));
+      drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE)
+            .beforeStarting(() -> leds.strobe(Color.kOrange, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.strobe(Color.kRed, LEDSegment.ALL)));
 
 
       // Manual feed on Copilot:  

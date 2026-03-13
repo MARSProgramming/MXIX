@@ -5,23 +5,22 @@
 package frc.robot.commands;
 
 
-import static frc.robot.util.ChoreoTraj.B_BEELINE;
 import static frc.robot.util.ChoreoTraj.B_BEELINE$0;
 import static frc.robot.util.ChoreoTraj.B_BEELINE$1;
 import static frc.robot.util.ChoreoTraj.B_BEELINE$2;
-import static frc.robot.util.ChoreoTraj.B_BEELINE$3;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$0;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$1;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$3;
-import static frc.robot.util.ChoreoTraj.X_CLIMB$0;
-import static frc.robot.util.ChoreoTraj.X_CLIMB$1;
+import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARO$0;
+import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARO$1;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.constants.FieldConstants;
@@ -34,6 +33,7 @@ import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
 
@@ -99,9 +99,8 @@ public final class AutoRoutines {
      */
     public void configure() {
         autoChooser.addRoutine("C Beeline", this::CBeeline);
-        autoChooser.addRoutine("C Beeline Greed", this::CBeelineGreed);
         autoChooser.addRoutine("B Beeline", this::BBeeline);
-        autoChooser.addRoutine("X Climb", this::XClimb);
+        autoChooser.addRoutine("X Climb Near Outpost", this::XClimbNearOutpost);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -114,56 +113,33 @@ public final class AutoRoutines {
     private AutoRoutine CBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
         final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = C_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = C_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = C_BEELINE$1.asAutoTraj(routine);
+        final AutoTrajectory sweepBalls = C_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShoot = C_BEELINE$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd()
+                goOverBumpTraj.cmd().beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
         );
 
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd());
+        goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
 
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd() .alongWith(shooterLimelight.idle()));
+        prepSweep.done().onTrue(sweepBalls.cmd().beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
+        .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
+        .alongWith(intakeRollers.intakeCommand()));
 
-        returnToShoot.done().onTrue(new AimAndDriveCommand(swerve));
+        sweepBalls.done().onTrue(returnToShoot.cmd().alongWith(shooterLimelight.idle()));
+
+        returnToShoot.done().onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
+            );
         return routine;
     }
 
     
-    private AutoRoutine CBeelineGreed() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_GREED_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsInCenterTraj = C_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = C_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory prepBump = C_BEELINE$3.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd()
-            )
-        );
-
-        goOverBumpTraj.done().onTrue(intakePivot.timedDeployCommand());
-        goOverBumpTraj.done().onTrue(getBallsInCenterTraj.cmd().alongWith(intakeRollers.intakeCommand()
-        .alongWith(floor.setPercentOutCommand(Settings.IntakeSystemSettings.INTAKING_FLOOR_DUTYCYCLE)
-        .alongWith(feeder.setPercentOutCommand(-Settings.IntakeSystemSettings.INTAKING_FEEDER_DUTYCYCLE)))));
-
-        getBallsInCenterTraj.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.done().onTrue((new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-        .alongWith(intakePivot.slamtake())
-        .withTimeout(5)
-        .andThen(prepBump.cmd())
-        ));
-
-        prepBump.done().onTrue(goOverBumpTraj.cmd().alongWith(intakeRollers.intakeCommand()));
-
-        return routine;
-    }
 
     private AutoRoutine BBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
@@ -188,10 +164,10 @@ public final class AutoRoutines {
     }
 
 
-    private AutoRoutine XClimb() {
+    private AutoRoutine XClimbNearOutpost() {
         final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_ROUTINE");
-        final AutoTrajectory goToShotPos = X_CLIMB$0.asAutoTraj(routine);
-        final AutoTrajectory prelineupClimb = X_CLIMB$1.asAutoTraj(routine);
+        final AutoTrajectory goToShotPos = X_CLIMB_NEARO$0.asAutoTraj(routine);
+        final AutoTrajectory prelineupClimb = X_CLIMB_NEARO$1.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(

@@ -77,7 +77,7 @@ public class AimAndShoot extends Command {
         shotSetup = new ShotSetup();
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
-        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem);
+        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
     public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
