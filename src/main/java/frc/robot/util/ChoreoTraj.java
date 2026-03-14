@@ -237,72 +237,72 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_BEELINE = new ChoreoTraj(
 	    "C_BEELINE",
 	    OptionalInt.empty(),
-	    9.34652,
-	    new Pose2d(3.557, 5.6, Rotation2d.fromRadians(3.139)),
-	    new Pose2d(2.034, 5.301, Rotation2d.fromRadians(-0.785))
+	    8.43791,
+	    new Pose2d(3.376, 5.599, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(2.679, 5.35, Rotation2d.fromRadians(-0.785))
 	);
 	public static final ChoreoTraj C_BEELINE$0 = new ChoreoTraj(
 	    "C_BEELINE",
 	    OptionalInt.of(0),
-	    2.02153,
-	    new Pose2d(3.557, 5.6, Rotation2d.fromRadians(3.139)),
-	    new Pose2d(6.649, 5.599, Rotation2d.fromRadians(-2.356))
+	    1.24661,
+	    new Pose2d(3.376, 5.599, Rotation2d.fromRadians(-0.785)),
+	    new Pose2d(6.649, 5.599, Rotation2d.fromRadians(-0.785))
 	);
 	public static final ChoreoTraj C_BEELINE$1 = new ChoreoTraj(
 	    "C_BEELINE",
 	    OptionalInt.of(1),
-	    1.1140000000000003,
-	    new Pose2d(6.649, 5.599, Rotation2d.fromRadians(-2.356)),
+	    1.1139999999999999,
+	    new Pose2d(6.649, 5.599, Rotation2d.fromRadians(-0.785)),
 	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-1.571))
 	);
 	public static final ChoreoTraj C_BEELINE$2 = new ChoreoTraj(
 	    "C_BEELINE",
 	    OptionalInt.of(2),
-	    3.8713999999999995,
+	    3.9213600000000004,
 	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-1.571)),
-	    new Pose2d(6.359, 5.301, Rotation2d.fromRadians(2.356))
+	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(2.356))
 	);
 	public static final ChoreoTraj C_BEELINE$3 = new ChoreoTraj(
 	    "C_BEELINE",
 	    OptionalInt.of(3),
-	    2.3395900000000003,
-	    new Pose2d(6.359, 5.301, Rotation2d.fromRadians(2.356)),
-	    new Pose2d(2.034, 5.301, Rotation2d.fromRadians(-0.785))
+	    2.15594,
+	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(2.356)),
+	    new Pose2d(2.679, 5.35, Rotation2d.fromRadians(-0.785))
 	);
 	public static final ChoreoTraj B_BEELINE = new ChoreoTraj(
 	    "B_BEELINE",
 	    OptionalInt.empty(),
-	    9.59521,
-	    new Pose2d(3.557, 2.5, Rotation2d.fromRadians(3.139)),
-	    new Pose2d(2.4, 2.68, Rotation2d.fromRadians(0.785))
+	    8.76448,
+	    new Pose2d(3.415, 2.454, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(2.4, 2.63, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj B_BEELINE$0 = new ChoreoTraj(
 	    "B_BEELINE",
 	    OptionalInt.of(0),
-	    2.12738,
-	    new Pose2d(3.557, 2.5, Rotation2d.fromRadians(3.139)),
-	    new Pose2d(6.606, 2.46, Rotation2d.fromRadians(0.785))
+	    1.25188,
+	    new Pose2d(3.415, 2.454, Rotation2d.fromRadians(0.785)),
+	    new Pose2d(6.72, 2.48, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj B_BEELINE$1 = new ChoreoTraj(
 	    "B_BEELINE",
 	    OptionalInt.of(1),
-	    1.2509700000000001,
-	    new Pose2d(6.606, 2.46, Rotation2d.fromRadians(0.785)),
+	    1.27824,
+	    new Pose2d(6.72, 2.48, Rotation2d.fromRadians(0.785)),
 	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(1.571))
 	);
 	public static final ChoreoTraj B_BEELINE$2 = new ChoreoTraj(
 	    "B_BEELINE",
 	    OptionalInt.of(2),
-	    4.03489,
+	    4.05239,
 	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(1.571)),
-	    new Pose2d(6.172, 2.68, Rotation2d.fromRadians(-2.356))
+	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(-2.356))
 	);
 	public static final ChoreoTraj B_BEELINE$3 = new ChoreoTraj(
 	    "B_BEELINE",
 	    OptionalInt.of(3),
-	    2.1819699999999997,
-	    new Pose2d(6.172, 2.68, Rotation2d.fromRadians(-2.356)),
-	    new Pose2d(2.4, 2.68, Rotation2d.fromRadians(0.785))
+	    2.1819700000000006,
+	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(-2.356)),
+	    new Pose2d(2.4, 2.63, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj X_CLIMB_NEARD = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
