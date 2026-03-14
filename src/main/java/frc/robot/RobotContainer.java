@@ -9,8 +9,12 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,6 +59,7 @@ public class RobotContainer {
 
 
     private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
+    private static final double MAX_POSE_DIFF = 0.5; // meters
 
     // Vision filtering constants
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
@@ -65,6 +70,8 @@ public class RobotContainer {
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(7.0, 7.0, 100);
+    private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
     Cowl mCowl = new Cowl();
@@ -97,9 +104,6 @@ public class RobotContainer {
      */
     private void configureBindings() {
 
-
-
-
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -drivePilot.getLeftY(),
@@ -110,8 +114,8 @@ public class RobotContainer {
       swerve.setDefaultCommand(manualDriveCommand);
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
-       shooterLimelight.setDefaultCommand(updateShooterVision());
-       //backLimelight.setDefaultCommand(updateBackVision());
+       shooterLimelight.setDefaultCommand(integratedVisionUpdate());
+     //  backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
@@ -120,18 +124,22 @@ public class RobotContainer {
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
-       drivePilot.b().whileTrue(
-        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, 
-        () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
-        .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
-        .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
 
-      drivePilot.x().whileTrue(mIntakePivot.slamtake());
+      drivePilot.a().whileTrue(mIntakePivot.slamtake());
+     drivePilot.b().whileTrue(
+        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, 
+        () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
+        .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
+        .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+     drivePilot.y().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
+     drivePilot.x().onTrue(swerve.finalClimbLineupCommand().alongWith(shooterLimelight.idle()));
+
+
 
       drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE)
       .beforeStarting(() -> leds.strobe(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
@@ -139,6 +147,7 @@ public class RobotContainer {
             .beforeStarting(() -> leds.strobe(Color.kOrange, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
 
 
+      // padcrafter: https://www.padcrafter.com/?templates=Pilot&leftStick=Translational+Control&rightStick=Rotational+Control&backButton=Reset+Gyro+Yaw&dpadUp=Run+Climber+Reverse&dpadDown=Run+Climber+Forward&dpadRight=Deploy+Intake&dpadLeft=Retract+Intake&aButton=Slamtake&rightTrigger=Aim+And+Shoot&rightBumper=Aim+And+Shuttle&bButton=Aim+and+Shoot+While+Moving&yButton=Align+to+Climb+Position&leftBumper=Unjam+&leftTrigger=Intake+
       // Manual feed on Copilot:  
       coPilot.leftBumper().whileTrue(
         mFeeder.setPercentOutCommand(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE)
@@ -150,14 +159,15 @@ public class RobotContainer {
       Settings.ReferenceShotSettings.HUB_REFERENCE_FLYWHEEL_VELOCITY, 
       Settings.ReferenceShotSettings.HUB_REFERENCE_COWL_POSITION));
 
+      coPilot.rightBumper().whileTrue(new ShootOnly(mCowl, mFlywheel, 
+      Settings.ReferenceShotSettings.FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY, 
+      Settings.ReferenceShotSettings.FRONT_OF_LADDER_REFERENCE_COWL_POSITION));
+
+
       // manual cowl homing
       coPilot.leftBumper().onTrue(
         mCowl.home()
       );
-
-      coPilot.x().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
-      coPilot.y().onTrue(swerve.finalClimbLineupCommand().beforeStarting(() -> leds.fadeColor(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-
     }
 
     private void configureTestBindings() {
@@ -186,9 +196,16 @@ public class RobotContainer {
         mFastClimber.setPercentOutTunableReverse()
        );
 
+       testPilot.back().whileTrue(
+        mCowl.forwardTunable()
+       );
+
+       testPilot.start().whileTrue(
+        mCowl.backwardTunable()
+       );
+
         testPilot.a().whileTrue(mFeeder.setPercentOutTunable());
         testPilot.b().whileTrue(mFloor.setPercentOutTunable());
-        testPilot.back().whileTrue(mIntakeRollers.setTunable());
 
        //cowl
        testPilot.x().whileTrue(mCowl.setPositionTunable()); // Min 0 Max 1.8
@@ -253,6 +270,7 @@ public class RobotContainer {
      * @return A command that runs in the background (default command).
      */
 
+
     private Command updateBackVision() {
         return backLimelight.run(() -> {
             final Pose2d currentRobotPose = swerve.getState().Pose;
@@ -265,6 +283,7 @@ public class RobotContainer {
                 Pose2d measured = measurement.get().poseEstimate.pose;
                 Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
                 Rotation2d robotRot = swerve.getState().Pose.getRotation();
+                Pose2d robotPos = swerve.getState().Pose;
 
                 double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
                 double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
@@ -279,6 +298,10 @@ public class RobotContainer {
                 }
         
                 if (targetArea < MIN_TAG_AREA) {
+                return;
+                }
+
+                if (measured.getTranslation().getDistance(robotPos.getTranslation()) > MAX_POSE_DIFF) {
                 return;
                 }
 
@@ -300,6 +323,92 @@ public class RobotContainer {
         })
         .ignoringDisable(true);
     }
+
+    private Command integratedVisionUpdate() {
+    return Commands.run(() -> {
+        final Pose2d currentRobotPose = swerve.getState().Pose;
+        
+        // Skip vision updates if rotating too fast
+        if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
+            return;
+        }
+        
+        // Try front camera first
+        boolean frontCameraHasEstimate = processCameraMeasurement(
+            shooterLimelight,
+            "limelight-shooter",
+            currentRobotPose,
+            SHOOTERCAM_TRUST  // Use shootercam stdevs
+        );
+        
+        // Only use back camera if front camera didn't have a valid measurement
+        if (!frontCameraHasEstimate) {
+            processCameraMeasurement(
+                backLimelight,
+                "limelight-back",
+                currentRobotPose,
+                BACKCAM_TRUST  // Use the higher std devs
+            );
+        }
+        
+    }, shooterLimelight, backLimelight)
+    .ignoringDisable(true);
+    }
+
+
+    private boolean processCameraMeasurement(
+    Limelight camera,
+    String limelightName,
+    Pose2d currentRobotPose,
+    Matrix<N3, N1> overrideStdDevs
+    ) {
+    final Optional<Limelight.Measurement> measurement = camera.getMeasurement(currentRobotPose);
+    
+    if (measurement.isEmpty()) {
+        return false;
+    }
+    
+    Pose2d measured = measurement.get().poseEstimate.pose;
+    Rotation2d measuredRot = measured.getRotation();
+    Rotation2d robotRot = currentRobotPose.getRotation();
+    
+    double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+    double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
+    double targetArea = LimelightHelpers.getTA(limelightName);
+    
+    // Validation checks
+    if (latency > MAX_LATENCY_SECONDS) return false;
+    if (rotationDifference > MAX_ROTATION_DIFFERENCE) return false;
+    if (targetArea < MIN_TAG_AREA) return false;
+    
+    // Field bounds check
+    if (measured.getX() < -FIELD_BORDER_MARGIN
+        || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+        || measured.getY() < -FIELD_BORDER_MARGIN
+        || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+        return false;
+    }
+    
+    // Additional check for back camera - reject if too different from current pose
+    if (overrideStdDevs == BACKCAM_TRUST) {
+        if (measured.getTranslation().getDistance(currentRobotPose.getTranslation()) > MAX_POSE_DIFF) {
+            return false;
+        }
+    }
+    
+    // Use override std devs if provided, otherwise use camera's std devs
+    Matrix<N3, N1> stdDevs = overrideStdDevs != null ? overrideStdDevs : measurement.get().standardDeviations;
+    
+    swerve.addVisionMeasurement(
+        measurement.get().poseEstimate.pose,
+        measurement.get().poseEstimate.timestampSeconds,
+        stdDevs
+    );
+    
+    return true;  // Successfully added measurement
+    }
+
+
 
     public LEDSubsystem getLedSubsystem() {
         return this.leds;

@@ -76,12 +76,10 @@ public class ShootOnly extends Command {
 
     @Override
     public void execute() {
-
-
+        
         cowl.setPosition(cowlInput);
         flywheel.setRPM(velocityInput);
 
-        
     }
 
     @Override

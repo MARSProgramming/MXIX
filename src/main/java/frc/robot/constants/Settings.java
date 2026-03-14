@@ -53,8 +53,11 @@ public class Settings {
     }
 
     public static class ReferenceShotSettings {
-        public static double HUB_REFERENCE_FLYWHEEL_VELOCITY = 3400;
-        public static double HUB_REFERENCE_COWL_POSITION = 0.4;
+        public static double HUB_REFERENCE_FLYWHEEL_VELOCITY = 3350;
+        public static double HUB_REFERENCE_COWL_POSITION = 0.5;
+
+        public static double FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY = 3800;
+        public static double FRONT_OF_LADDER_REFERENCE_COWL_POSITION = 1.25;
     }
 
     public static class ShooterSettings {
