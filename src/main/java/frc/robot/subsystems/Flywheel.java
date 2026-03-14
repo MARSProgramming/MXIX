@@ -191,6 +191,15 @@ public class Flywheel extends SubsystemBase {
     return rmOk && rfOk && lmOk && lfOk;
     }
 
+    public boolean velocityThresholdsMet() {
+    boolean rmOk = (rmVelocity.getValue().gte(Units.RPM.of(2500)));
+    boolean rfOk = (rfVelocity.getValue().gte(Units.RPM.of(2500)));
+    boolean lmOk = (lmVelocity.getValue().gte(Units.RPM.of(2500)));
+    boolean lfOk = (lfVelocity.getValue().gte(Units.RPM.of(2500)));
+
+    return rmOk && rfOk && lmOk && lfOk;
+    }
+
     @Override
     public void periodic() {
         // Update local tunable variables from NetworkTables

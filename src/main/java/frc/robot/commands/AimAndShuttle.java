@@ -11,6 +11,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -49,7 +50,7 @@ public class AimAndShuttle extends Command {
     private final LEDSubsystem ledsubsystem;
 
 
-    private final ShuttleSetup shuttleSetup;
+    private final ShotSetup shotSetup;
     private final DriveInputSmoother inputSmoother;
     private Pose2d selectedShuttleTarget;
 
@@ -82,7 +83,7 @@ public class AimAndShuttle extends Command {
         this.flywheel = flywheel;
         this.ledsubsystem = ledsubsystem;
 
-        shuttleSetup = new ShuttleSetup();
+        shotSetup = new ShotSetup();
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem);
@@ -101,17 +102,19 @@ public class AimAndShuttle extends Command {
         
         // Get shooting parameters
 
-        ShuttleSetup.ShuttleShotInfo info = shuttleSetup.getStaticShotInfo(swerve.getDistanceToHub());
+        ShotSetup.SOTMInfo info = shotSetup.getSOTMInfoShuttle(swerve);
 
-        double cowlAngle = info.cowlPosition;
-        double shooterRPM = info.shot.shooterRPM;
+        double cowlAngle = info.shotInfo.cowlPosition;
+        double shooterRPM = info.shotInfo.shot.shooterRPM;
+
+        Rotation2d virtualTargetAngle = info.virtualTargetAngle;
 
         // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
                 .withVelocityX(Drive.kMaxSpeed.times(input.forward))
                 .withVelocityY(Drive.kMaxSpeed.times(input.left))
-                .withTargetDirection(swerve.getShooterDirectionToShuttle()) 
+                .withTargetDirection(virtualTargetAngle) 
         );
 
         cowl.setPosition(cowlAngle);

@@ -328,6 +328,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return robotPose.getTranslation().getDistance(hubPosition);
     }
 
+    public double getDistance(Translation2d target) {
+        final Pose2d robotpose = this.getState().Pose;
+        return robotpose.getTranslation().getDistance(target);
+    }
+
     public ChassisSpeeds getFieldRelativeSpeeds() {
         ChassisSpeeds speeds = getState().Speeds;
         Rotation2d rot = getState().Pose.getRotation();

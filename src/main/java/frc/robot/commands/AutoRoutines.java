@@ -153,7 +153,6 @@ public final class AutoRoutines {
 
         returnToShoot.done().onTrue(
             new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-            .alongWith(intakePivot.slamtake())
             .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
             );
         return routine;

@@ -68,8 +68,6 @@ public class ShotSetup {
         SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3450), 0.7));  // tuned
         SHOT_MAP.put(2.2,  new ShotInfo(new Shot(3500), 0.8));  // needs tuning
         SHOT_MAP.put(2.5,  new ShotInfo(new Shot(3550), 0.95));  // needs tuning
-
-        // Transition range - common shooting zone, add extra points
         SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3650), 1.1));  // needs tuning
         SHOT_MAP.put(3.2,  new ShotInfo(new Shot(3700), 1.15));  // needs tuning
         SHOT_MAP.put(3.4,  new ShotInfo(new Shot(3750), 1.2));  // needs tuning
@@ -82,13 +80,15 @@ public class ShotSetup {
         SHOT_MAP.put(4.8,  new ShotInfo(new Shot(4100), 1.55));  // needs tuning
         SHOT_MAP.put(5.0,  new ShotInfo(new Shot(4150), 1.6));  // needs tuning
         SHOT_MAP.put(5.2,  new ShotInfo(new Shot(4200), 1.65));  // needs tuning
+        SHOT_MAP.put(5.4,  new ShotInfo(new Shot(4250), 1.70));  // needs tuning
+        SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4300), 1.75));  // needs tuning
 
 
-        timeOfFlightMap.put(5.68, 1.16);
-        timeOfFlightMap.put(4.55, 1.12);
-        timeOfFlightMap.put(3.15, 1.11);
-        timeOfFlightMap.put(1.88, 1.09);
-        timeOfFlightMap.put(1.38, 0.90);
+        timeOfFlightMap.put(5.68, 1.6);
+        timeOfFlightMap.put(4.55, 1.5);
+        timeOfFlightMap.put(3.15, 1.4);
+        timeOfFlightMap.put(1.88, 1.3);
+        timeOfFlightMap.put(1.24, 1.2);
 
 
     }
@@ -122,7 +122,7 @@ public class ShotSetup {
         );  
     }
 
-    public SOTMInfo getSOTMInfo(Swerve swerveSubsystem) {
+    public SOTMInfo getSOTMInfoHub(Swerve swerveSubsystem) {
         double phaseDelay = 0.03;
         Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
         estimatedShotPose = 
@@ -163,8 +163,53 @@ public class ShotSetup {
 
         ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
 
-        return new SOTMInfo(clampedDesiredShotInfo, getDirectionToHub(swerveSubsystem));
+        return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, true));
     }
+
+    public SOTMInfo getSOTMInfoShuttle(Swerve swerveSubsystem) {
+        double phaseDelay = 0.03;
+        Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
+        estimatedShotPose = 
+            estimatedShotPose.exp(new 
+            Twist2d(swerveSubsystem.getState().Speeds.vxMetersPerSecond * phaseDelay,
+            swerveSubsystem.getState().Speeds.vyMetersPerSecond * phaseDelay,
+            swerveSubsystem.getState().Speeds.omegaRadiansPerSecond * phaseDelay));
+
+        Translation2d target = FieldConstants.Locations.getClosestShuttlingPosition(estimatedShotPose).getTranslation(); // add alliance util logic to get this target (hub target)
+        double launcherToTargetDistance = target.getDistance(estimatedShotPose.getTranslation());
+
+        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vxMetersPerSecond;
+        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vyMetersPerSecond;
+
+        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance);
+
+        Pose2d lookaheadPose = estimatedShotPose;
+        double lookaheadLauncherToTargetDist = launcherToTargetDistance;
+
+        for (int i = 0; i < 20; i++) {
+            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist);
+            double offsetX = relativeVelocityX * timeOfFlight;
+            double offsetY = relativeVelocityY * timeOfFlight;
+
+            lookaheadPose = new Pose2d(
+                estimatedShotPose.getTranslation().plus(new Translation2d(offsetX, offsetY)),
+                estimatedShotPose.getRotation()
+            );
+
+            lookaheadLauncherToTargetDist = target.getDistance(lookaheadPose.getTranslation());
+        }
+
+
+        ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
+
+        double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), desiredShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
+        double clampedCowlPos = Math.max(0, Math.min(desiredShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
+
+        ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
+
+        return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, false));
+    }
+
 
     // ========== DATA CLASSES ==========
     
@@ -221,4 +266,21 @@ public class ShotSetup {
         return hubDirectionInOperatorPerspective;
     }
 
+    private Rotation2d getLookaheadDirection(Pose2d lookaheadPose, Swerve swerveSubsystem, boolean atHub) {
+        final Translation2d hubPosition = Locations.hubPosition();
+        final Translation2d desiredShuttlePos = Locations.getClosestShuttlingPosition(lookaheadPose).getTranslation();
+        final Translation2d lookaheadPosition = lookaheadPose.getTranslation();
+        
+        // Calculate angle in standard field coordinates (Blue Alliance origin)
+        final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(lookaheadPosition).getAngle();
+        final Rotation2d shuttleDirectionInBlueAlliancePerspective = desiredShuttlePos.minus(lookaheadPosition).getAngle();
+
+        final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(swerveSubsystem.getOperatorForwardDirection());
+        final Rotation2d shuttleDirectionInOperatorPerspective = shuttleDirectionInBlueAlliancePerspective.rotateBy(swerveSubsystem.getOperatorForwardDirection());
+        if (atHub) {
+            return hubDirectionInOperatorPerspective;
+        } else {
+            return shuttleDirectionInOperatorPerspective;
+        }
+    }
 }

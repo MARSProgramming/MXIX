@@ -98,8 +98,8 @@ public class SystemConstants {
      */
     public static class Cowl {
         public static final double kCowlStallCurrent = 7.0; // Configure with testing
-        public static final double kCowlStallTimeout = 0.4; // 400 ms
-        public static final double kCowlHomingOutput = -0.18; // Configure with testing, call percentOut to home
+        public static final double kCowlStallTimeout = 0.6; // 400 ms
+        public static final double kCowlHomingOutput = -0.3; // Configure with testing, call percentOut to home
 
         public static TalonFXConfiguration cowlConfig = new TalonFXConfiguration();
         static {
@@ -265,6 +265,11 @@ public class SystemConstants {
             fastClimberConfig.CurrentLimits.SupplyCurrentLimit = 70;
             fastClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
             fastClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
+
+            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.55;
+            fastClimberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
+
         }
     }
 }

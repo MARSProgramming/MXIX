@@ -45,6 +45,8 @@ public class FastClimber extends SubsystemBase {
         mPosition = mFastClimber.getPosition();
         mVoltage = mFastClimber.getMotorVoltage();
         mTemp = mFastClimber.getDeviceTemp();
+
+        mFastClimber.setPosition(0);
     }
 
     /**

@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.constants.FieldConstants.Locations;
@@ -110,7 +111,7 @@ public class AimAndShootOnTheMove extends Command {
         // Get smoothed joystick inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
         
-        ShotSetup.SOTMInfo sotmInfo = shotSetup.getSOTMInfo(swerve);
+        ShotSetup.SOTMInfo sotmInfo = shotSetup.getSOTMInfoHub(swerve);
 
         double cowlAngle = sotmInfo.shotInfo.cowlPosition;
         double shooterRPM = sotmInfo.shotInfo.shot.shooterRPM;
@@ -142,11 +143,11 @@ public class AimAndShootOnTheMove extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        cowl.home();
         feeder.setPercentOut(0);
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
+        CommandScheduler.getInstance().schedule(cowl.home());
     }
 
     @Override
