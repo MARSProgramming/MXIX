@@ -20,8 +20,8 @@ public class Settings {
 
     public static class FeedSystemSettings {
         public static double FEEDER_FEED_DUTYCYCLE = 1.0;
-        public static double FLOOR_FEED_DUTYCYCLE = 0.8;
-        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.8;
+        public static double FLOOR_FEED_DUTYCYCLE = 0.7;
+        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.7;
 
         public static double UNJAM_DUTYCYCLE = -0.5;
     }

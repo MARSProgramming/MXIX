@@ -84,11 +84,11 @@ public class ShotSetup {
         SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4300), 1.75));  // needs tuning
 
 
-        timeOfFlightMap.put(5.68, 1.45);
-        timeOfFlightMap.put(4.55, 1.4);
-        timeOfFlightMap.put(3.15, 1.35);
+        timeOfFlightMap.put(5.68, 1.6);
+        timeOfFlightMap.put(4.55, 1.5);
+        timeOfFlightMap.put(3.15, 1.4);
         timeOfFlightMap.put(1.88, 1.3);
-        timeOfFlightMap.put(1.24, 1.25);
+        timeOfFlightMap.put(1.24, 1.2);
 
 
     }

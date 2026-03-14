@@ -58,8 +58,8 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
-    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
-    private static final double MAX_POSE_DIFF = 0.5; // meters
+    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(360); // radians
+    private static final double MAX_POSE_DIFF = 1.0; // meters
 
     // Vision filtering constants
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
@@ -70,7 +70,7 @@ public class RobotContainer {
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(7.0, 7.0, 100);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 100);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -115,7 +115,7 @@ public class RobotContainer {
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
        shooterLimelight.setDefaultCommand(integratedVisionUpdate());
-     //  backLimelight.setDefaultCommand(updateBackVision());
+    //  backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
@@ -380,6 +380,13 @@ public class RobotContainer {
     if (latency > MAX_LATENCY_SECONDS) return false;
     if (rotationDifference > MAX_ROTATION_DIFFERENCE) return false;
     if (targetArea < MIN_TAG_AREA) return false;
+
+
+    if (overrideStdDevs == BACKCAM_TRUST) {
+        if (measured.getTranslation().getDistance(currentRobotPose.getTranslation()) > MAX_POSE_DIFF) {
+            return false;
+        }
+    }
     
     // Field bounds check
     if (measured.getX() < -FIELD_BORDER_MARGIN
@@ -389,12 +396,7 @@ public class RobotContainer {
         return false;
     }
     
-    // Additional check for back camera - reject if too different from current pose
-    if (overrideStdDevs == BACKCAM_TRUST) {
-        if (measured.getTranslation().getDistance(currentRobotPose.getTranslation()) > MAX_POSE_DIFF) {
-            return false;
-        }
-    }
+    
     
     // Use override std devs if provided, otherwise use camera's std devs
     Matrix<N3, N1> stdDevs = overrideStdDevs != null ? overrideStdDevs : measurement.get().standardDeviations;

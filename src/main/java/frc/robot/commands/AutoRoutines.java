@@ -132,62 +132,59 @@ public final class AutoRoutines {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
         final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
         final AutoTrajectory prepSweep = C_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBalls = C_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = C_BEELINE$3.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = C_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = C_BEELINE$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd().beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
+                goOverBumpTraj.cmd()
+                .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
         );
 
         goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
+        prepSweep.done().onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
-        prepSweep.done().onTrue(sweepBalls.cmd()
-        .beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
-        .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-        .alongWith(intakeRollers.intakeCommand()));
+        sweepBallsTraj.done().onTrue(returnToShootTraj.cmd());
 
-        sweepBalls.done().onTrue(returnToShoot.cmd().alongWith(shooterLimelight.idle()));
-
-        returnToShoot.done().onTrue(
+        returnToShootTraj.done().onTrue(
             new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
-            );
+            .alongWith(intakePivot.slamtake())
+        );
+
         return routine;
     }
 
+    
     private AutoRoutine BBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
         final AutoTrajectory goOverBumpTraj = B_BEELINE$0.asAutoTraj(routine);
         final AutoTrajectory prepSweep = B_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBalls = B_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = B_BEELINE$3.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = B_BEELINE$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = B_BEELINE$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd().beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
+                goOverBumpTraj.cmd()
+                .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
         );
 
         goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
+        prepSweep.done().onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
-        prepSweep.done().onTrue(sweepBalls.cmd()
-        .beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
-        .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-        .alongWith(intakeRollers.intakeCommand()));
+        sweepBallsTraj.done().onTrue(returnToShootTraj.cmd());
 
-        sweepBalls.done().onTrue(returnToShoot.cmd().alongWith(shooterLimelight.idle()));
-
-        returnToShoot.done().onTrue(
+        returnToShootTraj.done().onTrue(
             new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
             .alongWith(intakePivot.slamtake())
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
-            );
+        );
+
         return routine;
     }
+
 
 
     private AutoRoutine XClimbNearOutpost() {
