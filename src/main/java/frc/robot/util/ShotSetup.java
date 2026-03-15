@@ -52,9 +52,28 @@ public class ShotSetup {
             )
     );
 
+    private static final InterpolatingTreeMap<Double, Double> timeOfFlightMap = new InterpolatingTreeMap<>(
+    // Inverse interpolator: "where does this query distance sit between two calibration points?"
+    (startDistance, endDistance, queryDistance) -> 
+        InverseInterpolator.forDouble()
+            .inverseInterpolate(
+                startDistance, 
+                endDistance, 
+                queryDistance
+            ),
+    
+    // Forward interpolator: "given position 't' between two time-of-flight values, interpolate"
+    (startTOF, endTOF, t) -> 
+        Interpolator.forDouble()
+            .interpolate(startTOF, endTOF, t)
+    );
+
+
+    
+/*
     private static final InterpolatingDoubleTreeMap timeOfFlightMap =
       new InterpolatingDoubleTreeMap();
-
+ */
     
     // ========== INITIALIZATION ==========
     static {
@@ -84,13 +103,17 @@ public class ShotSetup {
         SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4300), 1.75));  // needs tuning
 
 
-        timeOfFlightMap.put(5.68, 1.4);
-        timeOfFlightMap.put(4.55, 1.35);
-        timeOfFlightMap.put(3.15, 1.3);
-        timeOfFlightMap.put(1.88, 1.25);
-        timeOfFlightMap.put(1.24, 1.2);
-
-
+        timeOfFlightMap.put(1.24, 1.2);   // matches your closest shot
+        timeOfFlightMap.put(1.88, 1.3);
+        timeOfFlightMap.put(2.0, 1.32);   // interpolated
+        timeOfFlightMap.put(2.5, 1.36);   // interpolated
+        timeOfFlightMap.put(3.0, 1.38);   // interpolated
+        timeOfFlightMap.put(3.15, 1.4);
+        timeOfFlightMap.put(3.5, 1.45);   // interpolated
+        timeOfFlightMap.put(4.0, 1.5);    // interpolated
+        timeOfFlightMap.put(4.5, 1.53);   // interpolated
+        timeOfFlightMap.put(5.0, 1.56);   // interpolated
+        timeOfFlightMap.put(5.68, 1.6);   // matches your farthest shot
     }
     
     

@@ -220,7 +220,7 @@ public final class AutoRoutines {
         .andThen(prelineupClimb.cmd()));
 
 
-        prelineupClimb.done().onTrue(
+        prelineupClimb.doneDelayed(1).onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
         .withTimeout(1.5)
         .andThen(
