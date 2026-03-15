@@ -368,6 +368,14 @@ public class RobotContainer {
     if (measurement.isEmpty()) {
         return false;
     }
+
+    if (measurement.get().poseEstimate == null
+        || measurement.get().poseEstimate.pose.getTranslation() == null
+        || !Double.isFinite(measurement.get().poseEstimate.pose.getTranslation().getX())
+        || !Double.isFinite(measurement.get().poseEstimate.pose.getTranslation().getY())) {
+            
+            return false;
+    }
     
     Pose2d measured = measurement.get().poseEstimate.pose;
     Rotation2d measuredRot = measured.getRotation();
@@ -381,7 +389,6 @@ public class RobotContainer {
     if (latency > MAX_LATENCY_SECONDS) return false;
     if (rotationDifference > MAX_ROTATION_DIFFERENCE) return false;
     if (targetArea < MIN_TAG_AREA) return false;
-
 
     if (overrideStdDevs == BACKCAM_TRUST) {
         if (measured.getTranslation().getDistance(currentRobotPose.getTranslation()) > MAX_POSE_DIFF) {

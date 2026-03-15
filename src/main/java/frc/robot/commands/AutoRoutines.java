@@ -213,9 +213,10 @@ public final class AutoRoutines {
         );
 
         goToShotPos.done().onTrue(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake())
-                .withTimeout(4)
+            Commands.parallel(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                intakePivot.slamtake().withTimeout(4)   
+            )
         .andThen(prelineupClimb.cmd()));
 
 
