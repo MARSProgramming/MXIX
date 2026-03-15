@@ -105,7 +105,7 @@ public class IntakePivot extends SubsystemBase {
     public Command slamtake() {
     // assumes intake is deployed. 
     return Commands.repeatingSequence(
-        this.setPercentOut(-IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
+        this.setPercentOut(-IntakePivotSettings.INTAKE_LIFT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_RETRACT_TIMEOUT),
         Commands.waitSeconds(0.2),
         this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT),
         Commands.waitSeconds(0.2)

@@ -5,17 +5,11 @@
 package frc.robot.commands;
 
 
-import static frc.robot.util.ChoreoTraj.B_BEELINE$0;
-import static frc.robot.util.ChoreoTraj.B_BEELINE$1;
-import static frc.robot.util.ChoreoTraj.B_BEELINE$2;
-import static frc.robot.util.ChoreoTraj.B_BEELINE$3;
-import static frc.robot.util.ChoreoTraj.C_BEELINE$0;
-import static frc.robot.util.ChoreoTraj.C_BEELINE$1;
-import static frc.robot.util.ChoreoTraj.C_BEELINE$2;
-import static frc.robot.util.ChoreoTraj.C_BEELINE$3;
-import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$0;
-import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$1;
-import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$2;
+import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$0;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$0;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$1;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$2;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$3;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
 
@@ -104,8 +98,8 @@ public final class AutoRoutines {
     public void configure() {
         autoChooser.addRoutine("Depot Bump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("Outpost Bump Score Beeline", this::BBeeline);
-        autoChooser.addRoutine("Depot Bump Score Depot", this::CDepot);
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
+        autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -119,10 +113,10 @@ public final class AutoRoutines {
 
     private AutoRoutine CBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = C_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = C_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShootTraj = C_BEELINE$3.asAutoTraj(routine);
+        final AutoTrajectory goOverBumpTraj = C_BEELINE_OLD$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = C_BEELINE_OLD$1.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = C_BEELINE_OLD$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = C_BEELINE_OLD$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -145,13 +139,14 @@ public final class AutoRoutines {
         return routine;
     }
 
+    
     
     private AutoRoutine BBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = B_BEELINE$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = B_BEELINE$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = B_BEELINE$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShootTraj = B_BEELINE$3.asAutoTraj(routine);
+        final AutoTrajectory goOverBumpTraj = B_BEELINE_OLD$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = B_BEELINE_OLD$0.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = B_BEELINE_OLD$0.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = B_BEELINE_OLD$0.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -173,32 +168,24 @@ public final class AutoRoutines {
 
         return routine;
     }
+    
+    
 
-    private AutoRoutine CDepot() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
-        final AutoTrajectory getPoseTraj = C_DEPOT_ONETIME$0.asAutoTraj(routine);
-        final AutoTrajectory gettingBalls = C_DEPOT_ONETIME$1.asAutoTraj(routine);
-        final AutoTrajectory rotateToScore = C_DEPOT_ONETIME$2.asAutoTraj(routine);
+    private AutoRoutine XClimbResetOdom() {
+        final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_DEPOT_ROUTINE");
+        final AutoTrajectory goToShotPos = X_CLIMB_NEARD$0.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-            getPoseTraj.resetOdometry(),
-            getPoseTraj.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
+            goToShotPos.resetOdometry()
+            ) 
         );
 
-        getPoseTraj.done().onTrue(gettingBalls.cmd().alongWith(intakeRollers.intakeCommand()));
-
-        gettingBalls.done().onTrue(rotateToScore.cmd());
-        rotateToScore.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-        .alongWith(intakePivot.slamtake()));
 
         return routine;
+
     }
 
-
-
-    
 
     private AutoRoutine XClimbNearDepot() {
         final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_DEPOT_ROUTINE");
@@ -212,7 +199,7 @@ public final class AutoRoutines {
             ) 
         );
 
-
+    
         goToShotPos.doneDelayed(0.5).onTrue(
             Commands.parallel(
                 new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
