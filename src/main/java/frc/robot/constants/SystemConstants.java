@@ -266,8 +266,8 @@ public class SystemConstants {
             fastClimberConfig.CurrentLimits.StatorCurrentLimitEnable = true;
             fastClimberConfig.CurrentLimits.StatorCurrentLimit = 120;
 
-            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = false;
-            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.55;
+            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+            fastClimberConfig.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 1.62;
             fastClimberConfig.SoftwareLimitSwitch.ReverseSoftLimitEnable = false;
 
         }

@@ -40,7 +40,7 @@ public class Settings {
         // probably slwo this down, particularly the forwards one, the forwards one can't
         // dealign the climber.
         public static double SIDEWAYS_LINEUP_TIMEOUT = 2.0;
-        public static double FORWARD_LINEUP_TIMEOUT = 1.5;
+        public static double FORWARD_LINEUP_TIMEOUT = 1.7;
     }
 
     public static class OutpostLineupSettings {

@@ -70,7 +70,7 @@ public class RobotContainer {
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 100);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(10.0, 10.0, 100);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -137,7 +137,8 @@ public class RobotContainer {
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
      drivePilot.y().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
-     drivePilot.x().onTrue(swerve.finalClimbLineupCommand().alongWith(shooterLimelight.idle()));
+     drivePilot.x().onTrue(
+        swerve.finalClimbLineupCommand().alongWith(shooterLimelight.idle()).withTimeout(3.5));
 
 
 

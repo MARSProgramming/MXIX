@@ -13,19 +13,11 @@ import static frc.robot.util.ChoreoTraj.C_BEELINE$0;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$1;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE$3;
-import static frc.robot.util.ChoreoTraj.C_DEPOT$0;
-import static frc.robot.util.ChoreoTraj.C_DEPOT$1;
-import static frc.robot.util.ChoreoTraj.C_DEPOT$2;
-import static frc.robot.util.ChoreoTraj.D_DEPOT$0;
-import static frc.robot.util.ChoreoTraj.D_DEPOT$1;
-import static frc.robot.util.ChoreoTraj.D_DEPOT$2;
+import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$0;
+import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$1;
+import static frc.robot.util.ChoreoTraj.C_DEPOT_ONETIME$2;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
-import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARO$0;
-import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARO$1;
-import static frc.robot.util.ChoreoTraj.X_DEPOT;
-import static frc.robot.util.ChoreoTraj.X_DEPOT$0;
-import static frc.robot.util.ChoreoTraj.X_DEPOT$1;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -111,12 +103,9 @@ public final class AutoRoutines {
      */
     public void configure() {
         autoChooser.addRoutine("Depot Bump Score Beeline", this::CBeeline);
-        autoChooser.addRoutine("Depot Bump Score Depot", this::CDepot);
-        autoChooser.addRoutine("Depot Trench Score Depot", this::DDepot);
         autoChooser.addRoutine("Outpost Bump Score Beeline", this::BBeeline);
-        autoChooser.addRoutine("Middle Climb at Outpost", this::XClimbNearOutpost);
-        autoChooser.addRoutine("Middle Climb at Depot", this::XClimbNearDepot);
-        autoChooser.addRoutine("Middle Score Depot", this::XDepot);
+        autoChooser.addRoutine("Depot Bump Score Depot", this::CDepot);
+        autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -185,38 +174,31 @@ public final class AutoRoutines {
         return routine;
     }
 
-
-
-    private AutoRoutine XClimbNearOutpost() {
-        final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_OUTPOST_ROUTINE");
-        final AutoTrajectory goToShotPos = X_CLIMB_NEARO$0.asAutoTraj(routine);
-        final AutoTrajectory prelineupClimb = X_CLIMB_NEARO$1.asAutoTraj(routine);
+    private AutoRoutine CDepot() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
+        final AutoTrajectory getPoseTraj = C_DEPOT_ONETIME$0.asAutoTraj(routine);
+        final AutoTrajectory gettingBalls = C_DEPOT_ONETIME$1.asAutoTraj(routine);
+        final AutoTrajectory rotateToScore = C_DEPOT_ONETIME$2.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
-            goToShotPos.resetOdometry(),
-            goToShotPos.cmd().alongWith(intakePivot.timedDeployCommand())             
-            ) 
+            getPoseTraj.resetOdometry(),
+            getPoseTraj.cmd().alongWith(intakePivot.timedDeployCommand())
+            )
         );
 
-        goToShotPos.done().onTrue(
-                        new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-                .alongWith(intakePivot.slamtake())
-                .withTimeout(4)
-        .andThen(prelineupClimb.cmd()));
-        prelineupClimb.done().onTrue(
-            swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
-            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
-        .withTimeout(1.5)
-        .andThen(
-            swerve.finalClimbLineupCommand()
-            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
-            ));
+        getPoseTraj.done().onTrue(gettingBalls.cmd().alongWith(intakeRollers.intakeCommand()));
 
+        gettingBalls.done().onTrue(rotateToScore.cmd());
+        rotateToScore.done().onTrue(new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+        .alongWith(intakePivot.slamtake()));
 
         return routine;
-
     }
+
+
+
+    
 
     private AutoRoutine XClimbNearDepot() {
         final AutoRoutine routine = autoFactory.newRoutine("X_CLIMB_DEPOT_ROUTINE");
@@ -231,124 +213,24 @@ public final class AutoRoutines {
         );
 
         goToShotPos.done().onTrue(
-                        new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
                 .alongWith(intakePivot.slamtake())
                 .withTimeout(4)
         .andThen(prelineupClimb.cmd()));
+
+
         prelineupClimb.done().onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
-            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
         .withTimeout(1.5)
         .andThen(
-            swerve.finalClimbLineupCommand()
-            .alongWith(shooterLimelight.idle().alongWith(backLimelight.idle()))
+            swerve.finalClimbLineupCommand().withTimeout(3.7)
+            .andThen(
+                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
+            )
             ));
 
 
         return routine;
 
     }
-
-    private AutoRoutine DDepot() {
-        final AutoRoutine routine = autoFactory.newRoutine("D_DEPOT_ROUTINE");
-
-        final AutoTrajectory prepDepot = D_DEPOT$0.asAutoTraj(routine);
-        final AutoTrajectory getDepots = D_DEPOT$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = D_DEPOT$2.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                prepDepot.resetOdometry(),
-                prepDepot.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
-        );
-
-        prepDepot.done().onTrue(
-            getDepots.cmd()
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
-            .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-            .alongWith(intakeRollers.intakeCommand())
-        );
-
-        getDepots.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.done().onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-            .alongWith(intakePivot.slamtake())
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
-        );
-
-        return routine;
-    }
-
-    
-    private AutoRoutine CDepot() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_DEPOT_ROUTINE");
-
-        final AutoTrajectory prepDepot = C_DEPOT$0.asAutoTraj(routine);
-        final AutoTrajectory getDepots = C_DEPOT$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = C_DEPOT$2.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                prepDepot.resetOdometry(),
-                prepDepot.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
-        );
-
-        prepDepot.done().onTrue(
-            getDepots.cmd()
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
-            .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-            .alongWith(intakeRollers.intakeCommand())
-        );
-
-        getDepots.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.done().onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-            .alongWith(intakePivot.slamtake())
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
-        );
-
-        return routine;
-    }
-
-    
-    
-    private AutoRoutine XDepot() {
-        final AutoRoutine routine = autoFactory.newRoutine("X_DEPOT_ROUTINE");
-
-        final AutoTrajectory prepDepot = X_DEPOT$0.asAutoTraj(routine);
-        final AutoTrajectory getDepots = X_DEPOT$1.asAutoTraj(routine);
-        final AutoTrajectory returnToShoot = X_DEPOT$1.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                prepDepot.resetOdometry(),
-                prepDepot.cmd().alongWith(intakePivot.timedDeployCommand())
-            )
-        );
-
-        prepDepot.done().onTrue(
-            getDepots.cmd()
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kYellow, LEDSegment.ALL))
-            .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-            .alongWith(intakeRollers.intakeCommand())
-        );
-
-        getDepots.done().onTrue(returnToShoot.cmd());
-
-        returnToShoot.done().onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
-            .alongWith(intakePivot.slamtake())
-            .beforeStarting(() -> ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL))
-        );
-
-        return routine;
-    }
-
-    
-
-
 }

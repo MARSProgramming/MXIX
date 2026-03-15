@@ -352,7 +352,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
                 Settings.ClimbLineupSettings.SIDELINEUP_VELOCITY, 
                 0)
             )).withTimeout(Settings.ClimbLineupSettings.SIDEWAYS_LINEUP_TIMEOUT),
-            Commands.run(() -> this.stop(), this).withTimeout(0.2),
             this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
                 new ChassisSpeeds(
                 Settings.ClimbLineupSettings.FORWLINEUP_VELOCITY,
