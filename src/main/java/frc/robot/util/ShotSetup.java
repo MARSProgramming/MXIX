@@ -145,7 +145,7 @@ public class ShotSetup {
             clampedCowlPos
         );  
     }
-    
+
     public SOTMInfo getSOTMInfoHub(Swerve swerveSubsystem) {
     // Cache state to avoid multiple calls
     var state = swerveSubsystem.getState();
@@ -227,52 +227,20 @@ public class ShotSetup {
 
     ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
 
-    return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, true));
-}
-
-public SOTMInfo getSOTMInfoShuttle(Swerve swerveSubsystem) {
-        double phaseDelay = 0.03;
-        Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
-        estimatedShotPose = 
-            estimatedShotPose.exp(new 
-            Twist2d(swerveSubsystem.getState().Speeds.vxMetersPerSecond * phaseDelay,
-            swerveSubsystem.getState().Speeds.vyMetersPerSecond * phaseDelay,
-            swerveSubsystem.getState().Speeds.omegaRadiansPerSecond * phaseDelay));
-
-        Translation2d target = FieldConstants.Locations.getClosestShuttlingPosition(estimatedShotPose).getTranslation(); // add alliance util logic to get this target (hub target)
-        double launcherToTargetDistance = target.getDistance(estimatedShotPose.getTranslation());
-
-        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vxMetersPerSecond;
-        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vyMetersPerSecond;
-
-        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance);
-
-        Pose2d lookaheadPose = estimatedShotPose;
-        double lookaheadLauncherToTargetDist = launcherToTargetDistance;
-
-        for (int i = 0; i < 20; i++) {
-            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist);
-            double offsetX = relativeVelocityX * timeOfFlight;
-            double offsetY = relativeVelocityY * timeOfFlight;
-
-            lookaheadPose = new Pose2d(
-                estimatedShotPose.getTranslation().plus(new Translation2d(offsetX, offsetY)),
-                estimatedShotPose.getRotation()
-            );
-
-            lookaheadLauncherToTargetDist = target.getDistance(lookaheadPose.getTranslation());
-        }
-
-
-        ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
-
-        double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), desiredShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
-        double clampedCowlPos = Math.max(0, Math.min(desiredShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
-
-        ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
-
-        return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, false));
+    double angularVelocity = 0;
+    double distance = lookaheadLauncherToTargetDist;
+    if (distance > 0.1) {
+    // rx, ry = vector from shooter to target
+        double rx = target.getX() - lookaheadPose.getX();
+        double ry = target.getY() - lookaheadPose.getY();
+    // tangential velocity / distance = angular rate
+        double tangentialVel = (ry * fieldVelocityX - rx * fieldVelocityY) / distance;
+        angularVelocity = tangentialVel / distance; 
     }
+
+    return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, true), angularVelocity);
+    }
+
 
 
     // ========== DATA CLASSES ==========
@@ -308,16 +276,17 @@ public SOTMInfo getSOTMInfoShuttle(Swerve swerveSubsystem) {
         }
     }
 
-    public static class SOTMInfo {
-        public ShotInfo shotInfo;
-        public Rotation2d virtualTargetAngle;
-
-        public SOTMInfo(ShotInfo shotInfo, Rotation2d virtualTargetAngle) {
-            this.shotInfo = shotInfo;
-            this.virtualTargetAngle = virtualTargetAngle;
-        }   
+public static class SOTMInfo {
+    public ShotInfo shotInfo;
+    public Rotation2d virtualTargetAngle;
+    public double angularVelocityRadPerSec; // ADD THIS
+    
+    public SOTMInfo(ShotInfo shotInfo, Rotation2d virtualTargetAngle, double angularVelocityRadPerSec) {
+        this.shotInfo = shotInfo;
+        this.virtualTargetAngle = virtualTargetAngle;
+        this.angularVelocityRadPerSec = angularVelocityRadPerSec;
     }
-
+}
     private Rotation2d getDirectionToHub(Swerve swerveSubsystem) {
         final Translation2d hubPosition = Locations.hubPosition();
         final Translation2d robotPosition = swerveSubsystem.getState().Pose.getTranslation();
