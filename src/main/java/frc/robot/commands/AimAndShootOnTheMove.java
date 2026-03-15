@@ -13,7 +13,9 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -115,13 +117,15 @@ public class AimAndShootOnTheMove extends Command {
 
         double cowlAngle = sotmInfo.shotInfo.cowlPosition;
         double shooterRPM = sotmInfo.shotInfo.shot.shooterRPM;
-        Rotation2d virtualTargetAngle = sotmInfo.virtualTargetAngle;        
+        Rotation2d virtualTargetAngle = sotmInfo.virtualTargetAngle; 
+        AngularVelocity targetRateFeedforward = Units.RadiansPerSecond.of(sotmInfo.angularVelocityRadPerSec);       
 
         swerve.setControl(
             fieldCentricFacingAngleRequest
                 .withVelocityX(Drive.kMaxSpeed.times(input.forward))
                 .withVelocityY(Drive.kMaxSpeed.times(input.left))
                 .withTargetDirection(virtualTargetAngle) 
+                .withTargetRateFeedforward(targetRateFeedforward)
         );
 
         cowl.setPosition(cowlAngle);

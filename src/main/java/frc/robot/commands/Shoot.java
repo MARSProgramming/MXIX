@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -10,26 +8,20 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import dev.doglog.DogLog;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.constants.SystemConstants.Drive;
-import frc.robot.constants.FieldConstants.Locations;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Settings;
-import frc.robot.constants.SystemConstants;
-import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.LEDSubsystem.LEDSegment;
+import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.LEDSubsystem.LEDSegment;
+import frc.robot.subsystems.Swerve;
 import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
@@ -38,7 +30,8 @@ import frc.robot.util.ShotSetup;
  * Command that allows the driver to translate the robot field-centrically while the robot
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
-public class AimAndShuttle extends Command {
+public class Shoot extends Command {
+    private boolean readyToShootBoolean = false;
 
     private final Swerve swerve;
     private final Cowl cowl;
@@ -51,7 +44,6 @@ public class AimAndShuttle extends Command {
 
     private final ShotSetup shotSetup;
     private final DriveInputSmoother inputSmoother;
-    private Pose2d selectedShuttleTarget;
 
     // Request to drive field-centric while facing a specific angle
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
@@ -63,7 +55,7 @@ public class AimAndShuttle extends Command {
         .withHeadingPID(5, 0, 0);
 
 
-    public AimAndShuttle(
+    public Shoot(
         Swerve swerve,
         Cowl cowl,
         Flywheel flywheel,
@@ -85,13 +77,18 @@ public class AimAndShuttle extends Command {
         shotSetup = new ShotSetup();
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
-        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem);
+        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
+
+    public Shoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers,ledSubsystem, () -> 0, () -> 0);
+    }
+
+
 
     @Override
     public void initialize() {
-        selectedShuttleTarget = FieldConstants.Locations.getClosestShuttlingPosition(swerve.getState().Pose);
-
+      readyToShootBoolean = false;
     }
 
     @Override
@@ -101,35 +98,30 @@ public class AimAndShuttle extends Command {
         
         // Get shooting parameters
 
-        ShotSetup.SOTMInfo info = shotSetup.getSOTMInfoHub(swerve);
+        ShotSetup.ShotInfo info = shotSetup.getStaticShotInfo(swerve.getDistanceToHub());
 
-        double cowlAngle = info.shotInfo.cowlPosition;
-        double shooterRPM = info.shotInfo.shot.shooterRPM;
+        double cowlAngle = info.cowlPosition;
+        double shooterRPM = info.shot.shooterRPM;
 
-        Rotation2d virtualTargetAngle = info.virtualTargetAngle;
+        boolean cowlAtTolerance = cowl.isAtTolerance(cowlAngle);
+        boolean flywheelAtTolerance = flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM));
 
-        // Apply control request to swerve
-        swerve.setControl(
-            fieldCentricFacingAngleRequest
-                .withVelocityX(Drive.kMaxSpeed.times(input.forward))
-                .withVelocityY(Drive.kMaxSpeed.times(input.left))
-                .withTargetDirection(virtualTargetAngle) 
-        );
+        DogLog.log("AimAndShootCommand/flywheelReady", flywheelAtTolerance);
+        DogLog.log("AimAndShootCommand/TargetVelocityRPM", shooterRPM);
+        DogLog.log("AimAndShootCommand/cowlInTolerance", cowlAtTolerance);
+
 
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtShuttle()) {
-            DogLog.log("AimAndShuttleCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
-            DogLog.log("AimAndShuttleCommand/TargetVelocityRPM", shooterRPM);
-            DogLog.log("AimAndShuttleCommand/cowlInTolerance", cowl.isAtTolerance(cowlAngle));
+        if (cowlAtTolerance && flywheelAtTolerance) {
+            readyToShootBoolean = true;
+        }
 
-
+        if (readyToShootBoolean) {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
-
-            ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL);
         }
     }
 
@@ -140,10 +132,6 @@ public class AimAndShuttle extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
-
-        if (interrupted) {
-            ledsubsystem.rainbow(LEDSegment.ALL);
-        }
     }
 
     @Override

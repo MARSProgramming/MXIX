@@ -114,7 +114,7 @@ public class IntakePivot extends SubsystemBase {
 
     public Command confirmDeploy() {
     return Commands.sequence(
-        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT)
+        this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(0.1)
         );
     }
 

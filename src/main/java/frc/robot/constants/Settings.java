@@ -49,7 +49,7 @@ public class Settings {
     }
 
     public static class ClimbSettings {
-        public static double CLIMB_DUTYCYCLE = 0.4;
+        public static double CLIMB_DUTYCYCLE = 0.6;
     }
 
     public static class ReferenceShotSettings {

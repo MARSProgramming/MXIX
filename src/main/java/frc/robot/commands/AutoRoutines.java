@@ -212,17 +212,18 @@ public final class AutoRoutines {
             ) 
         );
 
-        goToShotPos.done().onTrue(
+
+        goToShotPos.doneDelayed(0.5).onTrue(
             Commands.parallel(
                 new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
-                intakePivot.slamtake().withTimeout(4)   
-            )
-        .andThen(prelineupClimb.cmd()));
+                intakePivot.slamtake().withTimeout(3.8)   
+            ));
 
+        goToShotPos.doneDelayed(3.9).onTrue(prelineupClimb.cmd().alongWith(intakePivot.confirmDeploy()));
 
-        prelineupClimb.doneDelayed(1).onTrue(
+        prelineupClimb.doneDelayed(0.5).onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
-        .withTimeout(1.5)
+        .withTimeout(1)
         .andThen(
             swerve.finalClimbLineupCommand().withTimeout(3.7)
             .andThen(

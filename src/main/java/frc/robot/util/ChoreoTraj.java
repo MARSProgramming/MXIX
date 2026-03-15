@@ -94,24 +94,52 @@ public record ChoreoTraj(
 	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
 	);
+	public static final ChoreoTraj C_DEPOT_ONETIME = new ChoreoTraj(
+	    "C_DEPOT_ONETIME",
+	    OptionalInt.empty(),
+	    4.72357,
+	    new Pose2d(3.538, 5.571, Rotation2d.fromRadians(0)),
+	    new Pose2d(2, 4.949, Rotation2d.fromRadians(-0.606))
+	);
+	public static final ChoreoTraj C_DEPOT_ONETIME$0 = new ChoreoTraj(
+	    "C_DEPOT_ONETIME",
+	    OptionalInt.of(0),
+	    0.90549,
+	    new Pose2d(3.538, 5.571, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.038, 6.091, Rotation2d.fromRadians(-0.741))
+	);
+	public static final ChoreoTraj C_DEPOT_ONETIME$1 = new ChoreoTraj(
+	    "C_DEPOT_ONETIME",
+	    OptionalInt.of(1),
+	    3.4367000000000005,
+	    new Pose2d(2.038, 6.091, Rotation2d.fromRadians(-0.741)),
+	    new Pose2d(2, 4.944, Rotation2d.fromRadians(-1.571))
+	);
+	public static final ChoreoTraj C_DEPOT_ONETIME$2 = new ChoreoTraj(
+	    "C_DEPOT_ONETIME",
+	    OptionalInt.of(2),
+	    0.38137999999999916,
+	    new Pose2d(2, 4.944, Rotation2d.fromRadians(-1.571)),
+	    new Pose2d(2, 4.949, Rotation2d.fromRadians(-0.606))
+	);
 	public static final ChoreoTraj X_CLIMB_NEARD = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
 	    OptionalInt.empty(),
-	    3.56914,
+	    3.17,
 	    new Pose2d(3.457, 3.961, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj X_CLIMB_NEARD$0 = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
 	    OptionalInt.of(0),
-	    1.31298,
+	    0.75366,
 	    new Pose2d(3.457, 3.961, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj X_CLIMB_NEARD$1 = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
 	    OptionalInt.of(1),
-	    2.25616,
+	    2.41634,
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
 	);
@@ -150,34 +178,6 @@ public record ChoreoTraj(
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(-0.343)),
 	    new Pose2d(1.209, 5.156, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_DEPOT_ONETIME = new ChoreoTraj(
-	    "C_DEPOT_ONETIME",
-	    OptionalInt.empty(),
-	    4.72357,
-	    new Pose2d(3.538, 5.571, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 4.949, Rotation2d.fromRadians(-0.606))
-	);
-	public static final ChoreoTraj C_DEPOT_ONETIME$0 = new ChoreoTraj(
-	    "C_DEPOT_ONETIME",
-	    OptionalInt.of(0),
-	    0.90549,
-	    new Pose2d(3.538, 5.571, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.038, 6.091, Rotation2d.fromRadians(-0.741))
-	);
-	public static final ChoreoTraj C_DEPOT_ONETIME$1 = new ChoreoTraj(
-	    "C_DEPOT_ONETIME",
-	    OptionalInt.of(1),
-	    3.4367000000000005,
-	    new Pose2d(2.038, 6.091, Rotation2d.fromRadians(-0.741)),
-	    new Pose2d(2, 4.944, Rotation2d.fromRadians(-1.571))
-	);
-	public static final ChoreoTraj C_DEPOT_ONETIME$2 = new ChoreoTraj(
-	    "C_DEPOT_ONETIME",
-	    OptionalInt.of(2),
-	    0.38137999999999916,
-	    new Pose2d(2, 4.944, Rotation2d.fromRadians(-1.571)),
-	    new Pose2d(2, 4.949, Rotation2d.fromRadians(-0.606))
-	);
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -194,6 +194,10 @@ public record ChoreoTraj(
 		Map.entry("C_BEELINE$1", C_BEELINE$1),
 		Map.entry("C_BEELINE$2", C_BEELINE$2),
 		Map.entry("C_BEELINE$3", C_BEELINE$3),
+		Map.entry("C_DEPOT_ONETIME", C_DEPOT_ONETIME),
+		Map.entry("C_DEPOT_ONETIME$0", C_DEPOT_ONETIME$0),
+		Map.entry("C_DEPOT_ONETIME$1", C_DEPOT_ONETIME$1),
+		Map.entry("C_DEPOT_ONETIME$2", C_DEPOT_ONETIME$2),
 		Map.entry("X_CLIMB_NEARD", X_CLIMB_NEARD),
 		Map.entry("X_CLIMB_NEARD$0", X_CLIMB_NEARD$0),
 		Map.entry("X_CLIMB_NEARD$1", X_CLIMB_NEARD$1),
@@ -201,11 +205,7 @@ public record ChoreoTraj(
 		Map.entry("X_DEPOT$0", X_DEPOT$0),
 		Map.entry("X_DEPOT$1", X_DEPOT$1),
 		Map.entry("X_DEPOT$2", X_DEPOT$2),
-		Map.entry("X_DEPOT$3", X_DEPOT$3),
-		Map.entry("C_DEPOT_ONETIME", C_DEPOT_ONETIME),
-		Map.entry("C_DEPOT_ONETIME$0", C_DEPOT_ONETIME$0),
-		Map.entry("C_DEPOT_ONETIME$1", C_DEPOT_ONETIME$1),
-		Map.entry("C_DEPOT_ONETIME$2", C_DEPOT_ONETIME$2)
+		Map.entry("X_DEPOT$3", X_DEPOT$3)
     );
 
     /**

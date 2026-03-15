@@ -25,6 +25,7 @@ import frc.robot.commands.AimAndShootOnTheMove;
 import frc.robot.commands.AimAndShuttle;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
+import frc.robot.commands.Shoot;
 import frc.robot.commands.ShootOnly;
 import frc.robot.commands.Unjam;
 import frc.robot.constants.FieldConstants;
@@ -70,7 +71,7 @@ public class RobotContainer {
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(10.0, 10.0, 100);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 100);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -119,7 +120,7 @@ public class RobotContainer {
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
-        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, 
+        new AimAndShootOnTheMove(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, 
         () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
@@ -131,11 +132,8 @@ public class RobotContainer {
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
 
       drivePilot.a().whileTrue(mIntakePivot.slamtake());
-     drivePilot.b().whileTrue(
-        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, 
-        () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
-        .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
-        .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+     drivePilot.b().whileTrue(new Shoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()));
+
      drivePilot.y().whileTrue(swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose)));
      drivePilot.x().onTrue(
         swerve.finalClimbLineupCommand().alongWith(shooterLimelight.idle()).withTimeout(3.5));
