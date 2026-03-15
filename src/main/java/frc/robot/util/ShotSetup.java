@@ -104,17 +104,11 @@ public class ShotSetup {
         SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4300), 1.75));  // needs tuning
 
 
-        timeOfFlightMap.put(1.24, 1.2);   // matches your closest shot
-        timeOfFlightMap.put(1.88, 1.3);
-        timeOfFlightMap.put(2.0, 1.32);   // interpolated
-        timeOfFlightMap.put(2.5, 1.36);   // interpolated
-        timeOfFlightMap.put(3.0, 1.38);   // interpolated
-        timeOfFlightMap.put(3.15, 1.4);
-        timeOfFlightMap.put(3.5, 1.45);   // interpolated
-        timeOfFlightMap.put(4.0, 1.5);    // interpolated
-        timeOfFlightMap.put(4.5, 1.53);   // interpolated
-        timeOfFlightMap.put(5.0, 1.56);   // interpolated
-        timeOfFlightMap.put(5.68, 1.6);   // matches your farthest shot
+        timeOfFlightMap.put(1.24, 1.31);  // measured close range
+        timeOfFlightMap.put(2.0, 1.33);   // slight decrease
+        timeOfFlightMap.put(3.0, 1.335);   // measured mid range
+        timeOfFlightMap.put(4.0, 1.34);   // measured far range
+        timeOfFlightMap.put(5.6, 1.35);   // extrapolated
     }
     
     
