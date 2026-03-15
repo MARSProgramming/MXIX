@@ -31,8 +31,8 @@ public class Limelight extends SubsystemBase {
         this.posePublisher = telemetryTable.getStructTopic("Estimated Robot Pose", Pose2d.struct).publish();
 
         
-        LimelightHelpers.SetIMUMode(name, 3);
-        LimelightHelpers.SetIMUAssistAlpha(name, 0.001);
+        LimelightHelpers.SetIMUMode(name, 4);
+        LimelightHelpers.SetIMUAssistAlpha(name, 0.1);
         LimelightHelpers.SetFiducialIDFiltersOverride(name, SystemConstants.Limelights.getValidTagIDs());
     }
 
@@ -43,9 +43,7 @@ public class Limelight extends SubsystemBase {
         final PoseEstimate poseEstimate_MegaTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
         if (
             poseEstimate_MegaTag1 == null 
-                || poseEstimate_MegaTag2 == null
                 || poseEstimate_MegaTag1.tagCount == 0
-                || poseEstimate_MegaTag2.tagCount == 0
         ) {
             return Optional.empty();
         }
@@ -53,15 +51,15 @@ public class Limelight extends SubsystemBase {
         // Combine the readings from MegaTag1 and MegaTag2:
         // 1. Use the more stable position from MegaTag2
         // 2. Use the rotation from MegaTag1 (with low confidence) to counteract gyro drift
-        poseEstimate_MegaTag2.pose = new Pose2d(
-            poseEstimate_MegaTag2.pose.getTranslation(),
-            poseEstimate_MegaTag1.pose.getRotation()
-        );
+       // poseEstimate_MegaTag2.pose = new Pose2d(
+      //      poseEstimate_MegaTag2.pose.getTranslation(),
+      //      poseEstimate_MegaTag1.pose.getRotation()
+      //  );
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
-        posePublisher.set(poseEstimate_MegaTag2.pose);
+        posePublisher.set(poseEstimate_MegaTag1.pose);
 
-        return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
+        return Optional.of(new Measurement(poseEstimate_MegaTag1, standardDeviations));
     }
 
     public static class Measurement {

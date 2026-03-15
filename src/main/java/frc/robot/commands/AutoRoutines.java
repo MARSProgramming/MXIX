@@ -35,6 +35,7 @@ import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
 
@@ -104,12 +105,13 @@ public final class AutoRoutines {
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
+        autoChooser.addRoutine("depot middle reset odometry", this::resetPose);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
         // Schedule the selected autonomous command when the robot enters autonomous mode
         RobotModeTriggers.autonomous().whileTrue(autoChooser.selectedCommandScheduler()
-        .beforeStarting(() -> ledsubsystem.setColor(Color.kRed, LEDSegment.ALL))
+        .beforeStarting((() -> ledsubsystem.setColor(Color.kRed, LEDSegment.ALL)))
         .finallyDo(() -> ledsubsystem.rainbow(LEDSegment.ALL)));
     }
 
@@ -125,6 +127,8 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
+                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
                 goOverBumpTraj.cmd()
                 .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
@@ -155,6 +159,8 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
+                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
                 goOverBumpTraj.cmd()
                 .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
@@ -181,7 +187,10 @@ public final class AutoRoutines {
 
         routine.active().onTrue(
             Commands.sequence(
-            goToShotPos.resetOdometry()
+            goToShotPos.resetOdometry(),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0))
+
             ) 
         );
 
@@ -199,6 +208,8 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             goToShotPos.resetOdometry(),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             goToShotPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
@@ -227,6 +238,19 @@ public final class AutoRoutines {
 
     }
 
+    private AutoRoutine resetPose() {
+        final AutoRoutine posRoutine = autoFactory.newRoutine("reset pose test");
+        final AutoTrajectory gettagpos = X_DEPOT_AND_CLIMB$0.asAutoTraj(posRoutine);
+
+        posRoutine.active().onTrue(
+            Commands.sequence(
+            gettagpos.resetOdometry(),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", gettagpos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", gettagpos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0))
+        ));
+
+        return posRoutine;
+    }
     
     private AutoRoutine XScoreDepotClimb() {
         final AutoRoutine routine = autoFactory.newRoutine("X_SCORE_DEPOT_CLIMB_ROUTINE");
@@ -237,6 +261,8 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             getTagPos.resetOdometry(),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
+            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             getTagPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
@@ -267,8 +293,4 @@ public final class AutoRoutines {
         return routine;
 
     }
-
-    
-
-
 }

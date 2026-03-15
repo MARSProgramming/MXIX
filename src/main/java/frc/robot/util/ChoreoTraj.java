@@ -118,7 +118,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj X_DEPOT_AND_CLIMB = new ChoreoTraj(
 	    "X_DEPOT_AND_CLIMB",
 	    OptionalInt.empty(),
-	    6.79618,
+	    6.84473,
 	    new Pose2d(3.457, 3.961, Rotation2d.fromRadians(0)),
 	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
 	);
@@ -132,7 +132,7 @@ public record ChoreoTraj(
 	public static final ChoreoTraj X_DEPOT_AND_CLIMB$1 = new ChoreoTraj(
 	    "X_DEPOT_AND_CLIMB",
 	    OptionalInt.of(1),
-	    4.45796,
+	    4.5065100000000005,
 	    new Pose2d(2.596, 3.969, Rotation2d.fromRadians(0)),
 	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.643))
 	);

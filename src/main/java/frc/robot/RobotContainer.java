@@ -59,10 +59,10 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
-    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(360); // radians
-    private static final double MAX_POSE_DIFF = 1.0; // meters
-
-    // Vision filtering constants
+    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
+    private static final double MAX_POSE_DIFF = 2.0; // meters
+    private static final double MAX_TAG_DIST = 3; // reject poses further away than 3 meters.
+    private static final double MIN_TAG_COUNT = 2; // reject pose estimates with less than 1 tag.
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
     private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
@@ -71,7 +71,7 @@ public class RobotContainer {
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 100);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(10.0, 10.0, 100);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -215,114 +215,6 @@ public class RobotContainer {
        testPilot.povLeft().whileTrue(mIntakePivot.backwardTunable());
     }
 
-    private Command updateShooterVision() {
-        return shooterLimelight.run(() -> {
-            final Pose2d currentRobotPose = swerve.getState().Pose;
-            final Optional<Limelight.Measurement> measurement = shooterLimelight.getMeasurement(currentRobotPose);
-            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-              return;
-            }
-            measurement.ifPresent(m -> {
-
-                Pose2d measured = measurement.get().poseEstimate.pose;
-                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
-                Rotation2d robotRot = swerve.getState().Pose.getRotation();
-
-                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
-                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
-                double targetArea = LimelightHelpers.getTA("limelight-shooter");
-
-                if (latency > MAX_LATENCY_SECONDS) {
-                    return;
-                }
-
-                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
-                 return;
-                }
-        
-                if (targetArea < MIN_TAG_AREA) {
-                return;
-                }
-
-                 // 1. Reject if robot pose is off the field
-                if (
-                measured.getX() < -FIELD_BORDER_MARGIN
-                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-                || measured.getY() < -FIELD_BORDER_MARGIN
-                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
-                    return;
-                }
-
-                swerve.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
-            });
-        })
-        .ignoringDisable(true);
-    }
-
-    /**
-     * Creates a command to continuously update the robot's pose using the back Limelight.
-     *
-     * @return A command that runs in the background (default command).
-     */
-
-
-    private Command updateBackVision() {
-        return backLimelight.run(() -> {
-            final Pose2d currentRobotPose = swerve.getState().Pose;
-            final Optional<Limelight.Measurement> measurement = backLimelight.getMeasurement(currentRobotPose);
-            if (swerve.getState().Speeds.omegaRadiansPerSecond > 2) {
-              return;
-            }
-            measurement.ifPresent(m -> {
-
-                Pose2d measured = measurement.get().poseEstimate.pose;
-                Rotation2d measuredRot = measurement.get().poseEstimate.pose.getRotation();
-                Rotation2d robotRot = swerve.getState().Pose.getRotation();
-                Pose2d robotPos = swerve.getState().Pose;
-
-                double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
-                double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
-                double targetArea = LimelightHelpers.getTA("limelight-shooter");
-
-                if (latency > MAX_LATENCY_SECONDS) {
-                    return;
-                }
-
-                if (rotationDifference > MAX_ROTATION_DIFFERENCE) {
-                 return;
-                }
-        
-                if (targetArea < MIN_TAG_AREA) {
-                return;
-                }
-
-                if (measured.getTranslation().getDistance(robotPos.getTranslation()) > MAX_POSE_DIFF) {
-                return;
-                }
-
-                 // 1. Reject if robot pose is off the field
-                if (
-                measured.getX() < -FIELD_BORDER_MARGIN
-                || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-                || measured.getY() < -FIELD_BORDER_MARGIN
-                || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
-                    return;
-                }
-
-                swerve.addVisionMeasurement(
-                    m.poseEstimate.pose, 
-                    m.poseEstimate.timestampSeconds,
-                    m.standardDeviations
-                );
-            });
-        })
-        .ignoringDisable(true);
-    }
-
     private Command integratedVisionUpdate() {
     return Commands.run(() -> {
         final Pose2d currentRobotPose = swerve.getState().Pose;
@@ -371,7 +263,6 @@ public class RobotContainer {
         || measurement.get().poseEstimate.pose.getTranslation() == null
         || !Double.isFinite(measurement.get().poseEstimate.pose.getTranslation().getX())
         || !Double.isFinite(measurement.get().poseEstimate.pose.getTranslation().getY())) {
-            
             return false;
     }
     
@@ -380,19 +271,19 @@ public class RobotContainer {
     Rotation2d robotRot = currentRobotPose.getRotation();
     
     double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
+    double poseDiff = measured.getTranslation().getDistance(currentRobotPose.getTranslation());
     double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
-    double targetArea = LimelightHelpers.getTA(limelightName);
+    double targetArea = measurement.get().poseEstimate.avgTagArea;
+    double tagDist = measurement.get().poseEstimate.avgTagDist;
+    double tagCount = measurement.get().poseEstimate.tagCount;
     
     // Validation checks
     if (latency > MAX_LATENCY_SECONDS) return false;
     if (rotationDifference > MAX_ROTATION_DIFFERENCE) return false;
     if (targetArea < MIN_TAG_AREA) return false;
-
-    if (overrideStdDevs == BACKCAM_TRUST) {
-        if (measured.getTranslation().getDistance(currentRobotPose.getTranslation()) > MAX_POSE_DIFF) {
-            return false;
-        }
-    }
+    if (poseDiff > MAX_POSE_DIFF)  return false;
+    if (tagDist > MAX_TAG_DIST) return false;
+    if (tagCount < MIN_TAG_COUNT) return false;
     
     // Field bounds check
     if (measured.getX() < -FIELD_BORDER_MARGIN
@@ -401,8 +292,6 @@ public class RobotContainer {
         || measured.getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
         return false;
     }
-    
-    
     
     // Use override std devs if provided, otherwise use camera's std devs
     Matrix<N3, N1> stdDevs = overrideStdDevs != null ? overrideStdDevs : measurement.get().standardDeviations;
@@ -415,7 +304,6 @@ public class RobotContainer {
     
     return true;  // Successfully added measurement
     }
-
 
 
     public LEDSubsystem getLedSubsystem() {
