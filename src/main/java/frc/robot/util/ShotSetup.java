@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import frc.robot.constants.SystemConstants.Flywheel;
 import frc.robot.subsystems.Swerve;
 import frc.robot.constants.FieldConstants;
+import frc.robot.constants.SystemConstants;
 import frc.robot.constants.FieldConstants.Locations;
 
 public class ShotSetup {
@@ -144,52 +145,92 @@ public class ShotSetup {
             clampedCowlPos
         );  
     }
-
+    
     public SOTMInfo getSOTMInfoHub(Swerve swerveSubsystem) {
-        double phaseDelay = 0.03;
-        Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
-        estimatedShotPose = 
-            estimatedShotPose.exp(new 
-            Twist2d(swerveSubsystem.getState().Speeds.vxMetersPerSecond * phaseDelay,
-            swerveSubsystem.getState().Speeds.vyMetersPerSecond * phaseDelay,
-            swerveSubsystem.getState().Speeds.omegaRadiansPerSecond * phaseDelay));
+    // Cache state to avoid multiple calls
+    var state = swerveSubsystem.getState();
+    
+    // Account for system latency - tune empirically
+    double phaseDelay = 0.05;
+    
+    // Get robot center pose with phase delay compensation
+    Pose2d robotCenterPose = state.Pose;
+    robotCenterPose = 
+        robotCenterPose.exp(new 
+        Twist2d(state.Speeds.vxMetersPerSecond * phaseDelay,
+        state.Speeds.vyMetersPerSecond * phaseDelay,
+        state.Speeds.omegaRadiansPerSecond * phaseDelay));
 
-        Translation2d target = FieldConstants.Locations.hubPosition(); // add alliance util logic to get this target (hub target)
-        double launcherToTargetDistance = target.getDistance(estimatedShotPose.getTranslation());
+    // Transform from robot center to shooter position
+    Pose2d estimatedShotPose = robotCenterPose.plus(
+        toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM)
+    );
 
-        double relativeVelocityX = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vxMetersPerSecond;
-        double relativeVelocityY = ChassisSpeeds.fromRobotRelativeSpeeds(swerveSubsystem.getState().Speeds, swerveSubsystem.getState().Pose.getRotation()).vyMetersPerSecond;
+    Translation2d target = FieldConstants.Locations.hubPosition();
+    
+    // Get robot center velocity in field coordinates
+    ChassisSpeeds fieldRelativeSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
+        state.Speeds, 
+        robotCenterPose.getRotation()
+    );
+    
+    // Calculate shooter offset in field coordinates (using cached trig)
+    Transform3d shooterTransform = SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM;
+    double cosH = robotCenterPose.getRotation().getCos();
+    double sinH = robotCenterPose.getRotation().getSin();
+    double shooterFieldOffsetX = shooterTransform.getX() * cosH - shooterTransform.getY() * sinH;
+    double shooterFieldOffsetY = shooterTransform.getX() * sinH + shooterTransform.getY() * cosH;
+    
+    // Add rotational velocity component: v_shooter = v_robot + omega × r
+    double omega = fieldRelativeSpeeds.omegaRadiansPerSecond;
+    double fieldVelocityX = fieldRelativeSpeeds.vxMetersPerSecond + (-shooterFieldOffsetY) * omega;
+    double fieldVelocityY = fieldRelativeSpeeds.vyMetersPerSecond + shooterFieldOffsetX * omega;
 
-        double timeOfFlight = timeOfFlightMap.get(launcherToTargetDistance);
+    // Initial distance from shooter to target
+    double launcherToTargetDistance = target.getDistance(estimatedShotPose.getTranslation());
+    
+    // Iteratively solve for where the shooter will be when the note arrives
+    Pose2d lookaheadPose = estimatedShotPose;
+    double lookaheadLauncherToTargetDist = launcherToTargetDistance;
+    
+    for (int i = 0; i < 20; i++) {
+        // Get time of flight for current lookahead distance with safety clamp
+        double timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist);
+        timeOfFlight = Math.max(0.05, Math.min(timeOfFlight, 2.0));
+        
+        // Calculate where shooter will be after time of flight
+        double offsetX = fieldVelocityX * timeOfFlight;
+        double offsetY = fieldVelocityY * timeOfFlight;
 
-        Pose2d lookaheadPose = estimatedShotPose;
-        double lookaheadLauncherToTargetDist = launcherToTargetDistance;
+        lookaheadPose = new Pose2d(
+            estimatedShotPose.getTranslation().plus(new Translation2d(offsetX, offsetY)),
+            estimatedShotPose.getRotation()
+        );
 
-        for (int i = 0; i < 20; i++) {
-            timeOfFlight = timeOfFlightMap.get(lookaheadLauncherToTargetDist);
-            double offsetX = relativeVelocityX * timeOfFlight;
-            double offsetY = relativeVelocityY * timeOfFlight;
-
-            lookaheadPose = new Pose2d(
-                estimatedShotPose.getTranslation().plus(new Translation2d(offsetX, offsetY)),
-                estimatedShotPose.getRotation()
-            );
-
-            lookaheadLauncherToTargetDist = target.getDistance(lookaheadPose.getTranslation());
+        // Calculate new distance from lookahead position to target
+        double newDist = target.getDistance(lookaheadPose.getTranslation());
+        
+        // Check for convergence
+        if (Math.abs(newDist - lookaheadLauncherToTargetDist) < 0.001) {
+            break;
         }
-
-
-        ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
-
-        double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), desiredShotInfo.shot.shooterRPM));  // Clamp RPM to non-negative values
-        double clampedCowlPos = Math.max(0, Math.min(desiredShotInfo.cowlPosition, 1.8));  // Clamp cowl between 0 and 1.8 rotations
-
-        ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
-
-        return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, true));
+        
+        lookaheadLauncherToTargetDist = newDist;
     }
 
-    public SOTMInfo getSOTMInfoShuttle(Swerve swerveSubsystem) {
+    // Get shot parameters for the converged lookahead distance
+    ShotInfo desiredShotInfo = SHOT_MAP.get(lookaheadLauncherToTargetDist);
+
+    // Clamp values to safe ranges
+    double clampedShooterRpm = Math.max(0, Math.min(Flywheel.kMaxFlywheelSpeed.in(Units.RPM), desiredShotInfo.shot.shooterRPM));
+    double clampedCowlPos = Math.max(0, Math.min(desiredShotInfo.cowlPosition, 1.8));
+
+    ShotInfo clampedDesiredShotInfo = new ShotInfo(new Shot(clampedShooterRpm), clampedCowlPos);
+
+    return new SOTMInfo(clampedDesiredShotInfo, getLookaheadDirection(lookaheadPose, swerveSubsystem, true));
+}
+
+public SOTMInfo getSOTMInfoShuttle(Swerve swerveSubsystem) {
         double phaseDelay = 0.03;
         Pose2d estimatedShotPose = swerveSubsystem.getState().Pose;
         estimatedShotPose = 
@@ -306,4 +347,10 @@ public class ShotSetup {
             return shuttleDirectionInOperatorPerspective;
         }
     }
+
+      public static Transform2d toTransform2d(Transform3d transform) {
+    return new Transform2d(
+        transform.getTranslation().toTranslation2d(), transform.getRotation().toRotation2d());
+  }
+
 }

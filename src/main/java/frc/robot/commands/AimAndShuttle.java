@@ -33,7 +33,6 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
-import frc.robot.util.ShuttleSetup;
 
 /**
  * Command that allows the driver to translate the robot field-centrically while the robot
