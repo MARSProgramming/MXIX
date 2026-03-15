@@ -12,6 +12,9 @@ import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$3;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
+import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$0;
+import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$1;
+import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$2;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -99,6 +102,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("Depot Bump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("Outpost Bump Score Beeline", this::BBeeline);
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
+        autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -222,4 +226,49 @@ public final class AutoRoutines {
         return routine;
 
     }
+
+    
+    private AutoRoutine XScoreDepotClimb() {
+        final AutoRoutine routine = autoFactory.newRoutine("X_SCORE_DEPOT_CLIMB_ROUTINE");
+        final AutoTrajectory getTagPos = X_DEPOT_AND_CLIMB$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsTraj = X_DEPOT_AND_CLIMB$1.asAutoTraj(routine);
+        final AutoTrajectory prelineupClimb = X_DEPOT_AND_CLIMB$2.asAutoTraj(routine);
+
+        routine.active().onTrue(
+            Commands.sequence(
+            getTagPos.resetOdometry(),
+            getTagPos.cmd().alongWith(intakePivot.timedDeployCommand())             
+            ) 
+        );
+
+        getTagPos.doneDelayed(0.5).onTrue(
+            getBallsTraj.cmd().alongWith(intakeRollers.intakeCommand())
+        );
+
+        getBallsTraj.done().onTrue(
+            Commands.parallel(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                intakePivot.slamtake().withTimeout(3.8)   
+            ));
+
+        getBallsTraj.doneDelayed(4.0).onTrue(prelineupClimb.cmd().alongWith(intakePivot.confirmDeploy()));
+
+        prelineupClimb.doneDelayed(0.2).onTrue(
+            swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
+        .withTimeout(1)
+        .andThen(
+            swerve.finalClimbLineupCommand().withTimeout(3.7)
+            .andThen(
+                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
+            )
+            ));
+
+
+        return routine;
+
+    }
+
+    
+
+
 }
