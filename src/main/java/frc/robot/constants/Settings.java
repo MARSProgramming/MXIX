@@ -20,8 +20,8 @@ public class Settings {
 
     public static class FeedSystemSettings {
         public static double FEEDER_FEED_DUTYCYCLE = 1.0;
-        public static double FLOOR_FEED_DUTYCYCLE = 0.7;
-        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.7;
+        public static double FLOOR_FEED_DUTYCYCLE = 0.5;
+        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.5;
 
         public static double UNJAM_DUTYCYCLE = -0.5;
     }
@@ -56,8 +56,8 @@ public class Settings {
         public static double HUB_REFERENCE_FLYWHEEL_VELOCITY = 3350;
         public static double HUB_REFERENCE_COWL_POSITION = 0.5;
 
-        public static double FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY = 3800;
-        public static double FRONT_OF_LADDER_REFERENCE_COWL_POSITION = 1.25;
+        public static double FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY = 3650;
+        public static double FRONT_OF_LADDER_REFERENCE_COWL_POSITION = 1.1;
     }
 
     public static class ShooterSettings {

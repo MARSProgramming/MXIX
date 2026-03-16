@@ -148,11 +148,12 @@ public class RobotContainer {
 
       // padcrafter: https://www.padcrafter.com/?templates=Pilot&leftStick=Translational+Control&rightStick=Rotational+Control&backButton=Reset+Gyro+Yaw&dpadUp=Run+Climber+Reverse&dpadDown=Run+Climber+Forward&dpadRight=Deploy+Intake&dpadLeft=Retract+Intake&aButton=Slamtake&rightTrigger=Aim+And+Shoot&rightBumper=Aim+And+Shuttle&bButton=Aim+and+Shoot+While+Moving&yButton=Align+to+Climb+Position&leftBumper=Unjam+&leftTrigger=Intake+
       // Manual feed on Copilot:  
-      coPilot.leftBumper().whileTrue(
+      coPilot.leftTrigger().whileTrue(
         mFeeder.setPercentOutCommand(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE)
         .alongWith(mFloor.setPercentOutCommand(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE))
         .alongWith(mIntakeRollers.setPercentOutCommand(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE)));
 
+      coPilot.leftBumper().whileTrue(mCowl.home());
         // Manual Hub base shot. Requires manual servoing of drivetrain.
       coPilot.rightTrigger().whileTrue(new ShootOnly(mCowl, mFlywheel, 
       Settings.ReferenceShotSettings.HUB_REFERENCE_FLYWHEEL_VELOCITY, 

@@ -10,6 +10,10 @@ import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$0;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$1;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$2;
 import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$3;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_RUN$0;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_RUN$1;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_RUN$2;
+import static frc.robot.util.ChoreoTraj.C_BEELINE_RUN$3;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$0;
@@ -100,7 +104,7 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
-        autoChooser.addRoutine("Depot Bump Score Beeline", this::CBeeline);
+        autoChooser.addRoutine("Dep3ot Bump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("Outpost Bump Score Beeline", this::BBeeline);
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
@@ -119,10 +123,10 @@ public final class AutoRoutines {
 
     private AutoRoutine CBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE_OLD$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = C_BEELINE_OLD$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = C_BEELINE_OLD$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShootTraj = C_BEELINE_OLD$3.asAutoTraj(routine);
+        final AutoTrajectory goOverBumpTraj = C_BEELINE_RUN$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = C_BEELINE_RUN$1.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = C_BEELINE_RUN$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = C_BEELINE_RUN$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -135,7 +139,7 @@ public final class AutoRoutines {
         );
 
         goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
-        prepSweep.done().onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
+        prepSweep.doneDelayed(1).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
         sweepBallsTraj.done().onTrue(returnToShootTraj.cmd());
 
