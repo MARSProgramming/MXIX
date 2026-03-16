@@ -9,12 +9,14 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -43,6 +45,7 @@ import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LimelightHelpers.RawFiducial;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -59,19 +62,21 @@ public class RobotContainer {
     private final Limelight backLimelight = new Limelight("limelight-back");
 
 
-    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(30); // radians
+    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(60); // radians
+    // gives us leeway to correct in auto
     private static final double MAX_POSE_DIFF = 2.0; // meters
-    private static final double MAX_TAG_DIST = 3; // reject poses further away than 3 meters.
-    private static final double MIN_TAG_COUNT = 2; // reject pose estimates with less than 1 tag.
+    private static final double MAX_TAG_DIST = 10.0; // reject poses further away than 3 meters.
+    private static final double MIN_TAG_COUNT = 1; // reject pose estimates with less than 1 tag.
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
     private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
+    private static final double MAX_AMBIGUITY = 0.15; // Calculated ambiguity threshold
     
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(10.0, 10.0, 100);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 25);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -85,9 +90,6 @@ public class RobotContainer {
     IntakeRollers mIntakeRollers = new IntakeRollers();
     LEDSubsystem leds = new LEDSubsystem();
     FastClimber mFastClimber = new FastClimber();
-
-
-
 
     // Autonomous routines manager
     private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds, shooterLimelight, backLimelight);
@@ -118,15 +120,15 @@ public class RobotContainer {
        shooterLimelight.setDefaultCommand(integratedVisionUpdate());
     //  backLimelight.setDefaultCommand(updateBackVision());
 
-      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
         new AimAndShootOnTheMove(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, 
         () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
-      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, leds, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());
@@ -266,26 +268,42 @@ public class RobotContainer {
         || !Double.isFinite(measurement.get().poseEstimate.pose.getTranslation().getY())) {
             return false;
     }
-    
+
+    double averageAmbiguity = 0;    
     Pose2d measured = measurement.get().poseEstimate.pose;
     Rotation2d measuredRot = measured.getRotation();
     Rotation2d robotRot = currentRobotPose.getRotation();
-    
+
     double rotationDifference = Math.abs(robotRot.minus(measuredRot).getRadians());
     double poseDiff = measured.getTranslation().getDistance(currentRobotPose.getTranslation());
     double latency = Timer.getFPGATimestamp() - measurement.get().poseEstimate.timestampSeconds;
     double targetArea = measurement.get().poseEstimate.avgTagArea;
     double tagDist = measurement.get().poseEstimate.avgTagDist;
     double tagCount = measurement.get().poseEstimate.tagCount;
+
+            
+    if (measurement.get().poseEstimate.rawFiducials.length > 0) {
+        for (RawFiducial fiducial : measurement.get().poseEstimate.rawFiducials) {
+        averageAmbiguity += fiducial.ambiguity;
+    }
+        averageAmbiguity /= measurement.get().poseEstimate.rawFiducials.length;
+    }
+
+    DogLog.log("limelight-"+limelightName+"/ambiguityReading", averageAmbiguity);
     
     // Validation checks
+
     if (latency > MAX_LATENCY_SECONDS) return false;
-    if (rotationDifference > MAX_ROTATION_DIFFERENCE) return false;
     if (targetArea < MIN_TAG_AREA) return false;
-    if (poseDiff > MAX_POSE_DIFF)  return false;
-    if (tagDist > MAX_TAG_DIST) return false;
-    if (tagCount < MIN_TAG_COUNT) return false;
-    
+    if (averageAmbiguity > MAX_AMBIGUITY) return false;
+
+    if (RobotState.isTeleop() || RobotState.isAutonomous()) {
+        if (poseDiff > MAX_POSE_DIFF)  return false;
+        if (rotationDifference > MAX_ROTATION_DIFFERENCE)  return false;
+        if (tagDist > MAX_TAG_DIST) return false;
+        if (tagCount <= MIN_TAG_COUNT) return false;
+    }
+
     // Field bounds check
     if (measured.getX() < -FIELD_BORDER_MARGIN
         || measured.getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN

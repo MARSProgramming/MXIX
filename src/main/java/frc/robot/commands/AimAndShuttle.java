@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RPM;
 
 import java.util.function.DoubleSupplier;
 
@@ -9,28 +10,27 @@ import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
-import dev.doglog.DogLog;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.constants.FieldConstants.Locations;
-import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.util.DriveInputSmoother;
+import frc.robot.util.GeometryUtil;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
 
@@ -39,6 +39,8 @@ import frc.robot.util.ShotSetup;
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
 public class AimAndShuttle extends Command {
+    private static final Angle kAimTolerance = Degrees.of(5);
+    private boolean readyToShootBoolean = false;
 
     private final Swerve swerve;
     private final Cowl cowl;
@@ -46,12 +48,10 @@ public class AimAndShuttle extends Command {
     private final Feeder feeder;
     private final IntakeRollers intakeRollers;
     private final Floor floor;
-    private final LEDSubsystem ledsubsystem;
 
 
     private final ShotSetup shotSetup;
     private final DriveInputSmoother inputSmoother;
-    private Pose2d selectedShuttleTarget;
 
     // Request to drive field-centric while facing a specific angle
     private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
@@ -62,7 +62,13 @@ public class AimAndShuttle extends Command {
         .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
         .withHeadingPID(5, 0, 0);
 
-
+    /**
+     * Constructs a new AimAndDriveCommand.
+     *
+     * @param swerve The swerve subsystem.
+     * @param forwardInput Supplier for forward/backward translation input (-1 to 1).
+     * @param leftInput Supplier for left/right translation input (-1 to 1).
+     */
     public AimAndShuttle(
         Swerve swerve,
         Cowl cowl,
@@ -70,7 +76,6 @@ public class AimAndShuttle extends Command {
         Feeder feeder,
         Floor floor,
         IntakeRollers intakeRollers,
-        LEDSubsystem ledsubsystem,
         DoubleSupplier forwardInput,
         DoubleSupplier leftInput
     ) {
@@ -80,18 +85,27 @@ public class AimAndShuttle extends Command {
         this.floor = floor;
         this.intakeRollers = intakeRollers;
         this.flywheel = flywheel;
-        this.ledsubsystem = ledsubsystem;
 
         shotSetup = new ShotSetup();
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
-        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem);
+        addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
+
+    /**
+     * Constructs a new Shooting command with zero translation (aim only).
+     *
+     * @param swerve The swerve subsystem.
+     */
+    public AimAndShuttle(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers) {
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
+    }
+
+
 
     @Override
     public void initialize() {
-        selectedShuttleTarget = FieldConstants.Locations.getClosestShuttlingPosition(swerve.getState().Pose);
-
+      readyToShootBoolean = false;
     }
 
     @Override
@@ -99,56 +113,49 @@ public class AimAndShuttle extends Command {
         // Get smoothed joystick inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
         
-        // Get shooting parameters
+        ShotSetup.SOTMInfo sotmInfo = shotSetup.getSOTMInfoShuttle(swerve);
 
-        ShotSetup.SOTMInfo info = shotSetup.getSOTMInfoHub(swerve);
+        double cowlAngle = sotmInfo.shotInfo.cowlPosition;
+        double shooterRPM = sotmInfo.shotInfo.shot.shooterRPM;
+        Rotation2d virtualTargetAngle = sotmInfo.virtualTargetAngle; 
+        AngularVelocity targetRateFeedforward = Units.RadiansPerSecond.of(sotmInfo.angularVelocityRadPerSec);       
 
-        double cowlAngle = info.shotInfo.cowlPosition;
-        double shooterRPM = info.shotInfo.shot.shooterRPM;
-
-        Rotation2d virtualTargetAngle = info.virtualTargetAngle;
-
-        // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
                 .withVelocityX(Drive.kMaxSpeed.times(input.forward))
                 .withVelocityY(Drive.kMaxSpeed.times(input.left))
                 .withTargetDirection(virtualTargetAngle) 
+                .withTargetRateFeedforward(targetRateFeedforward)
         );
 
         cowl.setPosition(cowlAngle);
         flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtShuttle()) {
-            DogLog.log("AimAndShuttleCommand/flywheelReady", flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM)));
-            DogLog.log("AimAndShuttleCommand/TargetVelocityRPM", shooterRPM);
-            DogLog.log("AimAndShuttleCommand/cowlInTolerance", cowl.isAtTolerance(cowlAngle));
+        if (swerve.isAimedAtVirtualTarget(virtualTargetAngle) && flywheel.isVelocityWithinTolerance(RPM.of(shooterRPM))) {
+            readyToShootBoolean = true;
+        }
 
-
+        if (readyToShootBoolean) {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
-
-            ledsubsystem.strobe(Color.kBlue, LEDSegment.ALL);
         }
+
+        // Todo: can we just completely disable the feeding system when we aren't aimed while SOTM? or just assume
+        // we are already ready? for now, we assume, but it would be useful for actual input confirmation.
     }
 
     @Override
     public void end(boolean interrupted) {
-        CommandScheduler.getInstance().schedule(cowl.home());
         feeder.setPercentOut(0);
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
-
-        if (interrupted) {
-            ledsubsystem.rainbow(LEDSegment.ALL);
-        }
+        CommandScheduler.getInstance().schedule(cowl.home());
     }
 
     @Override
     public boolean isFinished() {
-        // Command runs until interrupted (e.g., button release)
         return false;
     }
 

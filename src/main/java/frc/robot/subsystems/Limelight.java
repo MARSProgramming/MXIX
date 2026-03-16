@@ -43,7 +43,9 @@ public class Limelight extends SubsystemBase {
         final PoseEstimate poseEstimate_MegaTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
         if (
             poseEstimate_MegaTag1 == null 
+           || poseEstimate_MegaTag2 == null 
                 || poseEstimate_MegaTag1.tagCount == 0
+                || poseEstimate_MegaTag2.tagCount == 0                
         ) {
             return Optional.empty();
         }
@@ -58,7 +60,9 @@ public class Limelight extends SubsystemBase {
         
         final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
-        posePublisher.set(poseEstimate_MegaTag2.pose);
+        Pose2d estimatedPose = new Pose2d(poseEstimate_MegaTag2.pose.getX(), poseEstimate_MegaTag2.pose.getY(), poseEstimate_MegaTag1.pose.getRotation());
+
+        posePublisher.set(estimatedPose);
 
         return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
     }
@@ -80,7 +84,5 @@ public class Limelight extends SubsystemBase {
         } else {
             LimelightHelpers.SetThrottle(name, 0);
         }
-
     }
-
 }
