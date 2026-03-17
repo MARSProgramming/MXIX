@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -12,16 +11,12 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
 import dev.doglog.DogLog;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.networktables.DoubleSubscriber;
-import edu.wpi.first.networktables.IntegerSubscriber;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
@@ -36,9 +31,7 @@ public class Flywheel extends SubsystemBase {
     private TalonFX rf;
     private TalonFX lm;
     private TalonFX lf;
-    private final List<TalonFX> motors;
 
-    private SlewRateLimiter spinUpLimiter = new SlewRateLimiter(300);
 
     // Tunable values for testing velocity and percent output via NetworkTables
     private final DoubleSubscriber shooterRpmTunable = DogLog.tunable("Shooter/TunableShooterVelocity", 3400.0);
@@ -76,8 +69,6 @@ public class Flywheel extends SubsystemBase {
         // Configure followers to oppose the masters (since they are on opposite sides/gearing)
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
         lf.setControl(new Follower(Ports.Flywheel.kLeftFlywheelMaster, MotorAlignmentValue.Opposed));
-
-        motors = List.of(rm, rf, lm, lf);
 
         rmVelocity = rm.getVelocity();
         rfVelocity = rf.getVelocity();

@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.Optional;
@@ -44,7 +43,6 @@ import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
-import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.RawFiducial;
 import frc.robot.util.ShotSetup;
 
@@ -64,8 +62,8 @@ public class RobotContainer {
 
     private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(60); // radians
     // gives us leeway to correct in auto
-    private static final double MAX_POSE_DIFF = 2.0; // meters
-    private static final double MAX_TAG_DIST = 10.0; // reject poses further away than 3 meters.
+    private static final double MAX_POSE_DIFF = 3.0; // meters
+    private static final double MAX_TAG_DIST = 10.0; // reject poses further away than 10 meters. (Impossible)
     private static final double MIN_TAG_COUNT = 1; // reject pose estimates with less than 1 tag.
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
@@ -118,7 +116,6 @@ public class RobotContainer {
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
 
        shooterLimelight.setDefaultCommand(integratedVisionUpdate());
-    //  backLimelight.setDefaultCommand(updateBackVision());
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
@@ -165,11 +162,18 @@ public class RobotContainer {
       Settings.ReferenceShotSettings.FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY, 
       Settings.ReferenceShotSettings.FRONT_OF_LADDER_REFERENCE_COWL_POSITION));
 
-
       // manual cowl homing
       coPilot.leftBumper().onTrue(
         mCowl.home()
       );
+
+      // drivetrain unlock
+      coPilot.x().onTrue(
+        Commands.runOnce(
+            () -> swerve.stop(), 
+            swerve)
+      );
+
     }
 
     private void configureTestBindings() {
