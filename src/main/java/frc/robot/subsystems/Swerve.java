@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -23,8 +25,10 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,6 +79,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final double ANGLE_MAX_VELOCITY = 2.0;
     private static final double ANGLE_MAX_ACCELERATION = 5.0;
 
+    private final StatusSignal<Current> mCurrentDraw1;
+    private final StatusSignal<Current> mCurrentDraw2;
+    private final StatusSignal<Current> mCurrentDraw3;
+    private final StatusSignal<Current> mCurrentDraw4;
 
     private final ProfiledController translationController =
             new ProfiledController(
@@ -106,7 +114,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             TunerConstants.BackRight
         );
 
-        angleController.enableContinuousInput(-Math.PI, Math.PI);
+      mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
+      mCurrentDraw2 = getModule(1).getDriveMotor().getSupplyCurrent();
+      mCurrentDraw3 = getModule(2).getDriveMotor().getSupplyCurrent();
+      mCurrentDraw4 = getModule(3).getDriveMotor().getSupplyCurrent();
+
+      angleController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     /**
@@ -212,10 +225,13 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         DogLog.log("DogLogSwerve/Pose", getState().Pose);
         DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
 
-        DogLog.log("DogLogSwerve/CurrentDraw1", this.getModule(0).getDriveMotor().getSupplyCurrent().getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw2", this.getModule(1).getDriveMotor().getSupplyCurrent().getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw3", this.getModule(2).getDriveMotor().getSupplyCurrent().getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw4", this.getModule(3).getDriveMotor().getSupplyCurrent().getValueAsDouble());
+        BaseStatusSignal.refreshAll(mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4);
+
+
+        DogLog.log("DogLogSwerve/CurrentDraw1", mCurrentDraw1.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDraw2", mCurrentDraw2.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDraw3", mCurrentDraw3.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDraw4", mCurrentDraw4.getValueAsDouble());
 
     }
 

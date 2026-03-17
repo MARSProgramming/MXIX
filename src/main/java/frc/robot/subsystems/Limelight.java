@@ -24,6 +24,7 @@ public class Limelight extends SubsystemBase {
     private final String name;
     private final NetworkTable telemetryTable;
     private final StructPublisher<Pose2d> posePublisher;
+    private final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
     public Limelight(String name) {
         this.name = name;
@@ -58,7 +59,6 @@ public class Limelight extends SubsystemBase {
           poseEstimate_MegaTag1.pose.getRotation()
         );
         
-        final Matrix<N3, N1> standardDeviations = VecBuilder.fill(0.7, 0.7, 25);
 
         Pose2d estimatedPose = new Pose2d(poseEstimate_MegaTag2.pose.getX(), poseEstimate_MegaTag2.pose.getY(), poseEstimate_MegaTag1.pose.getRotation());
 
