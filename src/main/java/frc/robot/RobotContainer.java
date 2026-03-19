@@ -62,19 +62,19 @@ public class RobotContainer {
 
     private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(60); // radians
     // gives us leeway to correct in auto
-    private static final double MAX_POSE_DIFF = 3.0; // meters
+    private static final double MAX_POSE_DIFF = 5.0; // meters
     private static final double MAX_TAG_DIST = 10.0; // reject poses further away than 10 meters. (Impossible)
-    private static final double MIN_TAG_COUNT = 1; // reject pose estimates with less than 1 tag.
+    private static final double MIN_TAG_COUNT = 2; // reject pose estimates with less than 1 tag.
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
     private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
-    private static final double MAX_AMBIGUITY = 0.15; // Calculated ambiguity threshold
+    private static final double MAX_AMBIGUITY = 0.5; // Calculated ambiguity threshold
     
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
     private final CommandXboxController coPilot = new CommandXboxController(1);
     private final CommandXboxController testPilot = new CommandXboxController(2);
-    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 25);
+    private final Matrix<N3, N1> BACKCAM_TRUST = VecBuilder.fill(5.0, 5.0, 50);
     private final Matrix<N3, N1> SHOOTERCAM_TRUST = VecBuilder.fill(0.7, 0.7, 25);
 
     // Subsystems
@@ -232,7 +232,7 @@ public class RobotContainer {
         }
         
         // Try front camera first
-        boolean frontCameraHasEstimate = processCameraMeasurement(
+            processCameraMeasurement(
             shooterLimelight,
             "limelight-shooter",
             currentRobotPose,
@@ -240,14 +240,13 @@ public class RobotContainer {
         );
         
         // Only use back camera if front camera didn't have a valid measurement
-        if (!frontCameraHasEstimate) {
             processCameraMeasurement(
                 backLimelight,
                 "limelight-back",
                 currentRobotPose,
                 BACKCAM_TRUST  // Use the higher std devs
             );
-        }
+        
         
     }, shooterLimelight, backLimelight)
     .ignoringDisable(true);
@@ -299,13 +298,12 @@ public class RobotContainer {
 
     if (latency > MAX_LATENCY_SECONDS) return false;
     if (targetArea < MIN_TAG_AREA) return false;
-    if (averageAmbiguity > MAX_AMBIGUITY) return false;
+    if (tagCount < MIN_TAG_COUNT && averageAmbiguity > MAX_AMBIGUITY) return false;
 
     if (RobotState.isTeleop() || RobotState.isAutonomous()) {
-        if (poseDiff > MAX_POSE_DIFF)  return false;
+  //      if (poseDiff > MAX_POSE_DIFF)  return false;
         if (rotationDifference > MAX_ROTATION_DIFFERENCE)  return false;
         if (tagDist > MAX_TAG_DIST) return false;
-        if (tagCount <= MIN_TAG_COUNT) return false;
     }
 
     // Field bounds check

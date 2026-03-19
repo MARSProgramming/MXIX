@@ -27,14 +27,14 @@ public record ChoreoTraj(
     public static final ChoreoTraj B_BEELINE_OLD = new ChoreoTraj(
 	    "B_BEELINE_OLD",
 	    OptionalInt.empty(),
-	    8.6639,
+	    9.52041,
 	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj B_BEELINE_OLD$0 = new ChoreoTraj(
 	    "B_BEELINE_OLD",
 	    OptionalInt.of(0),
-	    1.58711,
+	    2.52757,
 	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
 	    new Pose2d(6.77, 2.42, Rotation2d.fromRadians(0))
 	);
@@ -48,51 +48,170 @@ public record ChoreoTraj(
 	public static final ChoreoTraj B_BEELINE_OLD$2 = new ChoreoTraj(
 	    "B_BEELINE_OLD",
 	    OptionalInt.of(2),
-	    3.48577,
+	    3.5070900000000003,
 	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(1.571)),
-	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(0))
+	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj B_BEELINE_OLD$3 = new ChoreoTraj(
 	    "B_BEELINE_OLD",
 	    OptionalInt.of(3),
-	    2.3095,
+	    2.20423,
+	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj B_BEELINE_RUN = new ChoreoTraj(
+	    "B_BEELINE_RUN",
+	    OptionalInt.empty(),
+	    8.70583,
+	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
+	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
+	);
+	public static final ChoreoTraj B_BEELINE_RUN$0 = new ChoreoTraj(
+	    "B_BEELINE_RUN",
+	    OptionalInt.of(0),
+	    1.58711,
+	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
+	    new Pose2d(6.77, 2.42, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_BEELINE_RUN$1 = new ChoreoTraj(
+	    "B_BEELINE_RUN",
+	    OptionalInt.of(1),
+	    1.3224399999999998,
+	    new Pose2d(6.77, 2.42, Rotation2d.fromRadians(0)),
+	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(2.28))
+	);
+	public static final ChoreoTraj B_BEELINE_RUN$2 = new ChoreoTraj(
+	    "B_BEELINE_RUN",
+	    OptionalInt.of(2),
+	    3.48678,
+	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(2.28)),
+	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_BEELINE_RUN$3 = new ChoreoTraj(
+	    "B_BEELINE_RUN",
+	    OptionalInt.of(3),
+	    2.3095000000000008,
 	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
 	);
 	public static final ChoreoTraj C_BEELINE_OLD = new ChoreoTraj(
 	    "C_BEELINE_OLD",
 	    OptionalInt.empty(),
-	    8.68853,
+	    9.31411,
 	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
 	);
 	public static final ChoreoTraj C_BEELINE_OLD$0 = new ChoreoTraj(
 	    "C_BEELINE_OLD",
 	    OptionalInt.of(0),
-	    1.59454,
+	    2.34629,
 	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
 	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj C_BEELINE_OLD$1 = new ChoreoTraj(
 	    "C_BEELINE_OLD",
 	    OptionalInt.of(1),
-	    1.24446,
+	    1.2444599999999997,
 	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0)),
 	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-1.571))
 	);
 	public static final ChoreoTraj C_BEELINE_OLD$2 = new ChoreoTraj(
 	    "C_BEELINE_OLD",
 	    OptionalInt.of(2),
-	    3.4647400000000004,
+	    3.4652900000000004,
 	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-1.571)),
-	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0))
+	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj C_BEELINE_OLD$3 = new ChoreoTraj(
 	    "C_BEELINE_OLD",
 	    OptionalInt.of(3),
-	    2.3847899999999997,
+	    2.258069999999999,
+	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj C_BEELINE_RUN = new ChoreoTraj(
+	    "C_BEELINE_RUN",
+	    OptionalInt.empty(),
+	    8.73086,
+	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
+	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj C_BEELINE_RUN$0 = new ChoreoTraj(
+	    "C_BEELINE_RUN",
+	    OptionalInt.of(0),
+	    1.59454,
+	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
+	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj C_BEELINE_RUN$1 = new ChoreoTraj(
+	    "C_BEELINE_RUN",
+	    OptionalInt.of(1),
+	    1.2859999999999998,
+	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0)),
+	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-2.094))
+	);
+	public static final ChoreoTraj C_BEELINE_RUN$2 = new ChoreoTraj(
+	    "C_BEELINE_RUN",
+	    OptionalInt.of(2),
+	    3.4655199999999997,
+	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-2.094)),
+	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj C_BEELINE_RUN$3 = new ChoreoTraj(
+	    "C_BEELINE_RUN",
+	    OptionalInt.of(3),
+	    2.3848000000000003,
 	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
+	);
+	public static final ChoreoTraj C_CLIMB_NEARD = new ChoreoTraj(
+	    "C_CLIMB_NEARD",
+	    OptionalInt.empty(),
+	    2.32118,
+	    new Pose2d(3.534, 5.604, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_CLIMB_NEARD$0 = new ChoreoTraj(
+	    "C_CLIMB_NEARD",
+	    OptionalInt.of(0),
+	    0.80836,
+	    new Pose2d(3.534, 5.604, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.591, 5.591, Rotation2d.fromRadians(-0.666))
+	);
+	public static final ChoreoTraj C_CLIMB_NEARD$1 = new ChoreoTraj(
+	    "C_CLIMB_NEARD",
+	    OptionalInt.of(1),
+	    1.51282,
+	    new Pose2d(2.591, 5.591, Rotation2d.fromRadians(-0.666)),
+	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_DEPOT_AND_CLIMB = new ChoreoTraj(
+	    "C_DEPOT_AND_CLIMB",
+	    OptionalInt.empty(),
+	    6.44392,
+	    new Pose2d(3.534, 5.591, Rotation2d.fromRadians(0)),
+	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_DEPOT_AND_CLIMB$0 = new ChoreoTraj(
+	    "C_DEPOT_AND_CLIMB",
+	    OptionalInt.of(0),
+	    0.69657,
+	    new Pose2d(3.534, 5.591, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.683, 5.591, Rotation2d.fromRadians(-0.649))
+	);
+	public static final ChoreoTraj C_DEPOT_AND_CLIMB$1 = new ChoreoTraj(
+	    "C_DEPOT_AND_CLIMB",
+	    OptionalInt.of(1),
+	    4.10947,
+	    new Pose2d(2.683, 5.591, Rotation2d.fromRadians(-0.649)),
+	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.827))
+	);
+	public static final ChoreoTraj C_DEPOT_AND_CLIMB$2 = new ChoreoTraj(
+	    "C_DEPOT_AND_CLIMB",
+	    OptionalInt.of(2),
+	    1.63788,
+	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.827)),
+	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj X_CLIMB_NEARD = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
@@ -143,125 +262,6 @@ public record ChoreoTraj(
 	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.643)),
 	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_CLIMB_NEARD = new ChoreoTraj(
-	    "C_CLIMB_NEARD",
-	    OptionalInt.empty(),
-	    2.32118,
-	    new Pose2d(3.534, 5.604, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj C_CLIMB_NEARD$0 = new ChoreoTraj(
-	    "C_CLIMB_NEARD",
-	    OptionalInt.of(0),
-	    0.80836,
-	    new Pose2d(3.534, 5.604, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.591, 5.591, Rotation2d.fromRadians(-0.666))
-	);
-	public static final ChoreoTraj C_CLIMB_NEARD$1 = new ChoreoTraj(
-	    "C_CLIMB_NEARD",
-	    OptionalInt.of(1),
-	    1.51282,
-	    new Pose2d(2.591, 5.591, Rotation2d.fromRadians(-0.666)),
-	    new Pose2d(1.228, 5.071, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj B_BEELINE_RUN = new ChoreoTraj(
-	    "B_BEELINE_RUN",
-	    OptionalInt.empty(),
-	    8.70583,
-	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj B_BEELINE_RUN$0 = new ChoreoTraj(
-	    "B_BEELINE_RUN",
-	    OptionalInt.of(0),
-	    1.58711,
-	    new Pose2d(3.544, 2.42, Rotation2d.fromRadians(0)),
-	    new Pose2d(6.77, 2.42, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj B_BEELINE_RUN$1 = new ChoreoTraj(
-	    "B_BEELINE_RUN",
-	    OptionalInt.of(1),
-	    1.3224399999999998,
-	    new Pose2d(6.77, 2.42, Rotation2d.fromRadians(0)),
-	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(2.28))
-	);
-	public static final ChoreoTraj B_BEELINE_RUN$2 = new ChoreoTraj(
-	    "B_BEELINE_RUN",
-	    OptionalInt.of(2),
-	    3.48678,
-	    new Pose2d(7.81, 0.9, Rotation2d.fromRadians(2.28)),
-	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj B_BEELINE_RUN$3 = new ChoreoTraj(
-	    "B_BEELINE_RUN",
-	    OptionalInt.of(3),
-	    2.3095000000000008,
-	    new Pose2d(6.172, 2.63, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 2.63, Rotation2d.fromRadians(0.785))
-	);
-	public static final ChoreoTraj C_BEELINE_RUN = new ChoreoTraj(
-	    "C_BEELINE_RUN",
-	    OptionalInt.empty(),
-	    8.73086,
-	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
-	);
-	public static final ChoreoTraj C_BEELINE_RUN$0 = new ChoreoTraj(
-	    "C_BEELINE_RUN",
-	    OptionalInt.of(0),
-	    1.59454,
-	    new Pose2d(3.538, 5.596, Rotation2d.fromRadians(0)),
-	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj C_BEELINE_RUN$1 = new ChoreoTraj(
-	    "C_BEELINE_RUN",
-	    OptionalInt.of(1),
-	    1.2859999999999998,
-	    new Pose2d(6.782, 5.628, Rotation2d.fromRadians(0)),
-	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-2.094))
-	);
-	public static final ChoreoTraj C_BEELINE_RUN$2 = new ChoreoTraj(
-	    "C_BEELINE_RUN",
-	    OptionalInt.of(2),
-	    3.4655199999999997,
-	    new Pose2d(7.81, 7.096, Rotation2d.fromRadians(-2.094)),
-	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj C_BEELINE_RUN$3 = new ChoreoTraj(
-	    "C_BEELINE_RUN",
-	    OptionalInt.of(3),
-	    2.3848000000000003,
-	    new Pose2d(6.359, 5.35, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 5.35, Rotation2d.fromRadians(-0.785))
-	);
-	public static final ChoreoTraj C_DEPOT_AND_CLIMB = new ChoreoTraj(
-	    "C_DEPOT_AND_CLIMB",
-	    OptionalInt.empty(),
-	    6.44392,
-	    new Pose2d(3.534, 5.591, Rotation2d.fromRadians(0)),
-	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj C_DEPOT_AND_CLIMB$0 = new ChoreoTraj(
-	    "C_DEPOT_AND_CLIMB",
-	    OptionalInt.of(0),
-	    0.69657,
-	    new Pose2d(3.534, 5.591, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.683, 5.591, Rotation2d.fromRadians(-0.649))
-	);
-	public static final ChoreoTraj C_DEPOT_AND_CLIMB$1 = new ChoreoTraj(
-	    "C_DEPOT_AND_CLIMB",
-	    OptionalInt.of(1),
-	    4.10947,
-	    new Pose2d(2.683, 5.591, Rotation2d.fromRadians(-0.649)),
-	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.827))
-	);
-	public static final ChoreoTraj C_DEPOT_AND_CLIMB$2 = new ChoreoTraj(
-	    "C_DEPOT_AND_CLIMB",
-	    OptionalInt.of(2),
-	    1.63788,
-	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.827)),
-	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
-	);
 
     /**
      * A map between trajectory names and their corresponding data.
@@ -273,35 +273,35 @@ public record ChoreoTraj(
 		Map.entry("B_BEELINE_OLD$1", B_BEELINE_OLD$1),
 		Map.entry("B_BEELINE_OLD$2", B_BEELINE_OLD$2),
 		Map.entry("B_BEELINE_OLD$3", B_BEELINE_OLD$3),
+		Map.entry("B_BEELINE_RUN", B_BEELINE_RUN),
+		Map.entry("B_BEELINE_RUN$0", B_BEELINE_RUN$0),
+		Map.entry("B_BEELINE_RUN$1", B_BEELINE_RUN$1),
+		Map.entry("B_BEELINE_RUN$2", B_BEELINE_RUN$2),
+		Map.entry("B_BEELINE_RUN$3", B_BEELINE_RUN$3),
 		Map.entry("C_BEELINE_OLD", C_BEELINE_OLD),
 		Map.entry("C_BEELINE_OLD$0", C_BEELINE_OLD$0),
 		Map.entry("C_BEELINE_OLD$1", C_BEELINE_OLD$1),
 		Map.entry("C_BEELINE_OLD$2", C_BEELINE_OLD$2),
 		Map.entry("C_BEELINE_OLD$3", C_BEELINE_OLD$3),
+		Map.entry("C_BEELINE_RUN", C_BEELINE_RUN),
+		Map.entry("C_BEELINE_RUN$0", C_BEELINE_RUN$0),
+		Map.entry("C_BEELINE_RUN$1", C_BEELINE_RUN$1),
+		Map.entry("C_BEELINE_RUN$2", C_BEELINE_RUN$2),
+		Map.entry("C_BEELINE_RUN$3", C_BEELINE_RUN$3),
+		Map.entry("C_CLIMB_NEARD", C_CLIMB_NEARD),
+		Map.entry("C_CLIMB_NEARD$0", C_CLIMB_NEARD$0),
+		Map.entry("C_CLIMB_NEARD$1", C_CLIMB_NEARD$1),
+		Map.entry("C_DEPOT_AND_CLIMB", C_DEPOT_AND_CLIMB),
+		Map.entry("C_DEPOT_AND_CLIMB$0", C_DEPOT_AND_CLIMB$0),
+		Map.entry("C_DEPOT_AND_CLIMB$1", C_DEPOT_AND_CLIMB$1),
+		Map.entry("C_DEPOT_AND_CLIMB$2", C_DEPOT_AND_CLIMB$2),
 		Map.entry("X_CLIMB_NEARD", X_CLIMB_NEARD),
 		Map.entry("X_CLIMB_NEARD$0", X_CLIMB_NEARD$0),
 		Map.entry("X_CLIMB_NEARD$1", X_CLIMB_NEARD$1),
 		Map.entry("X_DEPOT_AND_CLIMB", X_DEPOT_AND_CLIMB),
 		Map.entry("X_DEPOT_AND_CLIMB$0", X_DEPOT_AND_CLIMB$0),
 		Map.entry("X_DEPOT_AND_CLIMB$1", X_DEPOT_AND_CLIMB$1),
-		Map.entry("X_DEPOT_AND_CLIMB$2", X_DEPOT_AND_CLIMB$2),
-		Map.entry("C_CLIMB_NEARD", C_CLIMB_NEARD),
-		Map.entry("C_CLIMB_NEARD$0", C_CLIMB_NEARD$0),
-		Map.entry("C_CLIMB_NEARD$1", C_CLIMB_NEARD$1),
-		Map.entry("B_BEELINE_RUN", B_BEELINE_RUN),
-		Map.entry("B_BEELINE_RUN$0", B_BEELINE_RUN$0),
-		Map.entry("B_BEELINE_RUN$1", B_BEELINE_RUN$1),
-		Map.entry("B_BEELINE_RUN$2", B_BEELINE_RUN$2),
-		Map.entry("B_BEELINE_RUN$3", B_BEELINE_RUN$3),
-		Map.entry("C_BEELINE_RUN", C_BEELINE_RUN),
-		Map.entry("C_BEELINE_RUN$0", C_BEELINE_RUN$0),
-		Map.entry("C_BEELINE_RUN$1", C_BEELINE_RUN$1),
-		Map.entry("C_BEELINE_RUN$2", C_BEELINE_RUN$2),
-		Map.entry("C_BEELINE_RUN$3", C_BEELINE_RUN$3),
-		Map.entry("C_DEPOT_AND_CLIMB", C_DEPOT_AND_CLIMB),
-		Map.entry("C_DEPOT_AND_CLIMB$0", C_DEPOT_AND_CLIMB$0),
-		Map.entry("C_DEPOT_AND_CLIMB$1", C_DEPOT_AND_CLIMB$1),
-		Map.entry("C_DEPOT_AND_CLIMB$2", C_DEPOT_AND_CLIMB$2)
+		Map.entry("X_DEPOT_AND_CLIMB$2", X_DEPOT_AND_CLIMB$2)
     );
 
     /**

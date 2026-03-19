@@ -114,7 +114,7 @@ public final class AutoRoutines {
     public void configure() {
         autoChooser.addRoutine("DepotBump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("DepotBump Score Preload Climb", this::CClimbNearDepot);
-        autoChooser.addRoutine("DepotBump Score Depot Climb", this::CClimbNearDepot);
+        autoChooser.addRoutine("DepotBump Score Depot Climb", this::CScoreDepotClimb);
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
@@ -132,10 +132,10 @@ public final class AutoRoutines {
 
     private AutoRoutine CBeeline() {
         final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE_RUN$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = C_BEELINE_RUN$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = C_BEELINE_RUN$2.asAutoTraj(routine);
-        final AutoTrajectory returnToShootTraj = C_BEELINE_RUN$3.asAutoTraj(routine);
+        final AutoTrajectory goOverBumpTraj = C_BEELINE_OLD$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = C_BEELINE_OLD$1.asAutoTraj(routine);
+        final AutoTrajectory sweepBallsTraj = C_BEELINE_OLD$2.asAutoTraj(routine);
+        final AutoTrajectory returnToShootTraj = C_BEELINE_OLD$3.asAutoTraj(routine);
 
         routine.active().onTrue(
             Commands.sequence(
@@ -235,6 +235,10 @@ public final class AutoRoutines {
 
         goToShotPos.doneDelayed(3.9).onTrue(prelineupClimb.cmd().alongWith(intakePivot.confirmDeploy()));
 
+        prelineupClimb.done().onTrue(
+            intakePivot.confirmDeploy()
+        );
+
         prelineupClimb.doneDelayed(0.5).onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
         .withTimeout(1)
@@ -272,6 +276,10 @@ public final class AutoRoutines {
             ));
 
         goToShotPos.doneDelayed(3.9).onTrue(prelineupClimb.cmd().alongWith(intakePivot.confirmDeploy()));
+
+        prelineupClimb.done().onTrue(
+            intakePivot.confirmDeploy()
+        );
 
         prelineupClimb.doneDelayed(0.5).onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))
@@ -315,6 +323,11 @@ public final class AutoRoutines {
             ));
 
         getBallsTraj.doneDelayed(4.0).onTrue(prelineupClimb.cmd().alongWith(intakePivot.confirmDeploy()));
+
+        prelineupClimb.done()
+        .onTrue(
+            intakePivot.confirmDeploy()
+        );
 
         prelineupClimb.doneDelayed(0.2).onTrue(
             swerve.alignToPoint(() -> FieldConstants.getClosestClimbingPosition(swerve.getState().Pose))

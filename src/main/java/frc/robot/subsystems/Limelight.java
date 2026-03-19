@@ -54,17 +54,17 @@ public class Limelight extends SubsystemBase {
         // Combine the readings from MegaTag1 and MegaTag2:
         // 1. Use the more stable position from MegaTag2
         // 2. Use the rotation from MegaTag1 (with low confidence) to counteract gyro drift
-        poseEstimate_MegaTag2.pose = new Pose2d(
-          poseEstimate_MegaTag2.pose.getTranslation(),
+        poseEstimate_MegaTag1.pose = new Pose2d(
+          poseEstimate_MegaTag1.pose.getTranslation(),
           poseEstimate_MegaTag1.pose.getRotation()
         );
         
 
-        Pose2d estimatedPose = new Pose2d(poseEstimate_MegaTag2.pose.getX(), poseEstimate_MegaTag2.pose.getY(), poseEstimate_MegaTag1.pose.getRotation());
+        Pose2d estimatedPose = new Pose2d(poseEstimate_MegaTag1.pose.getX(), poseEstimate_MegaTag1.pose.getY(), poseEstimate_MegaTag1.pose.getRotation());
 
         posePublisher.set(estimatedPose);
 
-        return Optional.of(new Measurement(poseEstimate_MegaTag2, standardDeviations));
+        return Optional.of(new Measurement(poseEstimate_MegaTag1, standardDeviations));
     }
 
     public static class Measurement {
