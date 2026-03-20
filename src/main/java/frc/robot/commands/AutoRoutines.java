@@ -154,14 +154,14 @@ public final class AutoRoutines {
         );
 
         goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
-        prepSweep.doneDelayed(0.5).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
+        prepSweep.doneDelayed(0.25).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
         sweepBallsTraj.done().onTrue(getBackOver.cmd());
 
         getBackOver.done().onTrue(finalTurnTraj.cmd());
 
-        finalTurnTraj.doneDelayed(1.75).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+        finalTurnTraj.doneDelayed(1.0).onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem) 
             .alongWith(intakePivot.slamtake())
         );
 
@@ -191,18 +191,18 @@ public final class AutoRoutines {
         );
 
         goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
-        prepSweep.doneDelayed(0.5).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
+        prepSweep.doneDelayed(0.25).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
 
         sweepBallsTraj.done().onTrue(getBackOver.cmd());
 
 
         getBackOver.done().onTrue(finalTurnTraj.cmd());
 
-        finalTurnTraj.doneDelayed(1.75).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem)
+        finalTurnTraj.doneDelayed(1.0).onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem) 
             .alongWith(intakePivot.slamtake())
         );
-
+        
         return routine;
     }
 

@@ -132,7 +132,7 @@ public class FieldConstants {
 
         public static Pose2d BLUE_NEARDEPOT_CLIMB_POSE = new Pose2d(1.1, 4.86, new Rotation2d(Degrees.of(180)));
         public static Pose2d BLUE_OUTPOST_CLIMB_POSE = new Pose2d(1.0, 2.6, new Rotation2d(Degrees.of(0)));
-        public static Pose2d RED_NEARDEPOT_CLIMB_POSE = new Pose2d(15.47, 3.2, new Rotation2d(Degrees.of(0)));
+        public static Pose2d RED_NEARDEPOT_CLIMB_POSE = new Pose2d(15.35, 3.2, new Rotation2d(Degrees.of(0)));
         public static Pose2d RED_NEAROUTPOST_CLIMB_POSE = new Pose2d(15.4, 5.45, new Rotation2d(Degrees.of(180)));
 
         public static ArrayList<Pose2d> climbPosesBlue = new ArrayList<Pose2d>();

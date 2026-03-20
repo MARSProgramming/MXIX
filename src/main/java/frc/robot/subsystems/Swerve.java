@@ -84,6 +84,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final StatusSignal<Current> mCurrentDraw3;
     private final StatusSignal<Current> mCurrentDraw4;
 
+    private final StatusSignal<Angle> mAbsEnc1;
+    private final StatusSignal<Angle> mAbsEnc2;
+    private final StatusSignal<Angle> mAbsEnc3;
+    private final StatusSignal<Angle> mAbsEnc4;
+
+
     private final ProfiledController translationController =
             new ProfiledController(
                 kAutoAlign.ALIGN_PID,
@@ -118,6 +124,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
       mCurrentDraw2 = getModule(1).getDriveMotor().getSupplyCurrent();
       mCurrentDraw3 = getModule(2).getDriveMotor().getSupplyCurrent();
       mCurrentDraw4 = getModule(3).getDriveMotor().getSupplyCurrent();
+
+      mAbsEnc1 = getModule(0).getEncoder().getAbsolutePosition();
+      mAbsEnc2 = getModule(1).getEncoder().getAbsolutePosition();
+      mAbsEnc3 = getModule(2).getEncoder().getAbsolutePosition();
+      mAbsEnc4 = getModule(3).getEncoder().getAbsolutePosition();
 
       angleController.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -225,13 +236,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         DogLog.log("DogLogSwerve/Pose", getState().Pose);
         DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
 
-        BaseStatusSignal.refreshAll(mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4);
+        BaseStatusSignal.refreshAll(mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4, mAbsEnc1, mAbsEnc2, mAbsEnc3, mAbsEnc4);
 
 
         DogLog.log("DogLogSwerve/CurrentDraw1", mCurrentDraw1.getValueAsDouble());
         DogLog.log("DogLogSwerve/CurrentDraw2", mCurrentDraw2.getValueAsDouble());
         DogLog.log("DogLogSwerve/CurrentDraw3", mCurrentDraw3.getValueAsDouble());
         DogLog.log("DogLogSwerve/CurrentDraw4", mCurrentDraw4.getValueAsDouble());
+
+        DogLog.log("DogLogSwerve/Swerve0AbsEncoderPos", mAbsEnc1.getValueAsDouble());
+        DogLog.log("DogLogSwerve/Swerve1AbsEncoderPos", mAbsEnc2.getValueAsDouble());
+        DogLog.log("DogLogSwerve/Swerve2AbsEncoderPos", mAbsEnc3.getValueAsDouble());
+        DogLog.log("DogLogSwerve/Swerve3AbsEncoderPos", mAbsEnc4.getValueAsDouble());
 
     }
 

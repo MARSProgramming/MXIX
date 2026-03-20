@@ -34,7 +34,7 @@ public class Cowl extends SubsystemBase {
     PositionVoltage cowlPositionOut = new PositionVoltage(0).withSlot(0);
 
     // Tunable value for testing position setpoints via NetworkTables
-    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.5);
+    private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.6);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
 
     private final StatusSignal<Angle> mPosition;

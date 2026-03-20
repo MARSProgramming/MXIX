@@ -58,6 +58,9 @@ public class Settings {
 
         public static double FRONT_OF_LADDER_REFERENCE_FLYWHEEL_VELOCITY = 3650;
         public static double FRONT_OF_LADDER_REFERENCE_COWL_POSITION = 1.1;
+
+        public static double CBEELINE_REFERENCE_FLYWHEEL_VELOCITY = 3400;
+        public static double CBEELINE_REFERENCE_COWL_POSITION = 0.6;
     }
 
     public static class ShooterSettings {

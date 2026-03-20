@@ -23,8 +23,8 @@ public class Ports {
         public static final int kFrontLeftDrive = 7;
         public static final int kFrontLeftSteer = 8;
 
-        public static final int kBackLeftDrive = 5;
-        public static final int kBackLeftSteer = 6;
+        public static final int kBackLeftDrive = 6;
+        public static final int kBackLeftSteer = 5;
 
         public static final int kBackRightDrive = 3;
         public static final int kBackRightSteer = 4;

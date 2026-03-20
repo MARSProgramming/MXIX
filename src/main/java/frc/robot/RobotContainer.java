@@ -68,7 +68,7 @@ public class RobotContainer {
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
     private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
-    private static final double MAX_AMBIGUITY = 0.4; // Calculated ambiguity threshold
+    private static final double MAX_AMBIGUITY = 0.45; // Calculated ambiguity threshold
     
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
@@ -166,6 +166,8 @@ public class RobotContainer {
       coPilot.leftBumper().onTrue(
         mCowl.home()
       );
+
+      coPilot.povDown().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE));
 
       // drivetrain unlock
       coPilot.x().onTrue(

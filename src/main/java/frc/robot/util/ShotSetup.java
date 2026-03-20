@@ -77,23 +77,23 @@ public class ShotSetup {
     private static void loadMap() {
         // Close range - flatter cowl, lower speeds
         SHOT_MAP.put(1.24,  new ShotInfo(new Shot(3350), 0.5));   // tuned
-        SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3450), 0.7));  // tuned
-        SHOT_MAP.put(2.2,  new ShotInfo(new Shot(3500), 0.8));  // needs tuning
-        SHOT_MAP.put(2.5,  new ShotInfo(new Shot(3550), 0.95));  // needs tuning
-        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3630), 1.1));  // needs tuning
-        SHOT_MAP.put(3.2,  new ShotInfo(new Shot(3700), 1.15));  // needs tuning
-        SHOT_MAP.put(3.4,  new ShotInfo(new Shot(3750), 1.2));  // needs tuning
-        SHOT_MAP.put(3.63,  new ShotInfo(new Shot(3800), 1.25));  // needs tuning
-        SHOT_MAP.put(3.80,  new ShotInfo(new Shot(3850), 1.3));  // needs tuning
-        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3900), 1.35));  // needs tuning
-        SHOT_MAP.put(4.2,  new ShotInfo(new Shot(3950), 1.4));  // needs tuning
-        SHOT_MAP.put(4.4,  new ShotInfo(new Shot(4000), 1.45));  // needs tuning
-        SHOT_MAP.put(4.6,  new ShotInfo(new Shot(4050), 1.5));  // needs tuning
-        SHOT_MAP.put(4.8,  new ShotInfo(new Shot(4100), 1.55));  // needs tuning
-        SHOT_MAP.put(5.0,  new ShotInfo(new Shot(4150), 1.6));  // needs tuning
-        SHOT_MAP.put(5.2,  new ShotInfo(new Shot(4200), 1.65));  // needs tuning
-        SHOT_MAP.put(5.4,  new ShotInfo(new Shot(4250), 1.70));  // needs tuning
-        SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4300), 1.75));  // needs tuning
+        SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3400), 0.7));  // tuned
+        SHOT_MAP.put(2.2,  new ShotInfo(new Shot(3450), 0.8));  // needs tuning
+        SHOT_MAP.put(2.5,  new ShotInfo(new Shot(3500), 0.95));  // needs tuning
+        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3550), 1.1));  // needs tuning
+        SHOT_MAP.put(3.2,  new ShotInfo(new Shot(3600), 1.15));  // needs tuning
+        SHOT_MAP.put(3.4,  new ShotInfo(new Shot(3650), 1.2));  // needs tuning
+        SHOT_MAP.put(3.63,  new ShotInfo(new Shot(3700), 1.25));  // needs tuning
+        SHOT_MAP.put(3.80,  new ShotInfo(new Shot(3750), 1.3));  // needs tuning
+        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3800), 1.35));  // needs tuning
+        SHOT_MAP.put(4.2,  new ShotInfo(new Shot(3850), 1.4));  // needs tuning
+        SHOT_MAP.put(4.4,  new ShotInfo(new Shot(3900), 1.45));  // needs tuning
+        SHOT_MAP.put(4.6,  new ShotInfo(new Shot(3950), 1.5));  // needs tuning
+        SHOT_MAP.put(4.8,  new ShotInfo(new Shot(4000), 1.55));  // needs tuning
+        SHOT_MAP.put(5.0,  new ShotInfo(new Shot(4050), 1.6));  // needs tuning
+        SHOT_MAP.put(5.2,  new ShotInfo(new Shot(4100), 1.65));  // needs tuning
+        SHOT_MAP.put(5.4,  new ShotInfo(new Shot(4150), 1.70));  // needs tuning
+        SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4200), 1.75));  // needs tuning
 
 
         timeOfFlightMap.put(1.24, 1.31);  // measured close range
