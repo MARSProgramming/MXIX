@@ -68,7 +68,7 @@ public class RobotContainer {
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
     private static final double MIN_TAG_AREA = 0.1; // percent
     private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
-    private static final double MAX_AMBIGUITY = 0.5; // Calculated ambiguity threshold
+    private static final double MAX_AMBIGUITY = 0.4; // Calculated ambiguity threshold
     
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
@@ -232,7 +232,7 @@ public class RobotContainer {
         }
         
         // Try front camera first
-            processCameraMeasurement(
+        boolean frontCameraHasEstimate = processCameraMeasurement(
             shooterLimelight,
             "limelight-shooter",
             currentRobotPose,
@@ -240,13 +240,14 @@ public class RobotContainer {
         );
         
         // Only use back camera if front camera didn't have a valid measurement
+        if (!frontCameraHasEstimate) {
             processCameraMeasurement(
                 backLimelight,
                 "limelight-back",
                 currentRobotPose,
                 BACKCAM_TRUST  // Use the higher std devs
             );
-        
+        }
         
     }, shooterLimelight, backLimelight)
     .ignoringDisable(true);

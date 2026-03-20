@@ -80,7 +80,7 @@ public class ShotSetup {
         SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3450), 0.7));  // tuned
         SHOT_MAP.put(2.2,  new ShotInfo(new Shot(3500), 0.8));  // needs tuning
         SHOT_MAP.put(2.5,  new ShotInfo(new Shot(3550), 0.95));  // needs tuning
-        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3650), 1.1));  // needs tuning
+        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3630), 1.1));  // needs tuning
         SHOT_MAP.put(3.2,  new ShotInfo(new Shot(3700), 1.15));  // needs tuning
         SHOT_MAP.put(3.4,  new ShotInfo(new Shot(3750), 1.2));  // needs tuning
         SHOT_MAP.put(3.63,  new ShotInfo(new Shot(3800), 1.25));  // needs tuning
