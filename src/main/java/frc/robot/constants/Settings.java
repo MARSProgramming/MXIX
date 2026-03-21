@@ -20,8 +20,8 @@ public class Settings {
 
     public static class FeedSystemSettings {
         public static double FEEDER_FEED_DUTYCYCLE = 1.0;
-        public static double FLOOR_FEED_DUTYCYCLE = 0.7;
-        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.5;
+        public static double FLOOR_FEED_DUTYCYCLE = 0.6;
+        public static double INTAKEROLLER_FEED_DUTYCYCLE = 0.6;
 
         public static double UNJAM_DUTYCYCLE = -0.5;
     }
@@ -39,7 +39,7 @@ public class Settings {
 
         // probably slwo this down, particularly the forwards one, the forwards one can't
         // dealign the climber.
-        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.0;
+        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.3;
         public static double FORWARD_LINEUP_TIMEOUT = 1.7;
     }
 
