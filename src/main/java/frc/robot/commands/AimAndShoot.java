@@ -132,7 +132,6 @@ public class AimAndShoot extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        CommandScheduler.getInstance().schedule(cowl.home());
         feeder.setPercentOut(0);
         floor.setPercentOut(0);
         flywheel.setRPM(0);
