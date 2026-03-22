@@ -25,10 +25,12 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
+import frc.robot.util.LimelightHelpers;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -44,16 +46,9 @@ public class Vision extends SubsystemBase {
 
   
 
-    private static final double MAX_ROTATION_DIFFERENCE = Math.toRadians(60); // radians
     // gives us leeway to correct in auto
-    private static final double MAX_POSE_DIFF = 5.0; // meters
     private static final double MAX_TAG_DIST = 5.0; // reject poses further away than 10 meters. (Impossible)
-    private static final double MIN_TAG_COUNT = 2; // reject pose estimates with less than 1 tag.
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
-    private static final double MIN_TAG_AREA = 0.1; // percent
-    private static final double MAX_LATENCY_SECONDS = 0.4; // 400ms
-    private static final double MAX_AMBIGUITY = 0.45; // Calculated ambiguity threshold
-
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -85,6 +80,14 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    if (RobotState.isDisabled()) {
+            LimelightHelpers.SetThrottle(VisionConstants.camera0Name, 100);
+            LimelightHelpers.SetThrottle(VisionConstants.camera1Name, 100);
+        } else {
+            LimelightHelpers.SetThrottle(VisionConstants.camera0Name, 0);
+            LimelightHelpers.SetThrottle(VisionConstants.camera1Name, 0);
+        }
+
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
     }

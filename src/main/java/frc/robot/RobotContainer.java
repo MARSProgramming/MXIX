@@ -43,6 +43,7 @@ import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.LimelightHelpers.RawFiducial;
@@ -92,8 +93,8 @@ public class RobotContainer {
         vision =
         new Vision(
                 swerve::addVisionMeasurement,
-                new VisionIOLimelight(SystemConstants.Limelights.kShooterLimelightName, () -> swerve.getState().Pose.getRotation()),
-                new VisionIOLimelight(SystemConstants.Limelights.kClimbLimelightName, () -> swerve.getState().Pose.getRotation()));
+                new VisionIOLimelight(VisionConstants.camera0Name, () -> swerve.getState().Pose.getRotation()),
+                new VisionIOLimelight(VisionConstants.camera1Name, () -> swerve.getState().Pose.getRotation()));
 
     }
 
