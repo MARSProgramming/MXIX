@@ -125,6 +125,8 @@ public class Vision extends SubsystemBase {
                 || Math.abs(observation.pose().getZ())
                     > maxZError // Must have realistic Z coordinate
                 // Must be within the field boundaries
+                || !(Double.isFinite(observation.pose().getX()))
+                || !(Double.isFinite(observation.pose().getY()))
                 || observation.pose().getX() < 0.0
                 || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
                 || observation.pose().getY() < 0.0
