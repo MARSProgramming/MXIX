@@ -68,8 +68,6 @@ public final class AutoRoutines {
     private final IntakeRollers intakeRollers;
     private final LEDSubsystem ledsubsystem;
     
-    private final Limelight shooterLimelight;
-    private final Limelight backLimelight;
 
     private final AutoFactory autoFactory;
     private final AutoChooser autoChooser;
@@ -90,9 +88,7 @@ public final class AutoRoutines {
         Flywheel flywheel, 
         IntakePivot intakePivot,
         IntakeRollers intakeRollers,
-        LEDSubsystem ledsubsystem,
-        Limelight shooterLimelight,
-        Limelight backLimelight
+        LEDSubsystem ledsubsystem
     ) {
         this.swerve = swerve;
         this.cowl = cowl;
@@ -102,8 +98,6 @@ public final class AutoRoutines {
         this.flywheel = flywheel;
         this.intakePivot = intakePivot;
         this.intakeRollers = intakeRollers;
-        this.shooterLimelight = shooterLimelight;
-        this.backLimelight = backLimelight;
         this.ledsubsystem = ledsubsystem;
         this.autoFactory = swerve.createAutoFactory();
         this.autoChooser = new AutoChooser();
@@ -146,8 +140,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
-                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
                 goOverBumpTraj.cmd()
                 .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
@@ -183,8 +175,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
                 goOverBumpTraj.resetOdometry(),
-                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-                Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goOverBumpTraj.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
                 goOverBumpTraj.cmd()
                 .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
             )
@@ -215,10 +205,7 @@ public final class AutoRoutines {
 
         routine.active().onTrue(
             Commands.sequence(
-            goToShotPos.resetOdometry(),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0))
-
+            goToShotPos.resetOdometry()
             ) 
         );
         
@@ -235,8 +222,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             goToShotPos.resetOdometry(),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             goToShotPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
@@ -277,8 +262,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             goToShotPos.resetOdometry(),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", goToShotPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             goToShotPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
@@ -321,8 +304,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             getTagPos.resetOdometry(),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             getTagPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
@@ -368,8 +349,6 @@ public final class AutoRoutines {
         routine.active().onTrue(
             Commands.sequence(
             getTagPos.resetOdometry(),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-shooter", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
-            Commands.runOnce(() -> LimelightHelpers.SetRobotOrientation("limelight-back", getTagPos.getInitialPose().get().getRotation().getDegrees(), 0, 0, 0, 0, 0)),
             getTagPos.cmd().alongWith(intakePivot.timedDeployCommand())             
             ) 
         );
