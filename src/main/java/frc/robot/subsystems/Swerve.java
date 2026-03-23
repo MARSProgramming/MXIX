@@ -121,7 +121,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
         for (int i = 0; i < 4; i++) {
         getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(20);
-        getModule(i).getEncoder().getAbsolutePosition().setUpdateFrequency(10);
         }   
 
       mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
