@@ -32,6 +32,9 @@ import frc.robot.util.ShotSetup;
  */
 public class AimAndShootOnTheMove extends Command {
     private boolean readyToShootBoolean = false;
+    private boolean readyToCalculateBoolean = false;
+    private boolean cowlAtTolerance = false;
+    private boolean flywheelAtTolerance = false;
 
     private final Swerve swerve;
     private final Cowl cowl;
@@ -97,6 +100,9 @@ public class AimAndShootOnTheMove extends Command {
     @Override
     public void initialize() {
       readyToShootBoolean = false;
+      readyToCalculateBoolean = false;
+      cowlAtTolerance = false;
+      flywheelAtTolerance = false;
     }
 
     @Override

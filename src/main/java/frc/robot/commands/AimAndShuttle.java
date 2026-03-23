@@ -57,11 +57,8 @@ public class AimAndShuttle extends Command {
         .withHeadingPID(5, 0, 0);
 
     /**
-     * Constructs a new AimAndDriveCommand.
+     * Constructs a new AimAndShoot.
      *
-     * @param swerve The swerve subsystem.
-     * @param forwardInput Supplier for forward/backward translation input (-1 to 1).
-     * @param leftInput Supplier for left/right translation input (-1 to 1).
      */
     public AimAndShuttle(
         Swerve swerve,
@@ -84,15 +81,6 @@ public class AimAndShuttle extends Command {
 
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
-    }
-
-    /**
-     * Constructs a new Shooting command with zero translation (aim only).
-     *
-     * @param swerve The swerve subsystem.
-     */
-    public AimAndShuttle(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers) {
-        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
     }
 
 

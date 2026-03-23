@@ -116,7 +116,7 @@ public class RobotContainer {
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
-        new AimAndShootOnTheMove(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, 
+        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, 
         () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));

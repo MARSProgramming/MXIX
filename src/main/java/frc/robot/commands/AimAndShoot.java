@@ -10,7 +10,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 import dev.doglog.DogLog;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.subsystems.Cowl;
@@ -30,6 +29,9 @@ import frc.robot.util.ShotSetup;
  */
 public class AimAndShoot extends Command {
     private boolean readyToShootBoolean = false;
+    private boolean readyToCalculateBoolean = false;
+    private boolean cowlAtTolerance = false;
+    private boolean flywheelAtTolerance = false;
 
     private final Swerve swerve;
     private final Cowl cowl;
@@ -37,7 +39,6 @@ public class AimAndShoot extends Command {
     private final Feeder feeder;
     private final IntakeRollers intakeRollers;
     private final Floor floor;
-    private final LEDSubsystem ledsubsystem;
 
 
     private final ShotSetup shotSetup;
@@ -60,7 +61,6 @@ public class AimAndShoot extends Command {
         Feeder feeder,
         Floor floor,
         IntakeRollers intakeRollers,
-        LEDSubsystem ledsubsystem,
         DoubleSupplier forwardInput,
         DoubleSupplier leftInput
     ) {
@@ -70,7 +70,6 @@ public class AimAndShoot extends Command {
         this.floor = floor;
         this.intakeRollers = intakeRollers;
         this.flywheel = flywheel;
-        this.ledsubsystem = ledsubsystem;
 
         shotSetup = new ShotSetup();
 
@@ -79,7 +78,7 @@ public class AimAndShoot extends Command {
     }
 
     public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
-        this(swerve, cowl, flywheel, feeder, floor, intakeRollers,ledSubsystem, () -> 0, () -> 0);
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
     }
 
 
@@ -87,27 +86,17 @@ public class AimAndShoot extends Command {
     @Override
     public void initialize() {
       readyToShootBoolean = false;
+      readyToCalculateBoolean = false;
+      cowlAtTolerance = false;
+      flywheelAtTolerance = false;
     }
 
     @Override
     public void execute() {
         // Get smoothed joystick inputs
         final ManualDriveInput input = inputSmoother.getSmoothedInput();
+        boolean isAimed = swerve.isAimedAtHub();
         
-        // Get shooting parameters
-
-        ShotSetup.ShotInfo info = shotSetup.getStaticShotInfo(swerve.getDistanceToHub());
-
-        double cowlAngle = info.cowlPosition;
-        double shooterRPM = info.shot.shooterRPM;
-
-        boolean cowlAtTolerance = cowl.isAtTolerance(cowlAngle);
-        boolean flywheelAtTolerance = flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM));
-
-        DogLog.log("AimAndShootCommand/flywheelReady", flywheelAtTolerance);
-        DogLog.log("AimAndShootCommand/TargetVelocityRPM", shooterRPM);
-        DogLog.log("AimAndShootCommand/cowlInTolerance", cowlAtTolerance);
-
         // Apply control request to swerve
         swerve.setControl(
             fieldCentricFacingAngleRequest
@@ -116,10 +105,30 @@ public class AimAndShoot extends Command {
                 .withTargetDirection(swerve.getShooterDirectionToHub()) 
         );
 
-        cowl.setPosition(cowlAngle);
-        flywheel.setRPM(shooterRPM);
 
-        if (swerve.isAimedAtHub() && cowlAtTolerance && flywheelAtTolerance) {
+        if (isAimed) {
+            readyToCalculateBoolean = true;
+        }
+
+        if (readyToCalculateBoolean) {
+            ShotSetup.ShotInfo info = shotSetup.getStaticShotInfo(swerve.getDistanceToHub());
+            double cowlAngle = info.cowlPosition;
+            double shooterRPM = info.shot.shooterRPM;
+
+            cowl.setPosition(cowlAngle);
+            flywheel.setRPM(shooterRPM);
+
+            cowlAtTolerance = cowl.isAtTolerance(cowlAngle);
+            flywheelAtTolerance = flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM));
+
+            DogLog.log("AimAndShoot/expectedCowlAngle", cowlAngle);
+            DogLog.log("AimAndShoot/expectedShooterRPM", shooterRPM);
+            DogLog.log("AimAndShoot/cowlAtTolerance", cowlAtTolerance);
+            DogLog.log("AimAndShoot/flywheelAtTolerance", flywheelAtTolerance);
+
+        }
+
+        if (cowlAtTolerance && flywheelAtTolerance && isAimed) {
             readyToShootBoolean = true;
         }
 
