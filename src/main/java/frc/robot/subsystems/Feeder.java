@@ -43,7 +43,7 @@ public class Feeder extends SubsystemBase {
      * Initializes the motor and applies configuration.
      */
     public Feeder() {
-        mFeeder = new TalonFX(Ports.Feeder.kFeederMotor);
+        mFeeder = new TalonFX(Ports.Feeder.kFeederMotor, "CAN2");
         // Apply the configuration.
         mFeeder.getConfigurator().apply(SystemConstants.Feeder.feederConfig);
 

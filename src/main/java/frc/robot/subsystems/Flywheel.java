@@ -54,10 +54,10 @@ public class Flywheel extends SubsystemBase {
      * Initializes motors, applies configurations, and sets up follower relationships.
      */
     public Flywheel() {
-        rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster);
-        rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower);
-        lm = new TalonFX(Ports.Flywheel.kLeftFlywheelMaster);
-        lf = new TalonFX(Ports.Flywheel.kLeftFlywheelFollower);
+        rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster, "CAN2");
+        rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower, "CAN2");
+        lm = new TalonFX(Ports.Flywheel.kLeftFlywheelMaster, "CAN2");
+        lf = new TalonFX(Ports.Flywheel.kLeftFlywheelFollower, "CAN2");
 
         rm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         lm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);

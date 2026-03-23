@@ -50,7 +50,7 @@ public class Cowl extends SubsystemBase {
      * Initializes the motor and applies the configuration.
      */
     public Cowl() {
-        mCowl = new TalonFX(Ports.Cowl.kCowlMotor);
+        mCowl = new TalonFX(Ports.Cowl.kCowlMotor, "CAN2");
         mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
 
         mCowl.optimizeBusUtilization();
