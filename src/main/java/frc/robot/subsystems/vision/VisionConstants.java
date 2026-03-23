@@ -27,7 +27,8 @@ public class VisionConstants {
 
 
   // Basic filtering thresholds
-  public static double maxAmbiguity = 0.2;
+  public static double maxAmbiguityMt1 = 0.1;
+  public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
@@ -40,7 +41,7 @@ public class VisionConstants {
   public static double[] cameraStdDevFactors =
       new double[] {
         1.0 * 1, // Camera 0
-        1.0 * 5 // Camera 1
+        1.0 * 1.5 // Camera 1
       };
 
   // Multipliers to apply for MegaTag 2 observations

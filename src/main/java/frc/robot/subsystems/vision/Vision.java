@@ -31,10 +31,8 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.LimelightHelpers;
-
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.BooleanSupplier;
 
 import dev.doglog.DogLog;
 
@@ -47,7 +45,7 @@ public class Vision extends SubsystemBase {
   
 
     // gives us leeway to correct in auto
-    private static final double MAX_TAG_DIST = 5.0; // reject poses further away than 10 meters. (Impossible)
+    private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 10 meters. (Impossible)
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
@@ -120,21 +118,21 @@ public class Vision extends SubsystemBase {
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
 
-        // Check whether to reject pose
-        boolean rejectPose =
-            observation.tagCount() == 0 // Must have at least one tag
-                || (observation.tagCount() == 1
-                    && observation.ambiguity() > maxAmbiguity) // Cannot be high ambiguity
-                || Math.abs(observation.pose().getZ())
-                    > maxZError // Must have realistic Z coordinate
-                // Must be within the field boundaries
-                || !(Double.isFinite(observation.pose().getX()))
-                || !(Double.isFinite(observation.pose().getY()))
-                || observation.pose().getX() < 0.0
-                || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-                || observation.pose().getY() < 0.0
-                || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
-                || observation.averageTagDistance() > MAX_TAG_DIST;
+    // Check whether to reject pose
+       boolean rejectPose =
+        observation.tagCount() == 0 // Must have at least one tag
+            || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguityMt1) // Reject all single tag MT1 (EXTREMELY Low Confidence)
+            || (observation.type() == PoseObservationType.MEGATAG_2 && observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguity) // Single tag MT2 still needs ambiguity check
+        || Math.abs(observation.pose().getZ())
+            > maxZError // Must have realistic Z coordinate
+        // Must be within the field boundaries
+        || !(Double.isFinite(observation.pose().getX()))
+        || !(Double.isFinite(observation.pose().getY()))
+        || observation.pose().getX() < 0.0
+        || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+        || observation.pose().getY() < 0.0
+        || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
+        || observation.averageTagDistance() > MAX_TAG_DIST;
 
         robotPoses.add(observation.pose());
         if (rejectPose) {
@@ -142,18 +140,17 @@ public class Vision extends SubsystemBase {
         } else {
           robotPosesAccepted.add(observation.pose());
         }
-        // rejectPose = true;
+
         if (rejectPose) {
           continue;
         }
 
         // Calculate standard deviations
         double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 3.5)
-                / observation.tagCount(); // original dist is 2
+            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount(); 
 
         if (DriverStation.isAutonomous()) {
-          stdDevFactor *= 2.0;
+          stdDevFactor *= 1.2;
         }
 
         // if (observation.averageTagDistance() > 1) stdDevFactor =
