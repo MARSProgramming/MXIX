@@ -55,6 +55,11 @@ public class Vision extends SubsystemBase {
     this.omegaSupplier = omegaSupplier;
     this.io = io;
 
+    LimelightHelpers.SetIMUMode(camera0Name, 4);
+    LimelightHelpers.SetIMUMode(camera1Name, 4);
+    LimelightHelpers.SetIMUAssistAlpha(camera0Name, 0.001);
+    LimelightHelpers.SetIMUAssistAlpha(camera1Name, 0.001);
+
     // Initialize inputs
     this.inputs = new VisionIOInputs[io.length];
     for (int i = 0; i < inputs.length; i++) {
