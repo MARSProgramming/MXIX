@@ -110,7 +110,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Swerve() {
         super(
             TunerConstants.DrivetrainConstants, 
-            100,
+            0,
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.1, 0.1, 0.1),
             TunerConstants.FrontLeft, 
