@@ -43,6 +43,12 @@ public class Floor extends SubsystemBase {
     public Floor() {
         mFloor = new TalonFX(Ports.Floor.kFloorRollers);
         mFloor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
+        
+        mFloor.optimizeBusUtilization();
+
+        mFloor.getVelocity().setUpdateFrequency(20);
+        mFloor.getMotorVoltage().setUpdateFrequency(10);
+        mFloor.getDeviceTemp().setUpdateFrequency(4);
 
         mVelocity = mFloor.getVelocity();
         mVoltage = mFloor.getMotorVoltage();

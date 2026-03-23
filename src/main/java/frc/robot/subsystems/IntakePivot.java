@@ -27,7 +27,7 @@ public class IntakePivot extends SubsystemBase {
 
     // Tunable value for testing position setpoints via NetworkTables
     private final DoubleSubscriber pivotPercentOutTunable = DogLog.tunable("IntakePivot/TunablePercentOut", 0.5);
-    double cTunablePivotOut = 0;
+    double cTunablePivotOut = pivotPercentOutTunable.get(); 
     
     private final StatusSignal<Angle> mPosition;
     private final StatusSignal<Voltage> mVoltage;
@@ -42,6 +42,12 @@ public class IntakePivot extends SubsystemBase {
     public IntakePivot() {
         mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot);
         mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
+
+        mIntakePivot.optimizeBusUtilization();
+
+        mIntakePivot.getPosition().setUpdateFrequency(50);
+        mIntakePivot.getMotorVoltage().setUpdateFrequency(10);
+        mIntakePivot.getDeviceTemp().setUpdateFrequency(4);
 
         mPosition = mIntakePivot.getPosition();
         mVoltage = mIntakePivot.getMotorVoltage();

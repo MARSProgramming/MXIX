@@ -44,6 +44,12 @@ public class IntakeRollers extends SubsystemBase {
         mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers);
         mIntakeRollers.getConfigurator().apply(SystemConstants.Intake.rollerConfig);
 
+        mIntakeRollers.optimizeBusUtilization();
+
+        mIntakeRollers.getVelocity().setUpdateFrequency(20);
+        mIntakeRollers.getMotorVoltage().setUpdateFrequency(10);
+        mIntakeRollers.getDeviceTemp().setUpdateFrequency(4);
+
         mVelocity = mIntakeRollers.getVelocity();
         mVoltage = mIntakeRollers.getMotorVoltage();
         mTemp = mIntakeRollers.getDeviceTemp();

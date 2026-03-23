@@ -47,6 +47,13 @@ public class Feeder extends SubsystemBase {
         // Apply the configuration.
         mFeeder.getConfigurator().apply(SystemConstants.Feeder.feederConfig);
 
+        mFeeder.optimizeBusUtilization();
+
+        mFeeder.getVelocity().setUpdateFrequency(50);
+        mFeeder.getMotorVoltage().setUpdateFrequency(10);
+        mFeeder.getDeviceTemp().setUpdateFrequency(4);
+
+
         mVelocity = mFeeder.getVelocity();
         mVoltage = mFeeder.getMotorVoltage();
         mTemp = mFeeder.getDeviceTemp();

@@ -110,7 +110,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Swerve() {
         super(
             TunerConstants.DrivetrainConstants, 
-            0,
+            100,
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.1, 0.1, 0.1),
             TunerConstants.FrontLeft, 
@@ -118,6 +118,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             TunerConstants.BackLeft, 
             TunerConstants.BackRight
         );
+
+        for (int i = 0; i < 4; i++) {
+        getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(20);
+        getModule(i).getEncoder().getAbsolutePosition().setUpdateFrequency(10);
+        }   
 
       mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
       mCurrentDraw2 = getModule(1).getDriveMotor().getSupplyCurrent();

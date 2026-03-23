@@ -70,6 +70,28 @@ public class Flywheel extends SubsystemBase {
         rf.setControl(new Follower(Ports.Flywheel.kRightFlywheelMaster, MotorAlignmentValue.Opposed));
         lf.setControl(new Follower(Ports.Flywheel.kLeftFlywheelMaster, MotorAlignmentValue.Opposed));
 
+        // Masters - need velocity for closed loop control
+    rm.optimizeBusUtilization();
+    lm.optimizeBusUtilization();
+
+    rm.getVelocity().setUpdateFrequency(50);
+    rm.getSupplyCurrent().setUpdateFrequency(20);
+    rm.getDeviceTemp().setUpdateFrequency(4);
+
+    lm.getVelocity().setUpdateFrequency(50);
+    lm.getSupplyCurrent().setUpdateFrequency(20);
+    lm.getDeviceTemp().setUpdateFrequency(4);
+
+        // Followers - minimal signals, they just follow
+    rf.optimizeBusUtilization();
+    lf.optimizeBusUtilization();
+
+    rf.getVelocity().setUpdateFrequency(20);
+    rf.getDeviceTemp().setUpdateFrequency(4);
+
+    lf.getVelocity().setUpdateFrequency(20);
+    lf.getDeviceTemp().setUpdateFrequency(4);
+
         rmVelocity = rm.getVelocity();
         rfVelocity = rf.getVelocity();
         lmVelocity = lm.getVelocity();

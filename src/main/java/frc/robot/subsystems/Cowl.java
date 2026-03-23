@@ -53,6 +53,13 @@ public class Cowl extends SubsystemBase {
         mCowl = new TalonFX(Ports.Cowl.kCowlMotor);
         mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
 
+        mCowl.optimizeBusUtilization();
+
+        mCowl.getPosition().setUpdateFrequency(50);
+        mCowl.getMotorVoltage().setUpdateFrequency(10);
+        mCowl.getSupplyCurrent().setUpdateFrequency(10);
+        mCowl.getDeviceTemp().setUpdateFrequency(4);
+
         mPosition = mCowl.getPosition();
         mVoltage = mCowl.getMotorVoltage();
         mSupplyCurrent = mCowl.getSupplyCurrent();
@@ -88,7 +95,7 @@ public class Cowl extends SubsystemBase {
     }
 
     public boolean isAtTolerance(double setpoint) {
-        double currPos = mCowl.getPosition().getValueAsDouble();
+        double currPos = mPosition.getValueAsDouble();
          return MathUtil.isNear(setpoint, currPos, COWL_POSITION_TOLERANCE);
     }
     

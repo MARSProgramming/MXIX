@@ -42,6 +42,12 @@ public class FastClimber extends SubsystemBase {
         mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber);
         mFastClimber.getConfigurator().apply(SystemConstants.FastClimber.fastClimberConfig);
 
+        mFastClimber.optimizeBusUtilization();
+
+        mFastClimber.getPosition().setUpdateFrequency(50);
+        mFastClimber.getMotorVoltage().setUpdateFrequency(10);
+        mFastClimber.getDeviceTemp().setUpdateFrequency(4);
+
         mPosition = mFastClimber.getPosition();
         mVoltage = mFastClimber.getMotorVoltage();
         mTemp = mFastClimber.getDeviceTemp();
