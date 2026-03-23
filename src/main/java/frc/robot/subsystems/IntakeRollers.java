@@ -41,7 +41,7 @@ public class IntakeRollers extends SubsystemBase {
      * Initializes the motor and applies configuration.
      */
     public IntakeRollers() {
-        mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers);
+        mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers, "CAN2");
         mIntakeRollers.getConfigurator().apply(SystemConstants.Intake.rollerConfig);
 
         mVelocity = mIntakeRollers.getVelocity();

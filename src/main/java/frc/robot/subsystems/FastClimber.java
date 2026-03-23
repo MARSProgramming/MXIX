@@ -39,7 +39,7 @@ public class FastClimber extends SubsystemBase {
      * Initializes the motor and applies the configuration.
      */
     public FastClimber() {
-        mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber);
+        mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber, "CAN2");
         mFastClimber.getConfigurator().apply(SystemConstants.FastClimber.fastClimberConfig);
 
         mPosition = mFastClimber.getPosition();

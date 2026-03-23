@@ -40,7 +40,7 @@ public class IntakePivot extends SubsystemBase {
      * Initializes the motor and applies the configuration.
      */
     public IntakePivot() {
-        mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot);
+        mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot, "CAN2");
         mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
 
         mPosition = mIntakePivot.getPosition();

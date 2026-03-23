@@ -41,7 +41,7 @@ public class Floor extends SubsystemBase {
      * Initializes the motor and applies configuration.
      */
     public Floor() {
-        mFloor = new TalonFX(Ports.Floor.kFloorRollers);
+        mFloor = new TalonFX(Ports.Floor.kFloorRollers, "CAN2");
         mFloor.getConfigurator().apply(SystemConstants.Floor.floorConfig);
 
         mVelocity = mFloor.getVelocity();
