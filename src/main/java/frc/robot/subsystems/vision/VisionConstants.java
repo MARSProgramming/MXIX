@@ -41,10 +41,28 @@ public class VisionConstants {
   public static double[] cameraStdDevFactors =
       new double[] {
         1.0 * 1, // Camera 0
-        1.0 * 1.5 // Camera 1
+        1.0 * 1.2 // Camera 1
       };
 
   // Multipliers to apply for MegaTag 2 observations
   public static double linearStdDevMegatag2Factor = 0.2; // More stable than full 3D solve
   public static double angularStdDevMegatag2Factor = 9999999; // No rotation data available
+
+  // variant trust based on tag ID.
+
+    public static double getTagStdevMultiplier(int tag) {
+    switch (tag) {
+      case 9, 10, 11, 2, 8, 5, 4, 3, 19, 20, 21, 24, 18, 27, 26, 25: // HUB TAGS
+        return 1.0;
+      case 14, 13, 15, 16, 29, 30, 31, 32: // OUTPOST, TOWER TAGS
+        return 3.5;
+      case 1, 6, 22, 17: // TRENCH TAGS SEEN FROM NEUTRAL ZONE
+        return 1.0;
+      case 12, 7, 28, 23:
+        return 9.0; // TRENCH TAGS SEEN FROM ALLIANCE ZONE
+      default:
+        return Double.POSITIVE_INFINITY; // Unknown tag, reject
+    }
+  }
+
 }

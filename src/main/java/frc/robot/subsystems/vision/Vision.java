@@ -31,6 +31,8 @@ import frc.robot.constants.FieldConstants;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.LimelightHelpers;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
@@ -115,14 +117,23 @@ public class Vision extends SubsystemBase {
       List<Pose3d> robotPoses = new LinkedList<>();
       List<Pose3d> robotPosesAccepted = new LinkedList<>();
       List<Pose3d> robotPosesRejected = new LinkedList<>();
+      List<Double> tagStdevMultipliers = new ArrayList<>();
 
       // Add tag poses
+      double tagStdevMultiplier = Double.POSITIVE_INFINITY;
       for (int tagId : inputs[cameraIndex].tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
         if (tagPose.isPresent()) {
           tagPoses.add(tagPose.get());
         }
+
+        double tagStdevMultiplierCandidate = getTagStdevMultiplier(tagId);
+        if (tagStdevMultiplierCandidate < tagStdevMultiplier) {
+          tagStdevMultiplier = tagStdevMultiplierCandidate;
+        }
       }
+      
+      tagStdevMultipliers.add(tagStdevMultiplier);
 
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
@@ -150,26 +161,16 @@ public class Vision extends SubsystemBase {
 
         if (rejectPose || omegaRejected) {
         robotPosesRejected.add(observation.pose());
+        continue;
         } else {
         robotPosesAccepted.add(observation.pose());
         }
 
-        if (rejectPose || omegaRejected) {
-        continue;
-        } 
-               // Calculate standard deviations
-        double stdDevFactor =
-            Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount(); 
-
-        if (DriverStation.isAutonomous()) {
-          stdDevFactor *= 1.2;
-        }
-
-        // if (observation.averageTagDistance() > 1) stdDevFactor =
-        // Double.POSITIVE_INFINITY;
-
+        // Calculate standard deviations
+        double stdDevFactor = Math.pow(observation.averageTagDistance(), 1.8) / observation.tagCount() * tagStdevMultiplier;
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
+
         if (observation.type() == PoseObservationType.MEGATAG_2) {
           linearStdDev *= linearStdDevMegatag2Factor;
           angularStdDev *= angularStdDevMegatag2Factor;
