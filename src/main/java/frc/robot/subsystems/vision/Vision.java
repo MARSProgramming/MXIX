@@ -33,12 +33,14 @@ import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.LimelightHelpers;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final VisionIO[] io;
+  private final DoubleSupplier omegaSupplier;
   private final VisionIOInputs[] inputs;
   private final Alert[] disconnectedAlerts;
 
@@ -48,8 +50,9 @@ public class Vision extends SubsystemBase {
     private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 10 meters. (Impossible)
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
 
-  public Vision(VisionConsumer consumer, VisionIO... io) {
+  public Vision(VisionConsumer consumer, DoubleSupplier omegaSupplier, VisionIO... io) {
     this.consumer = consumer;
+    this.omegaSupplier = omegaSupplier;
     this.io = io;
 
     // Initialize inputs
@@ -78,6 +81,7 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
+    
     if (RobotState.isDisabled()) {
             LimelightHelpers.SetThrottle(VisionConstants.camera0Name, 100);
             LimelightHelpers.SetThrottle(VisionConstants.camera1Name, 100);
@@ -135,17 +139,20 @@ public class Vision extends SubsystemBase {
         || observation.averageTagDistance() > MAX_TAG_DIST;
 
         robotPoses.add(observation.pose());
-        if (rejectPose) {
-          robotPosesRejected.add(observation.pose());
+
+        // Reject if rotating too fast
+        boolean omegaRejected = Math.abs(omegaSupplier.getAsDouble()) > 2.0;
+
+        if (rejectPose || omegaRejected) {
+        robotPosesRejected.add(observation.pose());
         } else {
-          robotPosesAccepted.add(observation.pose());
+        robotPosesAccepted.add(observation.pose());
         }
 
-        if (rejectPose) {
-          continue;
-        }
-
-        // Calculate standard deviations
+        if (rejectPose || omegaRejected) {
+        continue;
+        } 
+               // Calculate standard deviations
         double stdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount(); 
 

@@ -90,12 +90,13 @@ public class RobotContainer {
         configureTestBindings();
         autoRoutines.configure();
 
-        vision =
-        new Vision(
-                swerve::addVisionMeasurement,
-                new VisionIOLimelight(VisionConstants.camera0Name, () -> swerve.getState().Pose.getRotation()),
-                new VisionIOLimelight(VisionConstants.camera1Name, () -> swerve.getState().Pose.getRotation()));
-
+        vision = new Vision(
+            swerve::addVisionMeasurement,
+            () -> swerve.getState().Speeds.omegaRadiansPerSecond,
+            new VisionIOLimelight(VisionConstants.camera0Name, 
+            () -> swerve.getState().Pose.getRotation()),
+            new VisionIOLimelight(VisionConstants.camera1Name, 
+            () -> swerve.getState().Pose.getRotation()));
     }
 
     /**
