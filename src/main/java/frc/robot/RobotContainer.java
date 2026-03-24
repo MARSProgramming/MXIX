@@ -42,6 +42,7 @@ import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakePivot;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
+import frc.robot.subsystems.MatchStateSubsystem;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
@@ -77,6 +78,7 @@ public class RobotContainer {
     IntakeRollers mIntakeRollers = new IntakeRollers();
     LEDSubsystem leds = new LEDSubsystem();
     FastClimber mFastClimber = new FastClimber();
+    MatchStateSubsystem mMatchStateSystem= new MatchStateSubsystem();
 
     private final Vision vision;
 
