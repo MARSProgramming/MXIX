@@ -3,60 +3,76 @@ package frc.robot.subsystems;
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.Optional;
 
 /**
  * Tracks match state for FRC Rebuilt (2026).
  *
- * Hub shift timing (seconds remaining in match timer):
- *   TRANSITION SHIFT: 2:20 – 2:10 (both hubs active)
- *   SHIFT 1:          2:10 – 1:45
- *   SHIFT 2:          1:45 – 1:20
- *   SHIFT 3:          1:20 – 0:55
- *   SHIFT 4:          0:55 – 0:30
- *   END GAME:         0:30 – 0:00 (both hubs active)
+ * Uses an elapsed timer started at teleop init for reliability —
+ * DriverStation.getMatchTime() returns -1 without FMS.
+ *
+ * Hub shift timing (elapsed seconds from teleop start):
+ *   TRANSITION SHIFT: 0:00 – 0:10  (both hubs active)
+ *   SHIFT 1:          0:10 – 0:35
+ *   SHIFT 2:          0:35 – 1:00
+ *   SHIFT 3:          1:00 – 1:25
+ *   SHIFT 4:          1:25 – 1:50
+ *   END GAME:         1:50 – 2:20  (both hubs active)
+ *
+ * If we won auto, SHIFT 4 + END GAME are merged into one continuous
+ * 55-second active window since our hub is active for both periods.
  *
  * Auto winner's hub is INACTIVE in SHIFT 1.
- 
+ *
  * ═══════════════════════════════════════════════════════════════
- * TESTING MatchStateSubsystem WITHOUT FMS (Practice Matches)
+ * SETUP: call mMatchStateSystem.onTeleopInit() from Robot.teleopInit()
  * ═══════════════════════════════════════════════════════════════
  *
- * In a real match, FMS automatically sends game data indicating
- * which alliance won auto. On a practice field without FMS, you
- * must set this manually in the FRC Driver Station application:
+ * TESTING WITHOUT FMS (Practice Matches):
+ *   1. Open FRC Driver Station → Setup tab → Game Data field
+ *   2. Enter BEFORE or AFTER enabling teleop:
+ *        "R" → Red won auto  (Red hub inactive in Shift 1)
+ *        "B" → Blue won auto (Blue hub inactive in Shift 1)
+ *   3. Leave empty → isHubActive() always returns true,
+ *        wonAuto() always false (no hub alternation)
+ *   4. Game data locks in on the first periodic cycle it is seen
  *
- *   1. Open the FRC Driver Station
- *   2. Navigate to the "Setup" tab
- *   3. Find the "Game Data" text field
- *   4. Enter one of the following:
- *        "R" → Red alliance won auto (Red hub inactive in Shift 1)
- *        "B" → Blue alliance won auto (Blue hub inactive in Shift 1)
- *   5. Enable the robot and run a practice match as normal
- *
- * Leaving the Game Data field empty simulates no FMS connection,
- * in which case isHubActive() will always return true.
- *
- * Verify correct behavior in DogLog:
- *   - MatchState/WonAuto        → locks in at teleop start
- *   - MatchState/HubActive      → flips correctly each shift
- *   - MatchState/CurrentShift   → transitions at correct times
+ * Verify in DogLog:
+ *   - MatchState/WonAuto                  → locks in at teleop start
+ *   - MatchState/HubActive               → flips correctly each shift
+ *   - MatchState/CurrentShift            → transitions at correct times
+ *   - MatchState/SecondsRemainingInShift
+ *   - MatchState/ShiftWarning            → true for one cycle at 5s left
+ *   - MatchState/ShiftStart              → true for one cycle at shift start
  * ═══════════════════════════════════════════════════════════════
  */
-
 public class MatchStateSubsystem extends SubsystemBase {
 
-    // ── Shift boundaries (seconds remaining in match timer) ───────────────
-    private static final double SHIFT_1_START = 130; // 2:10
-    private static final double SHIFT_2_START = 105; // 1:45
-    private static final double SHIFT_3_START =  80; // 1:20
-    private static final double SHIFT_4_START =  55; // 0:55
-    private static final double ENDGAME_START =  30; // 0:30
+    // ── Shift boundaries (elapsed seconds from teleop start) ──────────────
+    private static final double TRANSITION_END        = 10.0;
+    private static final double SHIFT_1_END           = 35.0;
+    private static final double SHIFT_2_END           = 60.0;
+    private static final double SHIFT_3_END           = 85.0;
+    private static final double SHIFT_4_END           = 110.0;
+    private static final double MATCH_END             = 140.0;
+    private static final double SHIFT_WARNING_THRESHOLD = 5.0;
+
+    // ── Timer ──────────────────────────────────────────────────────────────
+    private final Timer mTeleopTimer = new Timer();
 
     // ── Auto result ────────────────────────────────────────────────────────
     private boolean mWonAuto          = false;
     private boolean mAutoResultLocked = false;
+
+    // ── Shift change tracking (computed once per periodic) ─────────────────
+    private Shift   mLastShift          = Shift.DISABLED;
+    private boolean mShiftChanged       = false;
+
+    // ── Rumble flags ───────────────────────────────────────────────────────
+    private boolean mShiftWarningFired  = false;
+    private boolean mShiftStartFired    = false;
 
     public enum Shift {
         AUTO,
@@ -70,6 +86,13 @@ public class MatchStateSubsystem extends SubsystemBase {
     }
 
     public MatchStateSubsystem() {}
+
+    // ── Teleop init ────────────────────────────────────────────────────────
+
+    /** Must be called from Robot.teleopInit() */
+    public void onTeleopInit() {
+        mTeleopTimer.restart();
+    }
 
     // ── Auto result ────────────────────────────────────────────────────────
 
@@ -104,28 +127,40 @@ public class MatchStateSubsystem extends SubsystemBase {
         if (DriverStation.isAutonomousEnabled()) return Shift.AUTO;
         if (!DriverStation.isTeleopEnabled())    return Shift.DISABLED;
 
-        double t = DriverStation.getMatchTime();
+        double t = mTeleopTimer.get();
 
-        if (t > SHIFT_1_START) return Shift.TRANSITION;
-        if (t > SHIFT_2_START) return Shift.SHIFT_1;
-        if (t > SHIFT_3_START) return Shift.SHIFT_2;
-        if (t > SHIFT_4_START) return Shift.SHIFT_3;
-        if (t > ENDGAME_START) return Shift.SHIFT_4;
+        if (t < TRANSITION_END) return Shift.TRANSITION;
+        if (t < SHIFT_1_END)    return Shift.SHIFT_1;
+        if (t < SHIFT_2_END)    return Shift.SHIFT_2;
+        if (t < SHIFT_3_END)    return Shift.SHIFT_3;
+        if (t < SHIFT_4_END)    return Shift.SHIFT_4;
+
+        // If we won auto, END GAME is a continuous extension of our
+        // active scoring window — report as SHIFT_4 so consumers see
+        // one uninterrupted period
+        if (mWonAuto)           return Shift.SHIFT_4;
+
         return Shift.ENDGAME;
     }
 
     public double getSecondsRemainingInShift() {
         if (!DriverStation.isTeleopEnabled()) return 0;
 
-        double t = DriverStation.getMatchTime();
+        double t    = mTeleopTimer.get();
+        Shift shift = getCurrentShift();
 
-        return switch (getCurrentShift()) {
-            case TRANSITION -> t - SHIFT_1_START;
-            case SHIFT_1    -> t - SHIFT_2_START;
-            case SHIFT_2    -> t - SHIFT_3_START;
-            case SHIFT_3    -> t - SHIFT_4_START;
-            case SHIFT_4    -> t - ENDGAME_START;
-            case ENDGAME    -> t;
+        // Won auto: SHIFT_4 + END GAME = one 55s active window
+        if (mWonAuto && (shift == Shift.SHIFT_4 || shift == Shift.ENDGAME)) {
+            return Math.max(MATCH_END - t, 0);
+        }
+
+        return switch (shift) {
+            case TRANSITION -> TRANSITION_END - t;
+            case SHIFT_1    -> SHIFT_1_END    - t;
+            case SHIFT_2    -> SHIFT_2_END    - t;
+            case SHIFT_3    -> SHIFT_3_END    - t;
+            case SHIFT_4    -> SHIFT_4_END    - t;
+            case ENDGAME    -> Math.max(MATCH_END - t, 0);
             default         -> 0;
         };
     }
@@ -134,7 +169,7 @@ public class MatchStateSubsystem extends SubsystemBase {
 
     public boolean isHubActive() {
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty()) return false;
+        if (alliance.isEmpty())                  return false;
         if (DriverStation.isAutonomousEnabled()) return true;
         if (!DriverStation.isTeleopEnabled())    return false;
 
@@ -145,18 +180,65 @@ public class MatchStateSubsystem extends SubsystemBase {
 
         if (shift == Shift.TRANSITION || shift == Shift.ENDGAME) return true;
 
-        boolean redInactiveFirst = gameData.charAt(0) == 'R';
-        boolean weAreRed = alliance.get() == Alliance.Red;
+        // Won auto: SHIFT_4 past SHIFT_4_END elapsed is really END GAME — both active
+        if (mWonAuto && shift == Shift.SHIFT_4
+                && mTeleopTimer.get() >= SHIFT_4_END) return true;
 
-        boolean ourHubActiveInShift1 = weAreRed ? !redInactiveFirst : redInactiveFirst;
+        boolean redInactiveFirst   = gameData.charAt(0) == 'R';
+        boolean weAreRed           = alliance.get() == Alliance.Red;
+        boolean ourHubActiveShift1 = weAreRed ? !redInactiveFirst : redInactiveFirst;
 
         return switch (shift) {
-            case SHIFT_1 ->  ourHubActiveInShift1;
-            case SHIFT_2 -> !ourHubActiveInShift1;
-            case SHIFT_3 ->  ourHubActiveInShift1;
-            case SHIFT_4 -> !ourHubActiveInShift1;
+            case SHIFT_1 ->  ourHubActiveShift1;
+            case SHIFT_2 -> !ourHubActiveShift1;
+            case SHIFT_3 ->  ourHubActiveShift1;
+            case SHIFT_4 -> !ourHubActiveShift1;
             default      -> true;
         };
+    }
+
+    // ── Rumble: shift ending warning ───────────────────────────────────────
+
+    /**
+     * Returns true for exactly one periodic cycle when ~5 seconds remain
+     * in the current shift. Resets on each shift transition.
+     */
+    public boolean shouldRumbleShiftWarning() {
+        Shift currentShift = getCurrentShift();
+
+        if (currentShift == Shift.DISABLED
+                || currentShift == Shift.AUTO
+                || currentShift == Shift.ENDGAME) return false;
+
+        double remaining = getSecondsRemainingInShift();
+
+        if (!mShiftWarningFired && remaining <= SHIFT_WARNING_THRESHOLD && remaining > 0) {
+            mShiftWarningFired = true;
+            return true;
+        }
+
+        return false;
+    }
+
+    // ── Rumble: shift starting ─────────────────────────────────────────────
+
+    /**
+     * Returns true for exactly one periodic cycle at the start of each
+     * new shift. Resets on each shift transition.
+     */
+    public boolean shouldRumbleShiftStart() {
+        Shift currentShift = getCurrentShift();
+
+        if (currentShift == Shift.DISABLED
+                || currentShift == Shift.AUTO
+                || currentShift == Shift.TRANSITION) return false;
+
+        if (!mShiftStartFired && mShiftChanged) {
+            mShiftStartFired = true;
+            return true;
+        }
+
+        return false;
     }
 
     // ── Periodic ───────────────────────────────────────────────────────────
@@ -165,9 +247,20 @@ public class MatchStateSubsystem extends SubsystemBase {
     public void periodic() {
         tryLockAutoResult();
 
+        // Detect shift change once per cycle — used by both rumble methods
+        Shift currentShift = getCurrentShift();
+        mShiftChanged = currentShift != mLastShift;
+        if (mShiftChanged) {
+            mLastShift         = currentShift;
+            mShiftWarningFired = false;
+            mShiftStartFired   = false;
+        }
+
         DogLog.log("MatchState/SecondsRemainingInShift", getSecondsRemainingInShift());
         DogLog.log("MatchState/WonAuto",                 mWonAuto);
         DogLog.log("MatchState/HubActive",               isHubActive());
-        DogLog.log("MatchState/CurrentShift",            getCurrentShift().toString());
+        DogLog.log("MatchState/CurrentShift",            currentShift.toString());
+        DogLog.log("MatchState/ShiftWarning",            shouldRumbleShiftWarning());
+        DogLog.log("MatchState/ShiftStart",              shouldRumbleShiftStart());
     }
 }

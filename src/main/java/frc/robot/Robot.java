@@ -43,6 +43,11 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         m_robotContainer.getLedSubsystem().setColor(Color.kRed, LEDSegment.ALL);
     }
+
+    @Override
+    public void teleopInit() {
+        m_robotContainer.getMatchStateSubsystem().onTeleopInit();
+    }
     
 
 

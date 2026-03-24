@@ -16,12 +16,15 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimAndShoot;
 import frc.robot.commands.AimAndShootOnTheMove;
 import frc.robot.commands.AimAndShuttle;
@@ -109,6 +112,28 @@ public class RobotContainer {
      */
     private void configureBindings() {
 
+// Shift ending soon — long rumble
+new Trigger(mMatchStateSystem::shouldRumbleShiftWarning)
+    .and(RobotModeTriggers.teleop())
+    .onTrue(Commands.startEnd(
+        () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 1.0),
+        () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 0.0)
+    ).withTimeout(1.0));
+
+// New shift starting — short double pulse
+new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
+    .and(RobotModeTriggers.teleop())
+    .onTrue(Commands.sequence(
+        Commands.startEnd(
+            () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 1.0),
+            () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 0.0)
+        ).withTimeout(0.250),
+        Commands.waitSeconds(0.250),
+        Commands.startEnd(
+            () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 1.0),
+            () -> drivePilot.getHID().setRumble(RumbleType.kBothRumble, 0.0)
+        ).withTimeout(0.250)
+    ));
       final ManualDriveCommand manualDriveCommand = new ManualDriveCommand(
           swerve,
           () -> -drivePilot.getLeftY(),
@@ -154,7 +179,6 @@ public class RobotContainer {
         .alongWith(mFloor.setPercentOutCommand(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE))
         .alongWith(mIntakeRollers.setPercentOutCommand(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE)));
 
-      coPilot.leftBumper().whileTrue(mCowl.home());
         // Manual Hub base shot. Requires manual servoing of drivetrain.
       coPilot.rightTrigger().whileTrue(new ShootOnly(mCowl, mFlywheel, 
       Settings.ReferenceShotSettings.HUB_REFERENCE_FLYWHEEL_VELOCITY, 
@@ -230,5 +254,10 @@ public class RobotContainer {
     public LEDSubsystem getLedSubsystem() {
         return this.leds;
     }
+
+    public MatchStateSubsystem getMatchStateSubsystem() {
+    return mMatchStateSystem;
+    }
+
 
 }
