@@ -62,10 +62,14 @@ public class AimAndShoot extends Command {
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
-    
-    
-
-
+        /**
+     * Constructs a new Shooting command with zero translation (aim only).
+     *
+     * @param swerve The swerve subsystem.
+     */
+    public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, ShotSetup shotSetup) {
+        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup, () -> 0, () -> 0);
+    }
 
     @Override
     public void initialize() {

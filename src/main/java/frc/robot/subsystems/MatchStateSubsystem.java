@@ -1,11 +1,12 @@
 package frc.robot.subsystems;
 
+import java.util.Optional;
+
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import java.util.Optional;
 
 /**
  * Tracks match state for FRC Rebuilt (2026).
@@ -26,9 +27,9 @@ import java.util.Optional;
  *
  * Auto winner's hub is INACTIVE in SHIFT 1.
  *
- * ═══════════════════════════════════════════════════════════════
+ * ===============================================================
  * SETUP: call mMatchStateSystem.onTeleopInit() from Robot.teleopInit()
- * ═══════════════════════════════════════════════════════════════
+ * ===============================================================
  *
  * TESTING WITHOUT FMS (Practice Matches):
  *   1. Open FRC Driver Station → Setup tab → Game Data field
@@ -46,7 +47,7 @@ import java.util.Optional;
  *   - MatchState/SecondsRemainingInShift
  *   - MatchState/ShiftWarning            → true for one cycle at 5s left
  *   - MatchState/ShiftStart              → true for one cycle at shift start
- * ═══════════════════════════════════════════════════════════════
+ * ================================================================
  */
 public class MatchStateSubsystem extends SubsystemBase {
 
@@ -73,6 +74,9 @@ public class MatchStateSubsystem extends SubsystemBase {
     // ── Rumble flags ───────────────────────────────────────────────────────
     private boolean mShiftWarningFired  = false;
     private boolean mShiftStartFired    = false;
+
+    private boolean mShouldRumbleWarning = false;
+    private boolean mShouldRumbleStart = false;
 
     public enum Shift {
         AUTO,
@@ -199,48 +203,13 @@ public class MatchStateSubsystem extends SubsystemBase {
 
     // ── Rumble: shift ending warning ───────────────────────────────────────
 
-    /**
-     * Returns true for exactly one periodic cycle when ~5 seconds remain
-     * in the current shift. Resets on each shift transition.
-     */
     public boolean shouldRumbleShiftWarning() {
-        Shift currentShift = getCurrentShift();
-
-        if (currentShift == Shift.DISABLED
-                || currentShift == Shift.AUTO
-                || currentShift == Shift.ENDGAME) return false;
-
-        double remaining = getSecondsRemainingInShift();
-
-        if (!mShiftWarningFired && remaining <= SHIFT_WARNING_THRESHOLD && remaining > 0) {
-            mShiftWarningFired = true;
-            return true;
-        }
-
-        return false;
+    return mShouldRumbleWarning;
     }
 
-    // ── Rumble: shift starting ─────────────────────────────────────────────
-
-    /**
-     * Returns true for exactly one periodic cycle at the start of each
-     * new shift. Resets on each shift transition.
-     */
     public boolean shouldRumbleShiftStart() {
-        Shift currentShift = getCurrentShift();
-
-        if (currentShift == Shift.DISABLED
-                || currentShift == Shift.AUTO
-                || currentShift == Shift.TRANSITION) return false;
-
-        if (!mShiftStartFired && mShiftChanged) {
-            mShiftStartFired = true;
-            return true;
-        }
-
-        return false;
+    return mShouldRumbleStart;
     }
-
     // ── Periodic ───────────────────────────────────────────────────────────
 
     @Override
@@ -256,6 +225,32 @@ public class MatchStateSubsystem extends SubsystemBase {
             mShiftStartFired   = false;
         }
 
+        
+        mShouldRumbleWarning = false;
+        mShouldRumbleStart = false;
+
+        if (currentShift != Shift.DISABLED
+            && currentShift != Shift.AUTO
+            && currentShift != Shift.ENDGAME) {
+
+        double remaining = getSecondsRemainingInShift();
+
+        if (!mShiftWarningFired && remaining <= SHIFT_WARNING_THRESHOLD && remaining > 0) {
+            mShiftWarningFired = true;
+            mShouldRumbleWarning = true;
+        }
+        }
+
+        if (currentShift != Shift.DISABLED
+            && currentShift != Shift.AUTO
+            && currentShift != Shift.TRANSITION) {
+
+        if (!mShiftStartFired && mShiftChanged) {
+            mShiftStartFired = true;
+            mShouldRumbleStart = true;
+        }
+        }
+
         DogLog.log("MatchState/SecondsRemainingInShift", getSecondsRemainingInShift());
         DogLog.log("MatchState/WonAuto",                 mWonAuto);
         DogLog.log("MatchState/HubActive",               isHubActive());
@@ -263,4 +258,5 @@ public class MatchStateSubsystem extends SubsystemBase {
         DogLog.log("MatchState/ShiftWarning",            shouldRumbleShiftWarning());
         DogLog.log("MatchState/ShiftStart",              shouldRumbleShiftStart());
     }
+
 }
