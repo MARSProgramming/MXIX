@@ -4,6 +4,8 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -114,16 +116,24 @@ public class Feeder extends SubsystemBase {
 
     @Override
     public void periodic() {
-    stunablePercOut  = feederPercOutTunable.get();   // was never being updated — bug fix
+    stunablePercOut = feederPercOutTunable.get();
 
-    // Batch refresh all CAN signals in one JNI call
     BaseStatusSignal.refreshAll(mVelocity, mVoltage, mTemp);
 
-    DogLog.log("Feeder/VelocityRPM",
-        Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
+    boolean connected = mFeeder.isConnected(2.0);
+
+    DogLog.log("Feeder/VelocityRPM",Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
     DogLog.log("Feeder/AppliedVoltage", mVoltage.getValueAsDouble());
     DogLog.log("Feeder/Temperature",    mTemp.getValueAsDouble());
+    DogLog.log("Feeder/Connected",      connected);
+
+    if (!connected) {
+        DogLog.logFault("CAN2: Feeder Disconnected",
+            DriverStation.isFMSAttached() ? null : AlertType.kError);
+    } else {
+        DogLog.clearFault("CAN2: Feeder Disconnected");
     }
+}
 
     /**
      * Checks if the feeder motor is within the configured velocity tolerance of the target.

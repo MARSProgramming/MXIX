@@ -43,6 +43,7 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.util.AlignHelper;
 import frc.robot.util.GeometryUtil;
 import frc.robot.util.ProfiledController;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 
 /**
  * Subsystem representing the Swerve Drivetrain.
@@ -252,7 +253,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         DogLog.log("DogLogSwerve/Swerve2AbsEncoderPos", mAbsEnc3.getValueAsDouble());
         DogLog.log("DogLogSwerve/Swerve3AbsEncoderPos", mAbsEnc4.getValueAsDouble());
 
+        // ── Connection monitoring ──────────────────────────────────────
+        boolean allModulesConnected = true;
+
+        for (int i = 0; i < 4; i++) {
+        boolean driveConnected = getModule(i).getDriveMotor().isConnected(2.0);
+        boolean steerConnected = getModule(i).getSteerMotor().isConnected(2.0);
+        boolean encoderConnected = getModule(i).getEncoder().isConnected(2.0);
+
+        DogLog.log("DogLogSwerve/Module" + i + "/DriveConnected",   driveConnected);
+        DogLog.log("DogLogSwerve/Module" + i + "/SteerConnected",   steerConnected);
+        DogLog.log("DogLogSwerve/Module" + i + "/EncoderConnected", encoderConnected);
+
+        if (!driveConnected || !steerConnected || !encoderConnected) {
+        allModulesConnected = false;
+        }
     }
+
+        DogLog.log("DogLogSwerve/AllModulesConnected", allModulesConnected);
+
+        if (!allModulesConnected) { DogLog.logFault("RIO: Swerve Component Disconnected", AlertType.kError); }
+        else                      { DogLog.clearFault("RIO: Swerve Component Disconnected"); }
+
+    }
+
 
     public Distance hubDistInMeters() {
         return Units.Meters.of(getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));

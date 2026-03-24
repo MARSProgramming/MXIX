@@ -17,7 +17,8 @@ import frc.robot.constants.Ports;
 import frc.robot.constants.Settings;
 import frc.robot.constants.Settings.IntakePivotSettings;
 import frc.robot.constants.SystemConstants;
-
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 /**
  * Subsystem representing the Cowl mechanism.
  * This subsystem controls the position of the cowl using a TalonFX motor.
@@ -124,15 +125,23 @@ public class IntakePivot extends SubsystemBase {
     }
 
 
-    @Override
-    public void periodic() {
-        // Update local tunable variable from NetworkTables
-    cTunablePivotOut = pivotPercentOutTunable.get(); // was being reset to 0 — bug fix
+@Override
+public void periodic() {
+    cTunablePivotOut = pivotPercentOutTunable.get();
 
     BaseStatusSignal.refreshAll(mPosition, mVoltage, mTemp);
+
+    boolean connected = mIntakePivot.isConnected(2.0);
 
     DogLog.log("IntakePivot/Position",       mPosition.getValueAsDouble());
     DogLog.log("IntakePivot/AppliedVoltage", mVoltage.getValueAsDouble());
     DogLog.log("IntakePivot/Temperature",    mTemp.getValueAsDouble());
+    DogLog.log("IntakePivot/Connected",      connected);
+
+    AlertType alertType = DriverStation.isFMSAttached() ? null : AlertType.kError;
+
+    if (!connected) { DogLog.logFault("CAN2: IntakePivot Disconnected",   alertType); }
+    else            { DogLog.clearFault("CAN2: IntakePivot Disconnected"); }
+
     }
 }

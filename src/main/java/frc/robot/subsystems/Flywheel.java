@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Subsystem representing the Flywheel (Shooter) mechanism.
@@ -213,11 +215,10 @@ public class Flywheel extends SubsystemBase {
     return rmOk && rfOk && lmOk && lfOk;
     }
 
-    @Override
-    public void periodic() {
-        // Update local tunable variables from NetworkTables
-        sTunableRpm = shooterRpmTunable.get();
-        sTunablePercentOut = shooterPercentOutTunable.get();
+@Override
+public void periodic() {
+    sTunableRpm = shooterRpmTunable.get();
+    sTunablePercentOut = shooterPercentOutTunable.get();
 
     BaseStatusSignal.refreshAll(
         rmVelocity, rfVelocity, lmVelocity, lfVelocity,
@@ -225,6 +226,7 @@ public class Flywheel extends SubsystemBase {
         rmTemp, rfTemp, lmTemp, lfTemp
     );
 
+    // ── Velocity ──────────────────────────────────────────────────
     DogLog.log("Shooter/RightMaster/VelocityRPM",
         Units.RotationsPerSecond.of(rmVelocity.getValueAsDouble()).in(Units.RPM));
     DogLog.log("Shooter/RightFollower/VelocityRPM",
@@ -234,13 +236,33 @@ public class Flywheel extends SubsystemBase {
     DogLog.log("Shooter/LeftFollower/VelocityRPM",
         Units.RotationsPerSecond.of(lfVelocity.getValueAsDouble()).in(Units.RPM));
 
+    // ── Current ───────────────────────────────────────────────────
     DogLog.log("Shooter/RightMaster/AppliedCurrent", rmCurrent.getValueAsDouble());
     DogLog.log("Shooter/LeftMaster/AppliedCurrent",  lmCurrent.getValueAsDouble());
 
-    DogLog.log("Shooter/RightMaster/Temperature", rmTemp.getValueAsDouble());
+    // ── Temperature ───────────────────────────────────────────────
+    DogLog.log("Shooter/RightMaster/Temperature",   rmTemp.getValueAsDouble());
     DogLog.log("Shooter/RightFollower/Temperature", rfTemp.getValueAsDouble());
-    DogLog.log("Shooter/LeftMaster/Temperature",  lmTemp.getValueAsDouble()); 
-    DogLog.log("Shooter/LeftFollower/Temperature", lfTemp.getValueAsDouble()); 
-        
-    }
+    DogLog.log("Shooter/LeftMaster/Temperature",    lmTemp.getValueAsDouble());
+    DogLog.log("Shooter/LeftFollower/Temperature",  lfTemp.getValueAsDouble());
+
+    // ── Connection ────────────────────────────────────────────────
+    boolean rmConnected = rm.isConnected(2.0);
+    boolean rfConnected = rf.isConnected(2.0);
+    boolean lmConnected = lm.isConnected(2.0);
+    boolean lfConnected = lf.isConnected(2.0);
+    boolean allConnected = rmConnected && rfConnected && lmConnected && lfConnected;
+
+    DogLog.log("Shooter/RightMaster/Connected",   rmConnected);
+    DogLog.log("Shooter/RightFollower/Connected", rfConnected);
+    DogLog.log("Shooter/LeftMaster/Connected",    lmConnected);
+    DogLog.log("Shooter/LeftFollower/Connected",  lfConnected);
+
+    AlertType alertType = DriverStation.isFMSAttached() ? null : AlertType.kError;
+
+    if (!allConnected) { DogLog.logFault("CAN2: Shooter Disconnected",   alertType); }
+    else               { DogLog.clearFault("CAN2: Shooter Disconnected"); }
+
+    // ── Temperature faults ────────────────────────────────────────
+}
 }

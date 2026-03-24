@@ -22,6 +22,8 @@ import frc.robot.generated.TunerConstants;
  * This includes physical constants (gear ratios, max speeds) and CTRE Phoenix 6 configurations.
  */
 public class SystemConstants {
+
+    public static final double kTalonFXWarnTemp = 75.0;
     /**
      * Drivetrain constants not handled by Tuner X generation.
      */

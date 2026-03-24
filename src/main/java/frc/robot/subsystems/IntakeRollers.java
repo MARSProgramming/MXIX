@@ -11,6 +11,8 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -96,13 +98,23 @@ public class IntakeRollers extends SubsystemBase {
     }
 
     @Override
+    
     public void periodic() {
-        sTunablePercentOut = intakePercentOutTunable.get(); // was being reset to 0 — bug fix
+    sTunablePercentOut = intakePercentOutTunable.get();
 
-        BaseStatusSignal.refreshAll(mVelocity, mVoltage, mTemp);
+    BaseStatusSignal.refreshAll(mVelocity, mVoltage, mTemp);
 
-        DogLog.log("Intake/VelocityRPM", Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
-        DogLog.log("Intake/AppliedVoltage", mVoltage.getValueAsDouble());
-        DogLog.log("Intake/Temperature",    mTemp.getValueAsDouble());
+    boolean connected = mIntakeRollers.isConnected(2.0);
+
+    DogLog.log("Intake/VelocityRPM", Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
+    DogLog.log("Intake/AppliedVoltage", mVoltage.getValueAsDouble());
+    DogLog.log("Intake/Temperature",    mTemp.getValueAsDouble());
+    DogLog.log("Intake/Connected",      connected);
+
+    AlertType alertType = DriverStation.isFMSAttached() ? null : AlertType.kError;
+
+    if (!connected) { DogLog.logFault("CAN2: IntakeRollers Disconnected",   alertType); }
+    else            { DogLog.clearFault("CAN2: IntakeRollers Disconnected"); }
     }
+
 }

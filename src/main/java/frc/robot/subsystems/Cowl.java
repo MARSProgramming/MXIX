@@ -15,6 +15,9 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
@@ -37,13 +40,13 @@ public class Cowl extends SubsystemBase {
     private final DoubleSubscriber cowlPositionTunable = DogLog.tunable("Cowl/TunableCowlPosition", 0.6);
     private final DoubleSubscriber cowlPercentOutTunable = DogLog.tunable("Cowl/TunableCowlPercentout", 0.2);
 
+    double cTunablePosition = cowlPositionTunable.get();
+    double cTunablePercentout = cowlPercentOutTunable.get();
+
     private final StatusSignal<Angle> mPosition;
     private final StatusSignal<Voltage> mVoltage;
     private final StatusSignal<Current> mSupplyCurrent;
     private final StatusSignal<Temperature> mTemp;
-
-    double cTunablePosition = cowlPositionTunable.get();
-    double cTunablePercentout = cowlPercentOutTunable.get();
 
     /**
      * Creates a new Cowl subsystem.
@@ -152,12 +155,21 @@ public Command home() {
         // Update local tunable variable from NetworkTables
         cTunablePosition = cowlPositionTunable.get();
         cTunablePercentout = cowlPercentOutTunable.get();
-    // Batch refresh all CAN signals in one JNI call
-    BaseStatusSignal.refreshAll(mPosition, mVoltage, mSupplyCurrent, mTemp);
+        // Batch refresh all CAN signals in one JNI call
+        BaseStatusSignal.refreshAll(mPosition, mVoltage, mSupplyCurrent, mTemp);
+        boolean connected = mCowl.isConnected(2.0);
 
-    DogLog.log("Cowl/Position",       mPosition.getValueAsDouble());
-    DogLog.log("Cowl/AppliedVoltage", mVoltage.getValueAsDouble());
-    DogLog.log("Cowl/SupplyCurrent",  mSupplyCurrent.getValueAsDouble());
-    DogLog.log("Cowl/Temperature",    mTemp.getValueAsDouble());
+        DogLog.log("Cowl/Position",       mPosition.getValueAsDouble());
+        DogLog.log("Cowl/AppliedVoltage", mVoltage.getValueAsDouble());
+        DogLog.log("Cowl/SupplyCurrent",  mSupplyCurrent.getValueAsDouble());
+        DogLog.log("Cowl/Temperature",    mTemp.getValueAsDouble());
+        DogLog.log("Cowl/Connected",      connected);
+
+        if (!connected) {
+            DogLog.logFault("CAN2: Cowl Disconnected",
+            DriverStation.isFMSAttached() ? null : AlertType.kError);
+        } else {
+            DogLog.clearFault("CAN2: Cowl Disconnected");
+        }
     }
 }

@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.DriverStation;
 
 /**
  * Subsystem representing the Floor intake mechanism.
@@ -88,15 +90,24 @@ public class Floor extends SubsystemBase {
             mFloor.set(0);
         });
     }
-
-    @Override
-    public void periodic() {
-    sTunablePercentOut = floorPercentOutTunable.get(); // was being reset to 0 — bug fix
+@Override
+public void periodic() {
+    sTunablePercentOut = floorPercentOutTunable.get();
 
     BaseStatusSignal.refreshAll(mVelocity, mVoltage, mTemp);
+
+    boolean connected = mFloor.isConnected(2.0);
 
     DogLog.log("Floor/VelocityRPM", Units.RotationsPerSecond.of(mVelocity.getValueAsDouble()).in(Units.RPM));
     DogLog.log("Floor/AppliedVoltage", mVoltage.getValueAsDouble());
     DogLog.log("Floor/Temperature",    mTemp.getValueAsDouble());
+    DogLog.log("Floor/Connected",      connected);
+
+    if (!connected) {
+        DogLog.logFault("CAN2: Floor Disconnected",
+            DriverStation.isFMSAttached() ? null : AlertType.kError);
+    } else {
+        DogLog.clearFault("CAN2: Floor Disconnected");
     }
+}
 }
