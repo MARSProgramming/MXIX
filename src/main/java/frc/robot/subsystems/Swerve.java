@@ -243,15 +243,15 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         BaseStatusSignal.refreshAll(mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4, mAbsEnc1, mAbsEnc2, mAbsEnc3, mAbsEnc4);
 
 
-        DogLog.log("DogLogSwerve/CurrentDraw1", mCurrentDraw1.getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw2", mCurrentDraw2.getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw3", mCurrentDraw3.getValueAsDouble());
-        DogLog.log("DogLogSwerve/CurrentDraw4", mCurrentDraw4.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDrawFL", mCurrentDraw1.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDrawFR", mCurrentDraw2.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDrawBL", mCurrentDraw3.getValueAsDouble());
+        DogLog.log("DogLogSwerve/CurrentDrawBR", mCurrentDraw4.getValueAsDouble());
 
-        DogLog.log("DogLogSwerve/Swerve0AbsEncoderPos", mAbsEnc1.getValueAsDouble());
-        DogLog.log("DogLogSwerve/Swerve1AbsEncoderPos", mAbsEnc2.getValueAsDouble());
-        DogLog.log("DogLogSwerve/Swerve2AbsEncoderPos", mAbsEnc3.getValueAsDouble());
-        DogLog.log("DogLogSwerve/Swerve3AbsEncoderPos", mAbsEnc4.getValueAsDouble());
+        DogLog.log("DogLogSwerve/FLabsEncoderPos", mAbsEnc1.getValueAsDouble());
+        DogLog.log("DogLogSwerve/FRabsEncoderPos", mAbsEnc2.getValueAsDouble());
+        DogLog.log("DogLogSwerve/BLabsEncoderPos", mAbsEnc3.getValueAsDouble());
+        DogLog.log("DogLogSwerve/BRabsEncoderPos", mAbsEnc4.getValueAsDouble());
 
         // ── Connection monitoring ──────────────────────────────────────
         boolean allModulesConnected = true;
