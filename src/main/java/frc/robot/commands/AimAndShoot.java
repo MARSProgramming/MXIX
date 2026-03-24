@@ -17,122 +17,92 @@ import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
 import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Swerve;
 import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
 
-/**
- * Command that allows the driver to translate the robot field-centrically while the robot
- * automatically rotates to face a specific target (the Hub/Speaker).
- */
 public class AimAndShoot extends Command {
-    private boolean readyToShootBoolean = false;
-    private boolean readyToCalculateBoolean = false;
-    private boolean cowlAtTolerance = false;
-    private boolean flywheelAtTolerance = false;
 
-    private final Swerve swerve;
-    private final Cowl cowl;
-    private final Flywheel flywheel;
-    private final Feeder feeder;
-    private final IntakeRollers intakeRollers;
-    private final Floor floor;
+    private boolean mReadyToShoot  = false;
+    private boolean mCowlReady     = false;
+    private boolean mFlywheelReady = false;
 
-
-    private final ShotSetup shotSetup;
+    private final Swerve          swerve;
+    private final Cowl            cowl;
+    private final Flywheel        flywheel;
+    private final Feeder          feeder;
+    private final Floor           floor;
+    private final IntakeRollers   intakeRollers;
+    private final ShotSetup       shotSetup;
     private final DriveInputSmoother inputSmoother;
 
-    // Request to drive field-centric while facing a specific angle
-    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
-        .withRotationalDeadband(Drive.kPIDRotationDeadband)
-        .withMaxAbsRotationalRate(Drive.kMaxRotationalRate)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-        .withHeadingPID(5, 0, 0);
-
+    private final SwerveRequest.FieldCentricFacingAngle facingAngleRequest =
+        new SwerveRequest.FieldCentricFacingAngle()
+            .withRotationalDeadband(Drive.kPIDRotationDeadband)
+            .withMaxAbsRotationalRate(Drive.kMaxRotationalRate)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+            .withSteerRequestType(SteerRequestType.MotionMagicExpo)
+            .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
+            .withHeadingPID(5, 0, 0);
 
     public AimAndShoot(
-        Swerve swerve,
-        Cowl cowl,
-        Flywheel flywheel,
-        Feeder feeder,
-        Floor floor,
-        IntakeRollers intakeRollers,
-        DoubleSupplier forwardInput,
-        DoubleSupplier leftInput
+        Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder,
+        Floor floor, IntakeRollers intakeRollers, ShotSetup shotSetup,
+        DoubleSupplier forwardInput, DoubleSupplier leftInput
     ) {
-        this.swerve = swerve;
-        this.cowl = cowl;
-        this.feeder = feeder;
-        this.floor = floor;
+        this.swerve        = swerve;
+        this.cowl          = cowl;
+        this.flywheel      = flywheel;
+        this.feeder        = feeder;
+        this.floor         = floor;
         this.intakeRollers = intakeRollers;
-        this.flywheel = flywheel;
-
-        shotSetup = new ShotSetup();
-
+        this.shotSetup     = shotSetup;
         this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
-    public AimAndShoot(Swerve swerve, Cowl cowl, Flywheel flywheel, Feeder feeder, Floor floor, IntakeRollers intakeRollers, LEDSubsystem ledSubsystem) {
-        this(swerve, cowl, flywheel, feeder, floor, intakeRollers, () -> 0, () -> 0);
-    }
+    
+    
 
 
 
     @Override
     public void initialize() {
-      readyToShootBoolean = false;
-      readyToCalculateBoolean = false;
-      cowlAtTolerance = false;
-      flywheelAtTolerance = false;
+        mReadyToShoot  = false;
+        mCowlReady     = false;
+        mFlywheelReady = false;
     }
 
     @Override
     public void execute() {
-        // Get smoothed joystick inputs
-        final ManualDriveInput input = inputSmoother.getSmoothedInput();
-        boolean isAimed = swerve.isAimedAtHub();
-        
-        // Apply control request to swerve
-        swerve.setControl(
-            fieldCentricFacingAngleRequest
-                .withVelocityX(Drive.kMaxSpeed.times(input.forward))
-                .withVelocityY(Drive.kMaxSpeed.times(input.left))
-                .withTargetDirection(swerve.getShooterDirectionToHub()) 
-        );
+        ManualDriveInput input   = inputSmoother.getSmoothedInput();
+        boolean          isAimed = swerve.isAimedAtHub();
 
+        swerve.setControl(facingAngleRequest
+            .withVelocityX(Drive.kMaxSpeed.times(input.forward))
+            .withVelocityY(Drive.kMaxSpeed.times(input.left))
+            .withTargetDirection(swerve.getShooterDirectionToHub()));
 
-        if (isAimed) {
-            readyToCalculateBoolean = true;
-        }
+        ShotSetup.ShotInfo info      = shotSetup.getStaticShotInfo(swerve.getDistanceToHub());
+        double             cowlAngle = info.cowlPosition;
+        double             rpm       = info.shot.shooterRPM;
 
-        if (readyToCalculateBoolean) {
-            ShotSetup.ShotInfo info = shotSetup.getStaticShotInfo(swerve.getDistanceToHub());
-            double cowlAngle = info.cowlPosition;
-            double shooterRPM = info.shot.shooterRPM;
+        cowl.setPosition(cowlAngle);
+        flywheel.setRPM(rpm);
 
-            cowl.setPosition(cowlAngle);
-            flywheel.setRPM(shooterRPM);
+        mCowlReady     = cowl.isAtTolerance(cowlAngle);
+        mFlywheelReady = flywheel.isVelocityWithinTolerance(Units.RPM.of(rpm));
 
-            cowlAtTolerance = cowl.isAtTolerance(cowlAngle);
-            flywheelAtTolerance = flywheel.isVelocityWithinTolerance(Units.RPM.of(shooterRPM));
+        DogLog.log("AimAndShoot/CowlTarget",      cowlAngle);
+        DogLog.log("AimAndShoot/RPMTarget",        rpm);
+        DogLog.log("AimAndShoot/CowlReady",        mCowlReady);
+        DogLog.log("AimAndShoot/FlywheelReady",    mFlywheelReady);
+        DogLog.log("AimAndShoot/Aimed",            isAimed);
 
-            DogLog.log("AimAndShoot/expectedCowlAngle", cowlAngle);
-            DogLog.log("AimAndShoot/expectedShooterRPM", shooterRPM);
-            DogLog.log("AimAndShoot/cowlAtTolerance", cowlAtTolerance);
-            DogLog.log("AimAndShoot/flywheelAtTolerance", flywheelAtTolerance);
+        if (mCowlReady && mFlywheelReady && isAimed) mReadyToShoot = true;
 
-        }
-
-        if (cowlAtTolerance && flywheelAtTolerance && isAimed) {
-            readyToShootBoolean = true;
-        }
-
-        if (readyToShootBoolean) {
+        if (mReadyToShoot) {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
@@ -148,9 +118,5 @@ public class AimAndShoot extends Command {
     }
 
     @Override
-    public boolean isFinished() {
-        // Command runs until interrupted (e.g., button release)
-        return false;
-    }
-
+    public boolean isFinished() { return false; }
 }

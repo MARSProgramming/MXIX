@@ -76,7 +76,7 @@ public class RobotContainer {
     Feeder mFeeder = new Feeder();
     Floor mFloor = new Floor();
     IntakePivot mIntakePivot = new IntakePivot();
-    ShotSetup shotSetup = new ShotSetup();
+    ShotSetup mShotSetup = new ShotSetup();
     Swerve swerve = new Swerve();
     IntakeRollers mIntakeRollers = new IntakeRollers();
     LEDSubsystem leds = new LEDSubsystem();
@@ -87,7 +87,7 @@ public class RobotContainer {
 
 
     // Autonomous routines manager
-    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds);
+    private final AutoRoutines autoRoutines = new AutoRoutines(swerve, mCowl, mFastClimber, mFeeder, mFloor, mFlywheel, mIntakePivot, mIntakeRollers, leds, mShotSetup);
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -147,13 +147,12 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
-        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, 
-        () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
+        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, mShotSetup, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.leftBumper().whileTrue(new Unjam(mFeeder, mFloor, mIntakeRollers).beforeStarting(() -> leds.setColor(Color.kRed, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
-      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
+      drivePilot.rightBumper().whileTrue(new AimAndShuttle(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, mShotSetup, () -> -drivePilot.getLeftY(), () -> -drivePilot.getLeftX()).beforeStarting(() -> leds.strobe(Color.kPurple, LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 
       drivePilot.povLeft().whileTrue(mIntakePivot.retractCommand());
       drivePilot.povRight().whileTrue(mIntakePivot.deployCommand());

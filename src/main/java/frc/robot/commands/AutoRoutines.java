@@ -50,6 +50,7 @@ import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.ShotSetup;
 import frc.robot.subsystems.Swerve;
 
 /**
@@ -66,6 +67,7 @@ public final class AutoRoutines {
     private final IntakePivot intakePivot;
     private final IntakeRollers intakeRollers;
     private final LEDSubsystem ledsubsystem;
+    private final ShotSetup shotSetup;
     
 
     private final AutoFactory autoFactory;
@@ -87,7 +89,8 @@ public final class AutoRoutines {
         Flywheel flywheel, 
         IntakePivot intakePivot,
         IntakeRollers intakeRollers,
-        LEDSubsystem ledsubsystem
+        LEDSubsystem ledsubsystem,
+        ShotSetup shotSetup
     ) {
         this.swerve = swerve;
         this.cowl = cowl;
@@ -98,6 +101,7 @@ public final class AutoRoutines {
         this.intakePivot = intakePivot;
         this.intakeRollers = intakeRollers;
         this.ledsubsystem = ledsubsystem;
+        this.shotSetup = shotSetup;
         this.autoFactory = swerve.createAutoFactory();
         this.autoChooser = new AutoChooser();
     }
@@ -152,7 +156,7 @@ public final class AutoRoutines {
         getBackOver.done().onTrue(finalTurnTraj.cmd());
 
         finalTurnTraj.doneDelayed(1.0).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem) 
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup) 
             .alongWith(intakePivot.slamtake())
         );
 
@@ -188,7 +192,7 @@ public final class AutoRoutines {
         getBackOver.done().onTrue(finalTurnTraj.cmd());
 
         finalTurnTraj.doneDelayed(1.0).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem) 
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup) 
             .alongWith(intakePivot.slamtake())
         );
         
@@ -228,7 +232,7 @@ public final class AutoRoutines {
     
         goToShotPos.doneDelayed(0.5).onTrue(
             Commands.parallel(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup).withTimeout(4),
                 intakePivot.slamtake().withTimeout(3.8)   
             ));
 
@@ -268,7 +272,7 @@ public final class AutoRoutines {
     
         goToShotPos.doneDelayed(0.5).onTrue(
             Commands.parallel(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup).withTimeout(4),
                 intakePivot.slamtake().withTimeout(3.8)   
             ));
 
@@ -313,7 +317,7 @@ public final class AutoRoutines {
 
         getBallsTraj.done().onTrue(
             Commands.parallel(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup).withTimeout(4),
                 intakePivot.slamtake().withTimeout(3.8)   
             ));
 
@@ -358,7 +362,7 @@ public final class AutoRoutines {
 
         getBallsTraj.done().onTrue(
             Commands.parallel(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, ledsubsystem).withTimeout(4),
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup).withTimeout(4),
                 intakePivot.slamtake().withTimeout(3.8)   
             ));
 
