@@ -45,6 +45,12 @@ public class Robot extends TimedRobot {
     }
 
     @Override
+    public void testInit() {
+        m_robotContainer.configureTestBindings();
+    }
+    
+
+    @Override
     public void teleopInit() {
         m_robotContainer.getMatchStateSubsystem().onTeleopInit();
     }

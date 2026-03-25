@@ -95,7 +95,7 @@ public class RobotContainer {
 
         DriverStation.silenceJoystickConnectionWarning(true);
         configureBindings();
-        configureTestBindings();
+       // configureTestBindings();
         autoRoutines.configure();
 
         vision = new Vision(
@@ -167,7 +167,7 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
 
       drivePilot.povDown().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE)
       .beforeStarting(() -> leds.strobe(Color.kRed, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
-      drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(-Settings.ClimbSettings.CLIMB_DUTYCYCLE)
+      drivePilot.povUp().whileTrue(mFastClimber.setPercentOut(Settings.ClimbSettings.DECLIMB_DUTYCYCLE)
             .beforeStarting(() -> leds.strobe(Color.kOrange, LEDSubsystem.LEDSegment.BOTH_BARS)).finallyDo(() -> leds.setColor(Color.kRed, LEDSegment.ALL)));
 
 
@@ -203,7 +203,7 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
 
     }
 
-    private void configureTestBindings() {
+    public void configureTestBindings() {
         // shooting
         testPilot.rightTrigger().whileTrue(mFlywheel.setVelocityTunable());
         testPilot.rightBumper().whileTrue(
