@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class LEDSubsystem extends SubsystemBase {
 
-    private final CANdle candle = new CANdle(24);
+    private final CANdle candle = new CANdle(24, "CAN2");
 
     public enum LEDSegment {
         CANDLE,
