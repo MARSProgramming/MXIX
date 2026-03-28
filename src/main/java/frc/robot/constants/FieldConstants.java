@@ -95,19 +95,20 @@ public class FieldConstants {
      */
     public static class Locations {
 
+        private static final Translation2d BLUE_HUB = new Translation2d(Units.Inches.of(182.105), Units.Inches.of(158.845));
+        private static final Translation2d RED_HUB = new Translation2d(Units.Inches.of(469.115), Units.Inches.of(158.845));
+
         /**
          * Helper method to return the position of the legal hub to score in based on the current alliance.
          * 
-         * @return The Translation2d of the target hub (Speaker).
+         * @return The Translation2d of the targets hub (Speaker).
          **/
         public static Translation2d hubPosition() {
             final Optional<Alliance> alliance = DriverStation.getAlliance();
             if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-                // Blue Alliance Hub Position
-                return new Translation2d(Units.Inches.of(182.105), Units.Inches.of(158.845));
+                return BLUE_HUB;
             }
-            // Red Alliance Hub Position
-            return new Translation2d(Units.Inches.of(469.115), Units.Inches.of(158.845));
+            return RED_HUB;
         }
 
         public static ArrayList<Pose2d> shuttlingPosesBlue = new ArrayList<Pose2d>();
