@@ -216,27 +216,34 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_SWEEP_AGGRO$0 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(0),
-	    3.70937,
+	    2.28648,
 	    new Pose2d(3.533, 5.608, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92))
+	    new Pose2d(6.3, 5.626, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$1 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(1),
-	    2.8345599999999997,
-	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92)),
-	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(0))
+	    1.4228899999999998,
+	    new Pose2d(6.3, 5.626, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$2 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(2),
-	    2.3568499999999997,
-	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(0)),
-	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(-0.645))
+	    2.8345599999999997,
+	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92)),
+	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$3 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(3),
+	    2.3568499999999997,
+	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(0)),
+	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(-0.645))
+	);
+	public static final ChoreoTraj C_SWEEP_AGGRO$4 = new ChoreoTraj(
+	    "C_SWEEP_AGGRO",
+	    OptionalInt.of(4),
 	    2.7619100000000003,
 	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(-0.645)),
 	    new Pose2d(7.445, 5.107, Rotation2d.fromRadians(-1.147))
@@ -327,6 +334,7 @@ public record ChoreoTraj(
 		Map.entry("C_SWEEP_AGGRO$1", C_SWEEP_AGGRO$1),
 		Map.entry("C_SWEEP_AGGRO$2", C_SWEEP_AGGRO$2),
 		Map.entry("C_SWEEP_AGGRO$3", C_SWEEP_AGGRO$3),
+		Map.entry("C_SWEEP_AGGRO$4", C_SWEEP_AGGRO$4),
 		Map.entry("X_CLIMB_NEARD", X_CLIMB_NEARD),
 		Map.entry("X_CLIMB_NEARD$0", X_CLIMB_NEARD$0),
 		Map.entry("X_CLIMB_NEARD$1", X_CLIMB_NEARD$1),

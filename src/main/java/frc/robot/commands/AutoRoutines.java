@@ -130,9 +130,9 @@ public final class AutoRoutines {
     private AutoRoutine CContinuousSweep() {
         final AutoRoutine routine = autoFactory.newRoutine("C_SWEEP_ROUTINE");
         final AutoTrajectory prepSweepTraj = C_SWEEP_AGGRO$0.asAutoTraj(routine);
-        final AutoTrajectory getBallsAndPrepBumpTraversal = C_SWEEP_AGGRO$1.asAutoTraj(routine);
-        final AutoTrajectory bumpTraversalAndPreAim = C_SWEEP_AGGRO$2.asAutoTraj(routine);
-        final AutoTrajectory returnToNeutralZone = C_SWEEP_AGGRO$3.asAutoTraj(routine);
+        final AutoTrajectory prepGetBallsTraj = C_SWEEP_AGGRO$1.asAutoTraj(routine);
+        
+        
 
         routine.active().onTrue(
             Commands.sequence(
@@ -140,6 +140,9 @@ public final class AutoRoutines {
                 prepSweepTraj.cmd().alongWith(intakePivot.timedDeployCommand())
             )
         );
+
+        prepSweepTraj.done().onTrue(prepGetBallsTraj.cmd());
+        /*
 
         prepSweepTraj.done().onTrue(
             getBallsAndPrepBumpTraversal.cmd().alongWith(intakeRollers.intakeCommand())
@@ -158,10 +161,7 @@ public final class AutoRoutines {
                 returnToNeutralZone.cmd().alongWith(intakeRollers.intakeCommand())
             )
         );
-
-        
-
-        
+        */
 
         return routine;
     }
