@@ -209,30 +209,100 @@ public record ChoreoTraj(
 	public static final ChoreoTraj C_SWEEP_AGGRO = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.empty(),
-	    9.24126,
+	    11.91985,
 	    new Pose2d(3.533, 5.608, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2.294, 5.538, Rotation2d.fromRadians(-0.574))
+	    new Pose2d(7.445, 5.107, Rotation2d.fromRadians(-1.147))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$0 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(0),
-	    3.70919,
+	    3.70936,
 	    new Pose2d(3.533, 5.608, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$1 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(1),
-	    2.69371,
+	    2.7976099999999997,
 	    new Pose2d(7.9, 7.141, Rotation2d.fromRadians(-1.92)),
-	    new Pose2d(6.918, 5.538, Rotation2d.fromRadians(3.142))
+	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj C_SWEEP_AGGRO$2 = new ChoreoTraj(
 	    "C_SWEEP_AGGRO",
 	    OptionalInt.of(2),
-	    2.8383600000000007,
-	    new Pose2d(6.918, 5.538, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2.294, 5.538, Rotation2d.fromRadians(-0.574))
+	    2.65097,
+	    new Pose2d(6.555, 5.622, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(-0.645))
+	);
+	public static final ChoreoTraj C_SWEEP_AGGRO$3 = new ChoreoTraj(
+	    "C_SWEEP_AGGRO",
+	    OptionalInt.of(3),
+	    0.33585000000000065,
+	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(-0.645)),
+	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj C_SWEEP_AGGRO$4 = new ChoreoTraj(
+	    "C_SWEEP_AGGRO",
+	    OptionalInt.of(4),
+	    1.8431800000000003,
+	    new Pose2d(2.294, 5.626, Rotation2d.fromRadians(0)),
+	    new Pose2d(6.5, 5.626, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj C_SWEEP_AGGRO$5 = new ChoreoTraj(
+	    "C_SWEEP_AGGRO",
+	    OptionalInt.of(5),
+	    0.5828799999999994,
+	    new Pose2d(6.5, 5.626, Rotation2d.fromRadians(0)),
+	    new Pose2d(7.445, 5.107, Rotation2d.fromRadians(-1.147))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.empty(),
+	    11.93028,
+	    new Pose2d(3.533, 2.5, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(7.432, 2.859, Rotation2d.fromRadians(0.612))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$0 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(0),
+	    3.71074,
+	    new Pose2d(3.533, 2.5, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(7.9, 0.967, Rotation2d.fromRadians(1.92))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$1 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(1),
+	    2.85662,
+	    new Pose2d(7.9, 0.967, Rotation2d.fromRadians(1.92)),
+	    new Pose2d(6.555, 2.486, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$2 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(2),
+	    2.658220000000001,
+	    new Pose2d(6.555, 2.486, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2.294, 2.482, Rotation2d.fromRadians(0.62))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$3 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(3),
+	    0.3297499999999989,
+	    new Pose2d(2.294, 2.482, Rotation2d.fromRadians(0.62)),
+	    new Pose2d(2.294, 2.482, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$4 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(4),
+	    1.84023,
+	    new Pose2d(2.294, 2.482, Rotation2d.fromRadians(0)),
+	    new Pose2d(6.5, 2.482, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_SWEEP_AGGRO$5 = new ChoreoTraj(
+	    "B_SWEEP_AGGRO",
+	    OptionalInt.of(5),
+	    0.5347200000000001,
+	    new Pose2d(6.5, 2.482, Rotation2d.fromRadians(0)),
+	    new Pose2d(7.432, 2.859, Rotation2d.fromRadians(0.612))
 	);
 
     /**
@@ -269,7 +339,17 @@ public record ChoreoTraj(
 		Map.entry("C_SWEEP_AGGRO", C_SWEEP_AGGRO),
 		Map.entry("C_SWEEP_AGGRO$0", C_SWEEP_AGGRO$0),
 		Map.entry("C_SWEEP_AGGRO$1", C_SWEEP_AGGRO$1),
-		Map.entry("C_SWEEP_AGGRO$2", C_SWEEP_AGGRO$2)
+		Map.entry("C_SWEEP_AGGRO$2", C_SWEEP_AGGRO$2),
+		Map.entry("C_SWEEP_AGGRO$3", C_SWEEP_AGGRO$3),
+		Map.entry("C_SWEEP_AGGRO$4", C_SWEEP_AGGRO$4),
+		Map.entry("C_SWEEP_AGGRO$5", C_SWEEP_AGGRO$5),
+		Map.entry("B_SWEEP_AGGRO", B_SWEEP_AGGRO),
+		Map.entry("B_SWEEP_AGGRO$0", B_SWEEP_AGGRO$0),
+		Map.entry("B_SWEEP_AGGRO$1", B_SWEEP_AGGRO$1),
+		Map.entry("B_SWEEP_AGGRO$2", B_SWEEP_AGGRO$2),
+		Map.entry("B_SWEEP_AGGRO$3", B_SWEEP_AGGRO$3),
+		Map.entry("B_SWEEP_AGGRO$4", B_SWEEP_AGGRO$4),
+		Map.entry("B_SWEEP_AGGRO$5", B_SWEEP_AGGRO$5)
     );
 
     /**
