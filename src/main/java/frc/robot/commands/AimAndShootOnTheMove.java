@@ -12,6 +12,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
 
 import dev.doglog.DogLog;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Settings;
 import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.subsystems.Cowl;
@@ -101,6 +102,7 @@ public class AimAndShootOnTheMove extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        CommandScheduler.getInstance().schedule(cowl.home());
         feeder.setPercentOut(0);
         floor.setPercentOut(0);
         flywheel.setRPM(0);

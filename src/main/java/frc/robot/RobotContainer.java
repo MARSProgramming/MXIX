@@ -147,7 +147,7 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
       drivePilot.rightTrigger().whileTrue(
-        new AimAndShoot(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, mShotSetup, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
+        new AimAndShootOnTheMove(swerve, mCowl, mFlywheel, mFeeder, mFloor, mIntakeRollers, mShotSetup, () -> -drivePilot.getLeftY(),  () -> -drivePilot.getLeftX())
         .beforeStarting(() -> leds.strobe(Color.kGreen, LEDSegment.ALL))
         .finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
 

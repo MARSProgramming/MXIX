@@ -20,6 +20,10 @@ import static frc.robot.util.ChoreoTraj.C_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$0;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$1;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$2;
+import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$0;
+import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$1;
+import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$2;
+import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$3;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$0;
@@ -107,13 +111,12 @@ public final class AutoRoutines {
      * Binds the selected routine to run when autonomous mode is enabled.
      */
     public void configure() {
-        autoChooser.addRoutine("DepotBump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("DepotBump Score Preload Climb", this::CClimbNearDepot);
         autoChooser.addRoutine("DepotBump Score Depot Climb", this::CScoreDepotClimb);
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
-        autoChooser.addRoutine("OutpostBump Score Beeline", this::BBeeline);
+        autoChooser.addRoutine("Depot Bump Sweep Return", this::CContinuousSweep);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -124,8 +127,44 @@ public final class AutoRoutines {
     }
 
 
+    private AutoRoutine CContinuousSweep() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_SWEEP_ROUTINE");
+        final AutoTrajectory prepSweepTraj = C_SWEEP_AGGRO$0.asAutoTraj(routine);
+        final AutoTrajectory getBallsAndPrepBumpTraversal = C_SWEEP_AGGRO$1.asAutoTraj(routine);
+        final AutoTrajectory bumpTraversalAndPreAim = C_SWEEP_AGGRO$2.asAutoTraj(routine);
+        final AutoTrajectory returnToNeutralZone = C_SWEEP_AGGRO$3.asAutoTraj(routine);
 
+        routine.active().onTrue(
+            Commands.sequence(
+                prepSweepTraj.resetOdometry(),
+                prepSweepTraj.cmd().alongWith(intakePivot.timedDeployCommand())
+            )
+        );
 
+        prepSweepTraj.done().onTrue(
+            getBallsAndPrepBumpTraversal.cmd().alongWith(intakeRollers.intakeCommand())
+        );
+
+        getBallsAndPrepBumpTraversal.done().onTrue(
+            bumpTraversalAndPreAim.cmd()
+        );
+
+        bumpTraversalAndPreAim.done().onTrue(
+            Commands.parallel(
+                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup),
+                intakePivot.slamtake()
+            ).withTimeout(8)
+            .andThen(
+                returnToNeutralZone.cmd().alongWith(intakeRollers.intakeCommand())
+            )
+        );
+
+        
+
+        
+
+        return routine;
+    }
 
     
     private AutoRoutine CBeeline() {
@@ -329,9 +368,9 @@ public final class AutoRoutines {
         .withTimeout(1)
         .andThen(
             swerve.finalClimbLineupCommand().withTimeout(3.7)
-            .andThen(
-                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
-            )
+           // .andThen(
+          //      fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
+          //  )
             ));
 
         return routine;
