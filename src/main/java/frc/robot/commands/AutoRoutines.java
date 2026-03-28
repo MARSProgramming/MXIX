@@ -23,7 +23,11 @@ import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$2;
 import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$0;
 import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$1;
 import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$2;
-import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$3;
+import static frc.robot.util.ChoreoTraj.C_TEST;
+import static frc.robot.util.ChoreoTraj.C_TEST$0;
+import static frc.robot.util.ChoreoTraj.C_TEST$1;
+import static frc.robot.util.ChoreoTraj.C_TEST$2;
+import static frc.robot.util.ChoreoTraj.C_TEST$3;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.X_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.X_DEPOT_AND_CLIMB$0;
@@ -129,19 +133,27 @@ public final class AutoRoutines {
 
     private AutoRoutine CContinuousSweep() {
         final AutoRoutine routine = autoFactory.newRoutine("C_SWEEP_ROUTINE");
-        final AutoTrajectory prepSweepTraj = C_SWEEP_AGGRO$0.asAutoTraj(routine);
-        final AutoTrajectory prepGetBallsTraj = C_SWEEP_AGGRO$1.asAutoTraj(routine);
-        
+        final AutoTrajectory goOverBump = C_TEST$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = C_TEST$1.asAutoTraj(routine);
+        final AutoTrajectory sweep = C_TEST$2.asAutoTraj(routine);
+        final AutoTrajectory bumpTraversal = C_TEST$3.asAutoTraj(routine);
         
 
         routine.active().onTrue(
             Commands.sequence(
-                prepSweepTraj.resetOdometry(),
-                prepSweepTraj.cmd().alongWith(intakePivot.timedDeployCommand())
+                goOverBump.resetOdometry(),
+                goOverBump.cmd().alongWith(intakePivot.timedDeployCommand())
             )
         );
 
-        prepSweepTraj.done().onTrue(prepGetBallsTraj.cmd());
+        goOverBump.done().onTrue(prepSweep.cmd());
+
+        prepSweep.done().onTrue(
+            sweep.cmd().alongWith(intakeRollers.intakeCommand())
+            .until(() -> sweep.done().getAsBoolean())
+        );
+
+        
         /*
 
         prepSweepTraj.done().onTrue(
