@@ -5,24 +5,11 @@
 package frc.robot.commands;
 
 
-import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$0;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$1;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$2;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$3;
-import static frc.robot.util.ChoreoTraj.B_BEELINE_OLD$4;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$0;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$1;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$2;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$3;
-import static frc.robot.util.ChoreoTraj.C_BEELINE_OLD$4;
 import static frc.robot.util.ChoreoTraj.C_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.C_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$0;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$1;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$2;
-import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$0;
-import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$1;
-import static frc.robot.util.ChoreoTraj.C_SWEEP_AGGRO$2;
 import static frc.robot.util.ChoreoTraj.C_TEST;
 import static frc.robot.util.ChoreoTraj.C_TEST$0;
 import static frc.robot.util.ChoreoTraj.C_TEST$1;
@@ -153,6 +140,15 @@ public final class AutoRoutines {
             .until(() -> sweep.done().getAsBoolean())
         );
 
+        sweep.done().onTrue(
+            bumpTraversal.cmd()
+        );
+
+        bumpTraversal.done().onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup)
+            .alongWith(intakePivot.slamtake())
+        );
+
         
         /*
 
@@ -177,75 +173,6 @@ public final class AutoRoutines {
 
         return routine;
     }
-
-    
-    private AutoRoutine CBeeline() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = C_BEELINE_OLD$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = C_BEELINE_OLD$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = C_BEELINE_OLD$2.asAutoTraj(routine);
-        final AutoTrajectory getBackOver = C_BEELINE_OLD$3.asAutoTraj(routine);
-        final AutoTrajectory finalTurnTraj = C_BEELINE_OLD$4.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd()
-                .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-            )
-        );
-
-        goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
-        prepSweep.doneDelayed(0.25).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
-
-        sweepBallsTraj.done().onTrue(getBackOver.cmd());
-
-        getBackOver.done().onTrue(finalTurnTraj.cmd());
-
-        finalTurnTraj.doneDelayed(1.0).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup) 
-            .alongWith(intakePivot.slamtake())
-        );
-
-        return routine;
-    }
-
-    
-
-
-    
-    private AutoRoutine BBeeline() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
-        final AutoTrajectory goOverBumpTraj = B_BEELINE_OLD$0.asAutoTraj(routine);
-        final AutoTrajectory prepSweep = B_BEELINE_OLD$1.asAutoTraj(routine);
-        final AutoTrajectory sweepBallsTraj = B_BEELINE_OLD$2.asAutoTraj(routine);
-        final AutoTrajectory getBackOver = B_BEELINE_OLD$3.asAutoTraj(routine);
-        final AutoTrajectory finalTurnTraj = B_BEELINE_OLD$4.asAutoTraj(routine);
-
-        routine.active().onTrue(
-            Commands.sequence(
-                goOverBumpTraj.resetOdometry(),
-                goOverBumpTraj.cmd()
-                .beforeStarting(() -> ledsubsystem.rainbow(LEDSegment.ALL))
-            )
-        );
-
-        goOverBumpTraj.done().onTrue(prepSweep.cmd().alongWith(intakePivot.timedDeployCommand()));
-        prepSweep.doneDelayed(0.25).onTrue(sweepBallsTraj.cmd().alongWith(intakeRollers.intakeCommand()));
-
-        sweepBallsTraj.done().onTrue(getBackOver.cmd());
-
-
-        getBackOver.done().onTrue(finalTurnTraj.cmd());
-
-        finalTurnTraj.doneDelayed(1.0).onTrue(
-            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup) 
-            .alongWith(intakePivot.slamtake())
-        );
-        
-        return routine;
-    }
-
     
     
 
