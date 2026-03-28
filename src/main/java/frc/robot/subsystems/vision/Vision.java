@@ -46,6 +46,7 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputs[] inputs;
   private final Alert[] disconnectedAlerts;
 
+  private boolean wasDisabled = false;
   
 
     // gives us leeway to correct in auto
@@ -89,23 +90,23 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     
-    if (RobotState.isDisabled()) {
-            LimelightHelpers.SetThrottle(VisionConstants.camera0Name, 100);
-            LimelightHelpers.SetThrottle(VisionConstants.camera1Name, 100);
-        } else {
-            LimelightHelpers.SetThrottle(VisionConstants.camera0Name, 0);
-            LimelightHelpers.SetThrottle(VisionConstants.camera1Name, 0);
-        }
+    boolean isDisabled = RobotState.isDisabled();
+    if (isDisabled != wasDisabled) {
+        int throttle = isDisabled ? 100 : 0;
+        LimelightHelpers.SetThrottle(VisionConstants.camera0Name, throttle);
+        LimelightHelpers.SetThrottle(VisionConstants.camera1Name, throttle);
+        wasDisabled = isDisabled;
+    }
 
     for (int i = 0; i < io.length; i++) {
       io[i].updateInputs(inputs[i]);
     }
 
     // Initialize logging values
-    List<Pose3d> allTagPoses = new LinkedList<>();
-    List<Pose3d> allRobotPoses = new LinkedList<>();
-    List<Pose3d> allRobotPosesAccepted = new LinkedList<>();
-    List<Pose3d> allRobotPosesRejected = new LinkedList<>();
+    List<Pose3d> allTagPoses = new ArrayList<>();
+    List<Pose3d> allRobotPoses = new ArrayList<>();
+    List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
+    List<Pose3d> allRobotPosesRejected = new ArrayList<>();
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
@@ -113,10 +114,10 @@ public class Vision extends SubsystemBase {
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
       // Initialize logging values
-      List<Pose3d> tagPoses = new LinkedList<>();
-      List<Pose3d> robotPoses = new LinkedList<>();
-      List<Pose3d> robotPosesAccepted = new LinkedList<>();
-      List<Pose3d> robotPosesRejected = new LinkedList<>();
+      List<Pose3d> tagPoses = new ArrayList<>();
+      List<Pose3d> robotPoses = new ArrayList<>();
+      List<Pose3d> robotPosesAccepted = new ArrayList<>();
+      List<Pose3d> robotPosesRejected = new ArrayList<>();
       List<Double> tagStdevMultipliers = new ArrayList<>();
 
       // Add tag poses

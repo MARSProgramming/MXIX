@@ -42,6 +42,10 @@ public class LEDSubsystem extends SubsystemBase {
         CANdleConfiguration configs = new CANdleConfiguration();
         configs.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
         candle.getConfigurator().apply(configs);
+
+        // Optimize CAN bus utilization for the CANdle (we only send commands, no telemetry needed)
+        candle.optimizeBusUtilization();
+
         rainbow(LEDSegment.BOTH_BARS);
     }
 
@@ -126,7 +130,7 @@ public class LEDSubsystem extends SubsystemBase {
 
         candle.setControl(
             new StrobeAnimation(start, end)
-                .withColor(RGBWColor.fromHex(Color.kGreen.toHexString()).get())
+                .withColor(toRGBW(color))
                 .withFrameRate(25)
                 .withSlot(0)
         );

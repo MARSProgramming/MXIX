@@ -66,6 +66,7 @@ public class MatchStateSubsystem extends SubsystemBase {
     // ── Auto result ────────────────────────────────────────────────────────
     private boolean mWonAuto          = false;
     private boolean mAutoResultLocked = false;
+    private boolean mOurHubActiveShift1 = true;
 
     // ── Shift change tracking (computed once per periodic) ─────────────────
     private Shift   mLastShift          = Shift.DISABLED;
@@ -117,6 +118,7 @@ public class MatchStateSubsystem extends SubsystemBase {
             case Blue -> !redWonAuto;
         };
 
+        mOurHubActiveShift1 = (alliance.get() == Alliance.Red) ? !redWonAuto : redWonAuto;
         mAutoResultLocked = true;
     }
 
@@ -172,13 +174,9 @@ public class MatchStateSubsystem extends SubsystemBase {
     // ── Hub status ─────────────────────────────────────────────────────────
 
     public boolean isHubActive() {
-        Optional<Alliance> alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty())                  return false;
-        if (DriverStation.isAutonomousEnabled()) return true;
         if (!DriverStation.isTeleopEnabled())    return false;
-
-        String gameData = DriverStation.getGameSpecificMessage();
-        if (gameData.isEmpty()) return true;
+        if (DriverStation.isAutonomousEnabled()) return true;
+        if (!mAutoResultLocked)                  return true;
 
         Shift shift = getCurrentShift();
 
@@ -188,15 +186,11 @@ public class MatchStateSubsystem extends SubsystemBase {
         if (mWonAuto && shift == Shift.SHIFT_4
                 && mTeleopTimer.get() >= SHIFT_4_END) return true;
 
-        boolean redInactiveFirst   = gameData.charAt(0) == 'R';
-        boolean weAreRed           = alliance.get() == Alliance.Red;
-        boolean ourHubActiveShift1 = weAreRed ? !redInactiveFirst : redInactiveFirst;
-
         return switch (shift) {
-            case SHIFT_1 ->  ourHubActiveShift1;
-            case SHIFT_2 -> !ourHubActiveShift1;
-            case SHIFT_3 ->  ourHubActiveShift1;
-            case SHIFT_4 -> !ourHubActiveShift1;
+            case SHIFT_1 ->  mOurHubActiveShift1;
+            case SHIFT_2 -> !mOurHubActiveShift1;
+            case SHIFT_3 ->  mOurHubActiveShift1;
+            case SHIFT_4 -> !mOurHubActiveShift1;
             default      -> true;
         };
     }
