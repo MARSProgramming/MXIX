@@ -12,7 +12,9 @@ import dev.doglog.DogLog;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -200,6 +202,15 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
             () -> swerve.stop(), 
             swerve)
       );
+
+      // Limelight Offset Calculation (When pressing Back/View on Copilot controller)
+      coPilot.back().onTrue(Commands.runOnce(() -> {
+          // IMPORTANT: Update this variable with the exact physical pose where you place the robot!
+          // Currently set to 0,0,0
+          Pose3d knownRobotPose = new Pose3d(0.0, 0.0, 0.0, new Rotation3d()); 
+          vision.calculateAndLogLimelightOffset(0, knownRobotPose);
+          vision.calculateAndLogLimelightOffset(1, knownRobotPose);
+      }));
 
     }
 

@@ -20,6 +20,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -142,25 +144,21 @@ public class Vision extends SubsystemBase {
     // Check whether to reject pose
        boolean rejectPose =
         observation.tagCount() == 0 // Must have at least one tag
-            || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguityMt1) // Reject all single tag MT1 (EXTREMELY Low Confidence)
-            || (observation.type() == PoseObservationType.MEGATAG_2 && observation.tagCount() == 1 && observation.ambiguity() > maxAmbiguity) // Single tag MT2 still needs ambiguity check
+            || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Absolutely reject all 1-tag MT1 poses (Trust MT2 instead)
         || Math.abs(observation.pose().getZ())
             > maxZError // Must have realistic Z coordinate
         // Must be within the field boundaries
         || !(Double.isFinite(observation.pose().getX()))
         || !(Double.isFinite(observation.pose().getY()))
-        || observation.pose().getX() < 0.0
+        || observation.pose().getX() < -FIELD_BORDER_MARGIN
         || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-        || observation.pose().getY() < 0.0
+        || observation.pose().getY() < -FIELD_BORDER_MARGIN
         || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
         || observation.averageTagDistance() > MAX_TAG_DIST;
 
         robotPoses.add(observation.pose());
 
-        // Reject if rotating too fast
-        boolean omegaRejected = Math.abs(omegaSupplier.getAsDouble()) > 2.0;
-
-        if (rejectPose || omegaRejected) {
+        if (rejectPose) {
         robotPosesRejected.add(observation.pose());
         continue;
         } else {
@@ -169,6 +167,13 @@ public class Vision extends SubsystemBase {
 
         // Calculate standard deviations
         double stdDevFactor = Math.pow(observation.averageTagDistance(), 1.8) / observation.tagCount() * tagStdevMultiplier;
+        
+        // Add penalty for high angular velocity (blur/gyro skew)
+        stdDevFactor *= (1.0 + (Math.abs(omegaSupplier.getAsDouble()) * angularVelocityStdDevScale));
+        
+        // Add penalty for height displacement
+        stdDevFactor *= (1.0 + (Math.abs(observation.pose().getZ()) * zErrorStdDevScale));
+
         double linearStdDev = linearStdDevBaseline * stdDevFactor;
         double angularStdDev = angularStdDevBaseline * stdDevFactor;
 
@@ -218,6 +223,37 @@ public class Vision extends SubsystemBase {
     DogLog.log(
         "Vision/Summary/RobotPosesRejected",
         allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+  }
+
+  /**
+   * Calculates the Limelight offset assuming Limelight web UI offset is 0.
+   * Prints the calculated Transform3d to standard output and DogLog.
+   * 
+   * @param cameraIndex The index of the camera.
+   * @param knownRobotPose The exact physical pose of the robot.
+   */
+  public void calculateAndLogLimelightOffset(int cameraIndex, Pose3d knownRobotPose) {
+    if (cameraIndex < 0 || cameraIndex >= inputs.length || inputs[cameraIndex].poseObservations.length == 0) {
+      System.out.println("Cannot calculate Limelight offset: Camera " + cameraIndex + " not connected or no pose seen.");
+      return;
+    }
+    
+    // Grab the latest pose from the Limelight (botpose with 0 offset = camera pose)
+    Pose3d zeroOffsetBotPose = inputs[cameraIndex].poseObservations[0].pose();
+    Transform3d offset = new Transform3d(knownRobotPose, zeroOffsetBotPose);
+    
+    System.out.println("=== Limelight " + cameraIndex + " Offset Calculation ===");
+    System.out.println("X Offset (m): " + offset.getX());
+    System.out.println("Y Offset (m): " + offset.getY());
+    System.out.println("Z Offset (m): " + offset.getZ());
+    System.out.println("Roll Offset (deg): " + Math.toDegrees(offset.getRotation().getX()));
+    System.out.println("Pitch Offset (deg): " + Math.toDegrees(offset.getRotation().getY()));
+    System.out.println("Yaw Offset (deg): " + Math.toDegrees(offset.getRotation().getZ()));
+    System.out.println("=============================================");
+    
+    DogLog.log("Vision/Camera" + cameraIndex + "/CalculatedOffset/X", offset.getX());
+    DogLog.log("Vision/Camera" + cameraIndex + "/CalculatedOffset/Y", offset.getY());
+    DogLog.log("Vision/Camera" + cameraIndex + "/CalculatedOffset/Z", offset.getZ());
   }
 
   @FunctionalInterface

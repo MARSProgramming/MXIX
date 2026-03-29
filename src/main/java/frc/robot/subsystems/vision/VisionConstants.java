@@ -48,6 +48,10 @@ public class VisionConstants {
   public static double linearStdDevMegatag2Factor = 0.2; // More stable than full 3D solve
   public static double angularStdDevMegatag2Factor = 9999999; // No rotation data available
 
+  // Multipliers for dynamic standard deviation scaling
+  public static double angularVelocityStdDevScale = 0.5; // Multiply variance by (1 + omega * scale)
+  public static double zErrorStdDevScale = 2.0; // Multiply variance by (1 + zError * scale)
+
   // variant trust based on tag ID.
 
     public static double getTagStdevMultiplier(int tag) {
