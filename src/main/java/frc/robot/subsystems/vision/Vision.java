@@ -20,13 +20,11 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
@@ -35,12 +33,17 @@ import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.LimelightHelpers;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
 
 import dev.doglog.DogLog;
 
+/**
+ * Subsystem responsible for managing Limelight vision updates.
+ * Incorporates observations from multiple cameras via NetworkTables, calculates appropriate
+ * standard deviations based on trust metrics (e.g. tag distance, gyro angular velocity),
+ * and feeds the accepted poses to the pose estimator.
+ */
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final VisionIO[] io;
@@ -50,11 +53,30 @@ public class Vision extends SubsystemBase {
 
   private boolean wasDisabled = false;
   
+  // Pre-allocate lists to avoid garbage collection overhead in periodic loop
+  private final List<Pose3d> allTagPoses = new ArrayList<>();
+  private final List<Pose3d> allRobotPoses = new ArrayList<>();
+  private final List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
+  private final List<Pose3d> allRobotPosesRejected = new ArrayList<>();
+  
+  // Reusable lists per camera to avoid GC loops
+  private final List<Pose3d> tempTagPoses = new ArrayList<>();
+  private final List<Pose3d> tempRobotPoses = new ArrayList<>();
+  private final List<Pose3d> tempRobotPosesAccepted = new ArrayList<>();
+  private final List<Pose3d> tempRobotPosesRejected = new ArrayList<>();
+  private final List<Double> tempTagStdevMultipliers = new ArrayList<>();
 
     // gives us leeway to correct in auto
     private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 10 meters. (Impossible)
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
 
+  /**
+   * Constructs the Vision subsystem.
+   *
+   * @param consumer Consumer to accept standard deviation tagged pose updates.
+   * @param omegaSupplier Supplier for the robot's angular velocity in radians per second.
+   * @param io Instances of VisionIO representing the physical cameras.
+   */
   public Vision(VisionConsumer consumer, DoubleSupplier omegaSupplier, VisionIO... io) {
     this.consumer = consumer;
     this.omegaSupplier = omegaSupplier;
@@ -104,30 +126,30 @@ public class Vision extends SubsystemBase {
       io[i].updateInputs(inputs[i]);
     }
 
-    // Initialize logging values
-    List<Pose3d> allTagPoses = new ArrayList<>();
-    List<Pose3d> allRobotPoses = new ArrayList<>();
-    List<Pose3d> allRobotPosesAccepted = new ArrayList<>();
-    List<Pose3d> allRobotPosesRejected = new ArrayList<>();
+    // Clear reusable lists
+    allTagPoses.clear();
+    allRobotPoses.clear();
+    allRobotPosesAccepted.clear();
+    allRobotPosesRejected.clear();
 
     // Loop over cameras
     for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
       // Update disconnected alert
       disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
-      // Initialize logging values
-      List<Pose3d> tagPoses = new ArrayList<>();
-      List<Pose3d> robotPoses = new ArrayList<>();
-      List<Pose3d> robotPosesAccepted = new ArrayList<>();
-      List<Pose3d> robotPosesRejected = new ArrayList<>();
-      List<Double> tagStdevMultipliers = new ArrayList<>();
+      // Clear camera specific lists
+      tempTagPoses.clear();
+      tempRobotPoses.clear();
+      tempRobotPosesAccepted.clear();
+      tempRobotPosesRejected.clear();
+      tempTagStdevMultipliers.clear();
 
       // Add tag poses
       double tagStdevMultiplier = Double.POSITIVE_INFINITY;
       for (int tagId : inputs[cameraIndex].tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
         if (tagPose.isPresent()) {
-          tagPoses.add(tagPose.get());
+          tempTagPoses.add(tagPose.get());
         }
 
         double tagStdevMultiplierCandidate = getTagStdevMultiplier(tagId);
@@ -136,7 +158,7 @@ public class Vision extends SubsystemBase {
         }
       }
       
-      tagStdevMultipliers.add(tagStdevMultiplier);
+      tempTagStdevMultipliers.add(tagStdevMultiplier);
 
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
@@ -156,13 +178,13 @@ public class Vision extends SubsystemBase {
         || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
         || observation.averageTagDistance() > MAX_TAG_DIST;
 
-        robotPoses.add(observation.pose());
+        tempRobotPoses.add(observation.pose());
 
         if (rejectPose) {
-        robotPosesRejected.add(observation.pose());
+        tempRobotPosesRejected.add(observation.pose());
         continue;
         } else {
-        robotPosesAccepted.add(observation.pose());
+        tempRobotPosesAccepted.add(observation.pose());
         }
 
         // Calculate standard deviations
@@ -196,20 +218,20 @@ public class Vision extends SubsystemBase {
       // Log camera data
       DogLog.log(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
-          tagPoses.toArray(new Pose3d[tagPoses.size()]));
+          tempTagPoses.toArray(new Pose3d[tempTagPoses.size()]));
       DogLog.log(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
-          robotPoses.toArray(new Pose3d[robotPoses.size()]));
+          tempRobotPoses.toArray(new Pose3d[tempRobotPoses.size()]));
       DogLog.log(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
-          robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
+          tempRobotPosesAccepted.toArray(new Pose3d[tempRobotPosesAccepted.size()]));
       DogLog.log(
           "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
-          robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
-      allTagPoses.addAll(tagPoses);
-      allRobotPoses.addAll(robotPoses);
-      allRobotPosesAccepted.addAll(robotPosesAccepted);
-      allRobotPosesRejected.addAll(robotPosesRejected);
+          tempRobotPosesRejected.toArray(new Pose3d[tempRobotPosesRejected.size()]));
+      allTagPoses.addAll(tempTagPoses);
+      allRobotPoses.addAll(tempRobotPoses);
+      allRobotPosesAccepted.addAll(tempRobotPosesAccepted);
+      allRobotPosesRejected.addAll(tempRobotPosesRejected);
     }
 
     // Log summary data

@@ -129,6 +129,12 @@ public class MatchStateSubsystem extends SubsystemBase {
 
     // ── Shift tracking ─────────────────────────────────────────────────────
 
+    /**
+     * Retrieves the current Match Shift mapped from the teleop timer.
+     * Evaluates autonomous wins to return continuous endgame shifts.
+     *
+     * @return The current active Shift enum.
+     */
     public Shift getCurrentShift() {
         if (DriverStation.isAutonomousEnabled()) return Shift.AUTO;
         if (!DriverStation.isTeleopEnabled())    return Shift.DISABLED;
@@ -149,6 +155,11 @@ public class MatchStateSubsystem extends SubsystemBase {
         return Shift.ENDGAME;
     }
 
+    /**
+     * Calculates the time remaining in the current active shift.
+     *
+     * @return Seconds remaining until the next shift transition.
+     */
     public double getSecondsRemainingInShift() {
         if (!DriverStation.isTeleopEnabled()) return 0;
 
@@ -173,6 +184,11 @@ public class MatchStateSubsystem extends SubsystemBase {
 
     // ── Hub status ─────────────────────────────────────────────────────────
 
+    /**
+     * Determines whether the team's designated Hub is actively scoring in the current shift.
+     *
+     * @return true if the Hub is active and valid for scoring.
+     */
     public boolean isHubActive() {
         if (!DriverStation.isTeleopEnabled())    return false;
         if (DriverStation.isAutonomousEnabled()) return true;
@@ -197,10 +213,21 @@ public class MatchStateSubsystem extends SubsystemBase {
 
     // ── Rumble: shift ending warning ───────────────────────────────────────
 
+    /**
+     * Indicates whether the controller should rumble to warn of an impending shift change.
+     * Fired once per shift when 5 seconds remain.
+     *
+     * @return true if rumble warning should activate this cycle.
+     */
     public boolean shouldRumbleShiftWarning() {
     return mShouldRumbleWarning;
     }
 
+    /**
+     * Indicates whether the controller should rumble due to a new shift starting.
+     *
+     * @return true if a shift just began this cycle.
+     */
     public boolean shouldRumbleShiftStart() {
     return mShouldRumbleStart;
     }

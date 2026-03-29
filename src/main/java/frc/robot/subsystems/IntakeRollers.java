@@ -39,7 +39,7 @@ public class IntakeRollers extends SubsystemBase {
     VoltageOut floorVoltageOut = new VoltageOut(0);
 
     /**
-     * Creates a new Floor subsystem.
+     * Creates a new Intake Rollers subsystem.
      * Initializes the motor and applies configuration.
      */
     public IntakeRollers() {
@@ -71,6 +71,11 @@ public class IntakeRollers extends SubsystemBase {
         });
     }
 
+    /**
+     * Runs the intake rollers at the standard configured duty cycle for intaking game pieces.
+     *
+     * @return A Command that activates intaking logic.
+     */
     public Command intakeCommand() {
         return runEnd(() -> {
             mIntakeRollers.setControl(floorVoltageOut.withOutput(Units.Volts.of(Settings.IntakeSystemSettings.INTAKING_STANDARD_DUTYCYCLE * 12.0)));
@@ -79,6 +84,12 @@ public class IntakeRollers extends SubsystemBase {
         }); 
     }
 
+    /**
+     * Directly sets the percentage output for the intake rollers.
+     * This is an immediate action, not a Command.
+     *
+     * @param percentOut The target duty cycle (-1.0 to 1.0).
+     */
     public void setPercentOut(double percentOut) {
         mIntakeRollers.setControl(floorVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
     }

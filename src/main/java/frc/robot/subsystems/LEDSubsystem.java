@@ -18,10 +18,17 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * Subsystem responsible for managing robot LED animations via CANdle.
+ * Supports different segments (Left Bar, Right Bar, CANdle LEDs) and various effects.
+ */
 public class LEDSubsystem extends SubsystemBase {
 
     private final CANdle candle = new CANdle(24, "CAN2");
 
+    /**
+     * Enumeration of physical LED segments wired to the CANdle.
+     */
     public enum LEDSegment {
         CANDLE,
         LEFT_BAR,
@@ -38,6 +45,10 @@ public class LEDSubsystem extends SubsystemBase {
     private static final int RIGHT_COUNT  = 31;
     private static final int BAR_COUNT    = 62;
 
+    /**
+     * Constructs the LEDSubsystem.
+     * Applies baseline CANdle settings and defaults to a rainbow animation across both bars.
+     */
     public LEDSubsystem() {
         CANdleConfiguration configs = new CANdleConfiguration();
         configs.CANdleFeatures.StatusLedWhenActive = StatusLedWhenActiveValue.Disabled;
@@ -91,6 +102,12 @@ public class LEDSubsystem extends SubsystemBase {
     // LED Effects
     // -------------------------
 
+    /**
+     * Overrides current animations and sets the specified segment to a solid color.
+     *
+     * @param color The target WPILib Color.
+     * @param segment The segment to display the solid color.
+     */
     public void setColor(Color color, LEDSegment segment) {
         clearAnimation();
 
@@ -103,10 +120,18 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Turns completely off all LEDs on the robot.
+     */
     public void off() {
         setColor(Color.kBlack, LEDSegment.ALL);
     }
 
+    /**
+     * Starts a scrolling rainbow animation on the specified segment.
+     *
+     * @param segment Target LED segment.
+     */
     public void rainbow(LEDSegment segment) {
         clearAnimation();
 
@@ -122,6 +147,12 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Starts a rapid flashing/strobe animation.
+     *
+     * @param color The color to strobe.
+     * @param segment Target LED segment.
+     */
     public void strobe(Color color, LEDSegment segment) {
         clearAnimation();
 
@@ -136,6 +167,12 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Starts a rolling color flow animation.
+     *
+     * @param color The flowing color.
+     * @param segment Target LED segment.
+     */
     public void rolling(Color color, LEDSegment segment) {
         clearAnimation();
 
@@ -151,6 +188,12 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Starts a Larson Scanner (Cylon-style) bouncing animation.
+     *
+     * @param color The scanner color.
+     * @param segment Target LED segment.
+     */
     public void scanner(Color color, LEDSegment segment) {
         clearAnimation();
 
@@ -167,6 +210,11 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Starts a continuous, slow fade through the RGB spectrum.
+     *
+     * @param segment Target LED segment.
+     */
     public void rgbFade(LEDSegment segment) {
         clearAnimation();
 
@@ -180,6 +228,12 @@ public class LEDSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Slowly pulses/fades a single color in and out.
+     *
+     * @param color The pulsing color.
+     * @param segment Target LED segment.
+     */
     public void fadeColor(Color color, LEDSegment segment) {
         clearAnimation();
 

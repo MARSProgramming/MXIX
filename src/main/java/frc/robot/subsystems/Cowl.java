@@ -83,6 +83,12 @@ public class Cowl extends SubsystemBase {
     }
 
         
+    /**
+     * Provides a dynamic command to set the cowl position based on a supplier.
+     *
+     * @param position DoubleSupplier providing real-time target position.
+     * @return A Command tracking position continually while executing.
+     */
     public Command setPositionCommand(DoubleSupplier position) {
         return runEnd(() -> {
             mCowl.setControl(cowlPositionOut.withPosition(position.getAsDouble()));
@@ -91,12 +97,25 @@ public class Cowl extends SubsystemBase {
         });
     }
 
+    /**
+     * Returns a command that continually holds a specific cowl position while running.
+     * Does not zero motor output on command end.
+     *
+     * @param position Target rotations.
+     * @return Command running position feedforward loop.
+     */
     public Command setPositionContinuously(double position) {
         return run(() -> {
             mCowl.setControl(cowlPositionOut.withPosition(position));
         });
     }
 
+    /**
+     * Verifies if the cowl is tracking close to its setpoint.
+     *
+     * @param setpoint The target position.
+     * @return boolean True if within tolerance.
+     */
     public boolean isAtTolerance(double setpoint) {
         double currPos = mPosition.getValueAsDouble();
          return MathUtil.isNear(setpoint, currPos, COWL_POSITION_TOLERANCE);
@@ -135,17 +154,26 @@ public class Cowl extends SubsystemBase {
         });
     }
 
-    // Re-zero the cowl motor
-
-public Command home() {
-    return run(() -> {
-        mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
-    }).withTimeout(SystemConstants.Cowl.kCowlStallTimeout)
-    .andThen(runOnce(() -> {
-        mCowl.setPosition(0);
-        mCowl.set(0);
-    }));
-}
+    /**
+     * Executes a homing sequence for the Cowl motor by driving it gently into a hardstop,
+     * stalling, and recording 0 before commanding a stop.
+     *
+     * @return Command representing homing routine.
+     */
+    public Command home() {
+        return run(() -> {
+            mCowl.set(SystemConstants.Cowl.kCowlHomingOutput);
+        }).withTimeout(SystemConstants.Cowl.kCowlStallTimeout)
+        .andThen(runOnce(() -> {
+            mCowl.setPosition(0);
+            mCowl.set(0);
+        }));
+    }
+    /**
+     * Strictly re-centers the cowl motor encoder internally without moving it.
+     *
+     * @return Command to zero rotor encoder.
+     */
     public Command zero() {
         return runOnce(() -> mCowl.setPosition(0));
     }

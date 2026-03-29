@@ -20,8 +20,8 @@ import frc.robot.constants.SystemConstants;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 /**
- * Subsystem representing the Cowl mechanism.
- * This subsystem controls the position of the cowl using a TalonFX motor.
+ * Subsystem representing the Intake Pivot mechanism.
+ * This subsystem controls the deployment and retraction of the intake arm.
  */
 public class IntakePivot extends SubsystemBase {
     TalonFX mIntakePivot;
@@ -37,8 +37,8 @@ public class IntakePivot extends SubsystemBase {
     VoltageOut pivotVoltageOut = new VoltageOut(0);
 
     /**
-     * Creates a new Cowl subsystem.
-     * Initializes the motor and applies the configuration.
+     * Creates a new Intake Pivot subsystem.
+     * Initializes the pivot motor and applies the system configuration.
      */
     public IntakePivot() {
         mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot, "CAN2");
@@ -56,6 +56,12 @@ public class IntakePivot extends SubsystemBase {
     }
 
 
+    /**
+     * Returns a command indicating voltage percentage output for the pivot.
+     * 
+     * @param percentOut Output duty cycle percentage (-1.0 to 1.0).
+     * @return A Command running the pivot at raw duty cycle.
+     */
     public Command setPercentOut(double percentOut) {
         return runEnd(() -> {
             mIntakePivot.setControl(pivotVoltageOut.withOutput(percentOut * 12.0));
@@ -64,6 +70,12 @@ public class IntakePivot extends SubsystemBase {
         });
     }
 
+    /**
+     * Deploys the intake pivot using a configured voltage duty cycle.
+     * Runs continuously until interrupted or stopped.
+     *
+     * @return Command to deploy intake.
+     */
     public Command deployCommand() {
         return runEnd(
             () -> {
@@ -75,10 +87,22 @@ public class IntakePivot extends SubsystemBase {
         );
     }
 
+    /**
+     * Deploys the intake pivot using a configured timeout.
+     * Will stop the intake automatically after the configured duration.
+     *
+     * @return Command to deploy intake for a fixed time.
+     */
     public Command timedDeployCommand() {
         return deployCommand().withTimeout(Settings.IntakePivotSettings.INTAKE_DEPLOY_TIMEOUT);
     }
 
+    /**
+     * Retracts the intake pivot using a configured inverse voltage duty cycle.
+     * Runs continuously until interrupted or stopped.
+     *
+     * @return Command to retract intake.
+     */
     public Command retractCommand() {
         return runEnd(
             () -> {
@@ -108,6 +132,13 @@ public class IntakePivot extends SubsystemBase {
     }
 
     
+    /**
+     * Performs a 'slamtake' maneuver to ensure a game piece is fully captured.
+     * This involves an alternating retract/deploy sequence.
+     * Assumes intake is already deployed.
+     *
+     * @return A sequence of commands executing the slamtake behavior.
+     */
     public Command slamtake() {
     // assumes intake is deployed. 
     return Commands.repeatingSequence(
@@ -118,6 +149,11 @@ public class IntakePivot extends SubsystemBase {
         );
     }
 
+    /**
+     * Momentarily drives the intake outwards to confirm deployment depth.
+     *
+     * @return Command to briefly jog the intake out.
+     */
     public Command confirmDeploy() {
     return Commands.sequence(
         this.setPercentOut(IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE).withTimeout(0.1)

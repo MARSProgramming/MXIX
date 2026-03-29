@@ -69,6 +69,26 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     
     private static boolean aligned = false;
 
+    // Pre-allocated array keys for telemetry to prevent periodic string allocations
+    private static final String[] DRIVE_CONNECTED_LOG_KEYS = {
+        "DogLogSwerve/Module0/DriveConnected",
+        "DogLogSwerve/Module1/DriveConnected",
+        "DogLogSwerve/Module2/DriveConnected",
+        "DogLogSwerve/Module3/DriveConnected"
+    };
+    private static final String[] STEER_CONNECTED_LOG_KEYS = {
+        "DogLogSwerve/Module0/SteerConnected",
+        "DogLogSwerve/Module1/SteerConnected",
+        "DogLogSwerve/Module2/SteerConnected",
+        "DogLogSwerve/Module3/SteerConnected"
+    };
+    private static final String[] ENCODER_CONNECTED_LOG_KEYS = {
+        "DogLogSwerve/Module0/EncoderConnected",
+        "DogLogSwerve/Module1/EncoderConnected",
+        "DogLogSwerve/Module2/EncoderConnected",
+        "DogLogSwerve/Module3/EncoderConnected"
+    };
+
 
     private static final Angle kAimTolerance = Units.Degrees.of(5);
 
@@ -258,9 +278,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         boolean steerConnected = getModule(i).getSteerMotor().isConnected(2.0);
         boolean encoderConnected = getModule(i).getEncoder().isConnected(2.0);
 
-        DogLog.log("DogLogSwerve/Module" + i + "/DriveConnected",   driveConnected);
-        DogLog.log("DogLogSwerve/Module" + i + "/SteerConnected",   steerConnected);
-        DogLog.log("DogLogSwerve/Module" + i + "/EncoderConnected", encoderConnected);
+        DogLog.log(DRIVE_CONNECTED_LOG_KEYS[i],   driveConnected);
+        DogLog.log(STEER_CONNECTED_LOG_KEYS[i],   steerConnected);
+        DogLog.log(ENCODER_CONNECTED_LOG_KEYS[i], encoderConnected);
 
         if (!driveConnected || !steerConnected || !encoderConnected) {
         allModulesConnected = false;
@@ -387,12 +407,22 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return robotpose.getTranslation().getDistance(target);
     }
 
+    /**
+     * Retrieves the field-relative speeds for the drivetrain.
+     * @return Field-relative speed ChassisSpeeds.
+     */
     public ChassisSpeeds getFieldRelativeSpeeds() {
         ChassisSpeeds speeds = getState().Speeds;
         Rotation2d rot = getState().Pose.getRotation();
         return ChassisSpeeds.fromRobotRelativeSpeeds(speeds, rot);
     }
 
+    /**
+     * Creates a command to automatically line up with the climbing chain.
+     * Starts by sideways alignment, then forward motion alignment using configured timeouts.
+     *
+     * @return A sequential command for climb alignment.
+     */
     public Command finalClimbLineupCommand() {
         return Commands.sequence(
             this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
@@ -409,6 +439,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             );
     }
 
+    /**
+     * Creates a command to drive the robot directly into the outpost structure.
+     *
+     * @return A command for forward outpost pushing.
+     */
     public Command pushIntoOutpostCmd() {
         return Commands.sequence(
             this.applyRequestCommand(
@@ -423,6 +458,12 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         );
     }
 
+    /**
+     * Creates a command to align the robot's translation and heading to a target point on the field using profiled PID controllers.
+     *
+     * @param target A supplier representing the desired target Pose2d.
+     * @return A command that tracks and aligns the robot to the specified point.
+     */
     public Command alignToPoint(Supplier<Pose2d> target) {
         return Commands.sequence(
             Commands.runOnce(() -> {

@@ -107,10 +107,9 @@ public class Flywheel extends SubsystemBase {
     }
 
     /**
-     * Command to spin up the flywheels and wait until they reach the target velocity.
-     * Useful in autonomous modes to ensure the shooter is ready before feeding.
+     * Obtains the target velocity for the flywheels in RPM.
+     * This method is an empty stub in this format/version but preserved for structure.
      *
-     * @param velocityRPM The target velocity in RPM.
      * @return A Command that sets the RPM and waits for the flywheel to be within tolerance.
      */
     
@@ -125,6 +124,11 @@ public class Flywheel extends SubsystemBase {
             lm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velocityRPM)));
     }
 
+    /**
+     * Gets the current velocity of the right master flywheel.
+     * 
+     * @return The angular velocity of the flywheel.
+     */
     public AngularVelocity getVelocity() {
         return rm.getVelocity().getValue();          
     }
@@ -161,6 +165,12 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
+    /**
+     * Sets the target velocity for the flywheels using a dynamic supplier (useful for auto-aiming).
+     *
+     * @param velo A DoubleSupplier providing the target RPM.
+     * @return A Command that continually sets the RPM based on the supplier.
+     */
     public Command setVelocity(DoubleSupplier velo) {
         return runOnce(() -> {
             rm.setControl(flywheelVelocityOut.withVelocity(Units.RPM.of(velo.getAsDouble())));
@@ -168,6 +178,11 @@ public class Flywheel extends SubsystemBase {
         });
     }
 
+    /**
+     * Command to immediately stop the flywheels by setting motor output to 0.
+     *
+     * @return Command that halts the flywheels.
+     */
     public Command stop() {
         return runOnce(() -> {
             rm.set(0);
@@ -194,7 +209,8 @@ public class Flywheel extends SubsystemBase {
     /**
      * Checks if all flywheel motors are within the configured velocity tolerance of the target.
      *
-     * @return true if all motors are in velocity mode and near the target velocity.
+     * @param targetVelo The desired target velocity.
+     * @return true if all motors are near the target velocity.
      */
     public boolean isVelocityWithinTolerance(AngularVelocity targetVelo) {
 
@@ -206,6 +222,11 @@ public class Flywheel extends SubsystemBase {
     return rmOk && rfOk && lmOk && lfOk;
     }
 
+    /**
+     * Fast check to see if all flywheels have met a base firing RPM threshold.
+     *
+     * @return true if all flywheels are securely over 2500 RPM.
+     */
     public boolean velocityThresholdsMet() {
     boolean rmOk = (rmVelocity.getValue().gte(Units.RPM.of(2500)));
     boolean rfOk = (rfVelocity.getValue().gte(Units.RPM.of(2500)));

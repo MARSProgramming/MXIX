@@ -16,13 +16,14 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
-import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Supplier;
 
-/** IO implementation for real Limelight hardware. */
+/**
+ * IO implementation for real Limelight hardware.
+ * Handles NetworkTable data fetching, telemetry updates, and pose observation parsing.
+ */
 public class VisionIOLimelight implements VisionIO {
   private final Supplier<Rotation2d> rotationSupplier;
   private final DoubleArrayPublisher orientationPublisher;
@@ -32,6 +33,9 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleSubscriber tySubscriber;
   private final DoubleArraySubscriber megatag1Subscriber;
   private final DoubleArraySubscriber megatag2Subscriber;
+
+  private final List<Integer> tempTagIds = new ArrayList<>();
+  private final List<PoseObservation> tempPoseObservations = new ArrayList<>();
 
   /**
    * Creates a new VisionIOLimelight.
@@ -50,6 +54,13 @@ public class VisionIOLimelight implements VisionIO {
     megatag2Subscriber = table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
   }
 
+  /**
+   * Updates the VisionIO inputs object with the latest data from the Limelight NetworkTables.
+   * This includes connection status, target observations, and any available pose observations
+   * (Standard/MegaTag1 and MegaTag2).
+   *
+   * @param inputs The VisionIOInputs object to populate with fresh data.
+   */
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     // Update connection status based on whether an update has been seen in the last
@@ -67,14 +78,15 @@ public class VisionIOLimelight implements VisionIO {
         new double[] {rotationSupplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
 
     // Read new pose observations from NetworkTables
-    Set<Integer> tagIds = new HashSet<>();
-    List<PoseObservation> poseObservations = new LinkedList<>();
+    tempTagIds.clear();
+    tempPoseObservations.clear();
     for (var rawSample : megatag1Subscriber.readQueue()) {
       if (rawSample.value.length == 0) continue;
       for (int i = 11; i < rawSample.value.length; i += 7) {
-        tagIds.add((int) rawSample.value[i]);
+        int id = (int) rawSample.value[i];
+        if (!tempTagIds.contains(id)) tempTagIds.add(id);
       }
-      poseObservations.add(
+      tempPoseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
               rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
@@ -98,9 +110,10 @@ public class VisionIOLimelight implements VisionIO {
     for (var rawSample : megatag2Subscriber.readQueue()) {
       if (rawSample.value.length == 0) continue;
       for (int i = 11; i < rawSample.value.length; i += 7) {
-        tagIds.add((int) rawSample.value[i]);
+        int id = (int) rawSample.value[i];
+        if (!tempTagIds.contains(id)) tempTagIds.add(id);
       }
-      poseObservations.add(
+      tempPoseObservations.add(
           new PoseObservation(
               // Timestamp, based on server timestamp of publish and latency
               rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
@@ -122,20 +135,29 @@ public class VisionIOLimelight implements VisionIO {
     }
 
     // Save pose observations to inputs object
-    inputs.poseObservations = new PoseObservation[poseObservations.size()];
-    for (int i = 0; i < poseObservations.size(); i++) {
-      inputs.poseObservations[i] = poseObservations.get(i);
+    if (inputs.poseObservations.length != tempPoseObservations.size()) {
+      inputs.poseObservations = new PoseObservation[tempPoseObservations.size()];
+    }
+    for (int i = 0; i < tempPoseObservations.size(); i++) {
+      inputs.poseObservations[i] = tempPoseObservations.get(i);
     }
 
     // Save tag IDs to inputs objects
-    inputs.tagIds = new int[tagIds.size()];
-    int i = 0;
-    for (int id : tagIds) {
-      inputs.tagIds[i++] = id;
+    if (inputs.tagIds.length != tempTagIds.size()) {
+      inputs.tagIds = new int[tempTagIds.size()];
+    }
+    int iter = 0;
+    for (int id : tempTagIds) {
+      inputs.tagIds[iter++] = id;
     }
   }
 
-  /** Parses the 3D pose from a Limelight botpose array. */
+  /**
+   * Parses the 3D pose from a Limelight botpose double array.
+   *
+   * @param rawLLArray The raw double array containing translation and rotation data from NetworkTables.
+   * @return A constructed Pose3d representing the robot's pose on the field.
+   */
   private static Pose3d parsePose(double[] rawLLArray) {
     return new Pose3d(
         rawLLArray[0],

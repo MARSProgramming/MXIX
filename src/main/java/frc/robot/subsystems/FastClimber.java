@@ -17,6 +17,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.Ports;
 import frc.robot.constants.SystemConstants;
 
+/**
+ * Subsystem representing the Fast Climber mechanism.
+ * Uses a TalonFX to control a hooked climber for the endgame.
+ */
 public class FastClimber extends SubsystemBase {
     TalonFX mFastClimber;
 
@@ -47,6 +51,12 @@ public class FastClimber extends SubsystemBase {
         mFastClimber.setPosition(0);
     }
 
+    /**
+     * Commands the climber to move to a specified position using voltage-based position control.
+     *
+     * @param position Target position in rotations.
+     * @return Command to execute position tracking.
+     */
     public Command setPosition(double position) {
         return runEnd(() -> {
             mFastClimber.setControl(fcPositionOut.withPosition(position));
@@ -55,6 +65,12 @@ public class FastClimber extends SubsystemBase {
         });
     }
 
+    /**
+     * Commands the climber's motor using an open-loop voltage duty cycle.
+     *
+     * @param output The fractional duty cycle output (-1.0 to 1.0).
+     * @return Command to run the motor at the given duty cycle.
+     */
     public Command setPercentOut(double output) {
         return runEnd(() -> {
             mFastClimber.set(output);
@@ -63,6 +79,12 @@ public class FastClimber extends SubsystemBase {
         });
     }
 
+    /**
+     * Drives the fast climber based on a tunable NetworkTables offset.
+     * Useful for safely testing the climbing hooks at varying speeds.
+     *
+     * @return Command to drive climber out with tunable output.
+     */
     public Command setPercentOutTunable() {
         return runEnd(() -> {
             mFastClimber.set(cTunableOutput);
@@ -71,6 +93,11 @@ public class FastClimber extends SubsystemBase {
         });
     }
 
+    /**
+     * Drives the fast climber in reverse based on the tunable NetworkTables offset.
+     *
+     * @return Command to pull climber in with tunable output.
+     */
     public Command setPercentOutTunableReverse() {
         return runEnd(() -> {
             mFastClimber.set(-cTunableOutput);

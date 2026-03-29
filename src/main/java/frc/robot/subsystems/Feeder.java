@@ -62,8 +62,10 @@ public class Feeder extends SubsystemBase {
     }
 
     /**
-     * set feeder RPM
-     * @param velocityRPM
+     * Immediately sets the feeder's target velocity in RPM.
+     * This is not a command, but a direct set.
+     * 
+     * @param velocityRPM The desired velocity in Rotations Per Minute.
      */
     
     public void setRPM(double velocityRPM) {
@@ -86,6 +88,12 @@ public class Feeder extends SubsystemBase {
     }
 
    
+    /**
+     * Runs the feeder motor at a duty cycle value defined by tunable NetworkTables.
+     * Allows live tuning of the feeder.
+     *
+     * @return Command that drives feeder at tunable percent output.
+     */
     public Command setPercentOutTunable() {
         return runEnd(() -> {
             mFeeder.set(stunablePercOut);
@@ -110,6 +118,11 @@ public class Feeder extends SubsystemBase {
         });
     }
 
+    /**
+     * Directly sets the feeder motor to a percentage of output voltage.
+     *
+     * @param percentOut The target duty cycle (-1.0 to 1.0).
+     */
     public void setPercentOut(double percentOut) {
         mFeeder.setControl(feederVoltageOut.withOutput(Units.Volts.of(percentOut * 12.0)));
     }
