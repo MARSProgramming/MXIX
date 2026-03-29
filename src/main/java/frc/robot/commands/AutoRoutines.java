@@ -241,7 +241,7 @@ public final class AutoRoutines {
         .andThen(
             swerve.finalClimbLineupCommand().withTimeout(3.7)
             .andThen(
-                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
+                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(2)
             )
             ));
 
@@ -281,7 +281,7 @@ public final class AutoRoutines {
         .andThen(
             swerve.finalClimbLineupCommand().withTimeout(3.7)
             .andThen(
-                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
+                fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(2)
             )
             ));
 
@@ -326,10 +326,10 @@ public final class AutoRoutines {
         .withTimeout(1)
         .andThen(
             swerve.finalClimbLineupCommand().withTimeout(3.7)
-           // .andThen(
-          //      fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(5)
-          //  )
-            ));
+           .andThen(
+               fastClimber.setPercentOut(Settings.ClimbSettings.CLIMB_DUTYCYCLE).withTimeout(2.5)
+           )
+        ));
 
         return routine;
     }
