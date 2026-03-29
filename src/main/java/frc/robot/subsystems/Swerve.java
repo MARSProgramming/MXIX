@@ -59,21 +59,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     /** Swerve request to apply during field-centric path following */
     private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds()
-    .withDriveRequestType(DriveRequestType.Velocity);
+        .withDriveRequestType(DriveRequestType.Velocity);
     private final PIDController pathXController = new PIDController(10, 0, 0);
     private final PIDController pathYController = new PIDController(10, 0, 0);
     private final PIDController pathThetaController = new PIDController(7, 0, 0);
 
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds()
-    .withDriveRequestType(DriveRequestType.Velocity);
-    
-    private static boolean aligned = false;
+        .withDriveRequestType(DriveRequestType.Velocity);
 
+    private static boolean aligned = false;
 
     private static final Angle kAimTolerance = Units.Degrees.of(5);
 
-    private static final double DEADBAND = 0.1;
-    private static final double TRIGGER_DEADBAND = 0.05;
     private static final double ANGLE_KP = 5.0;
     private static final double ANGLE_KD = 0;
     private static final double ANGLE_MAX_VELOCITY = 2.0;
@@ -89,20 +86,29 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final StatusSignal<Angle> mAbsEnc3;
     private final StatusSignal<Angle> mAbsEnc4;
 
-
     private final ProfiledController translationController =
-            new ProfiledController(
-                kAutoAlign.ALIGN_PID,
-                kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_FAST.in(Units.MetersPerSecond),
-                kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_FAST.in(Units.MetersPerSecondPerSecond)
-            );
+        new ProfiledController(
+            kAutoAlign.ALIGN_PID,
+            kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_FAST.in(Units.MetersPerSecond),
+            kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_FAST.in(Units.MetersPerSecondPerSecond)
+        );
 
     private final ProfiledPIDController angleController = new ProfiledPIDController(
         ANGLE_KP,
-         0.0,
+        0.0,
         ANGLE_KD,
-    new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION)
+        new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION)
     );
+
+    /**
+     * Throttle counter for connection monitoring — checked once per second (~50 loops at 50 Hz)
+     * to avoid paying 12x isConnected() CAN overhead every loop.
+     */
+    private int connectionCheckCounter = 0;
+    private static final int CONNECTION_CHECK_PERIOD_LOOPS = 50;
+
+    // Cache last known connection state so faults/logging stay accurate between checks
+    private boolean mAllModulesConnected = true;
 
     /**
      * Creates a new Swerve subsystem.
@@ -110,31 +116,31 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Swerve() {
         super(
-            TunerConstants.DrivetrainConstants, 
+            TunerConstants.DrivetrainConstants,
             0,
             VecBuilder.fill(0.1, 0.1, 0.1),
             VecBuilder.fill(0.1, 0.1, 0.1),
-            TunerConstants.FrontLeft, 
-            TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, 
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
             TunerConstants.BackRight
         );
 
         for (int i = 0; i < 4; i++) {
-        getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(20);
-        }   
+            getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(20);
+        }
 
-      mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
-      mCurrentDraw2 = getModule(1).getDriveMotor().getSupplyCurrent();
-      mCurrentDraw3 = getModule(2).getDriveMotor().getSupplyCurrent();
-      mCurrentDraw4 = getModule(3).getDriveMotor().getSupplyCurrent();
+        mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
+        mCurrentDraw2 = getModule(1).getDriveMotor().getSupplyCurrent();
+        mCurrentDraw3 = getModule(2).getDriveMotor().getSupplyCurrent();
+        mCurrentDraw4 = getModule(3).getDriveMotor().getSupplyCurrent();
 
-      mAbsEnc1 = getModule(0).getEncoder().getAbsolutePosition();
-      mAbsEnc2 = getModule(1).getEncoder().getAbsolutePosition();
-      mAbsEnc3 = getModule(2).getEncoder().getAbsolutePosition();
-      mAbsEnc4 = getModule(3).getEncoder().getAbsolutePosition();
+        mAbsEnc1 = getModule(0).getEncoder().getAbsolutePosition();
+        mAbsEnc2 = getModule(1).getEncoder().getAbsolutePosition();
+        mAbsEnc3 = getModule(2).getEncoder().getAbsolutePosition();
+        mAbsEnc4 = getModule(3).getEncoder().getAbsolutePosition();
 
-      angleController.enableContinuousInput(-Math.PI, Math.PI);
+        angleController.enableContinuousInput(-Math.PI, Math.PI);
     }
 
     /**
@@ -147,8 +153,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     /**
-     * Creates a new auto factory for this drivetrain with the given
-     * trajectory logger.
+     * Creates a new auto factory for this drivetrain with the given trajectory logger.
      *
      * @param trajLogger Logger for the trajectory
      * @return AutoFactory for this drivetrain
@@ -167,7 +172,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /**
      * Returns a command that applies the specified control request to this swerve drivetrain.
      *
-     * @param request Function returning the request to apply
+     * @param requestSupplier Function returning the request to apply
      * @return Command to run
      */
     public Command applyRequestCommand(Supplier<SwerveRequest> requestSupplier) {
@@ -182,8 +187,6 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         this.setControl(new SwerveRequest.Idle());
     }
 
-
-
     /**
      * Follows the given field-centric path sample with PID.
      *
@@ -195,12 +198,8 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         var pose = getState().Pose;
 
         var targetSpeeds = sample.getChassisSpeeds();
-        targetSpeeds.vxMetersPerSecond += pathXController.calculate(
-            pose.getX(), sample.x
-        );
-        targetSpeeds.vyMetersPerSecond += pathYController.calculate(
-            pose.getY(), sample.y
-        );
+        targetSpeeds.vxMetersPerSecond += pathXController.calculate(pose.getX(), sample.x);
+        targetSpeeds.vyMetersPerSecond += pathYController.calculate(pose.getY(), sample.y);
         targetSpeeds.omegaRadiansPerSecond += pathThetaController.calculate(
             pose.getRotation().getRadians(), sample.heading
         );
@@ -235,13 +234,17 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             });
         }
 
-        
-        DogLog.log("DogLogSwerve/DistanceToHubMeters", getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
+        double hubDist = getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition());
+        boolean isAimed = isAimedAtHub();
+
+        DogLog.log("DogLogSwerve/DistanceToHubMeters", hubDist);
         DogLog.log("DogLogSwerve/Pose", getState().Pose);
-        DogLog.log("DogLogSwerve/isAimed", isAimedAtHub());
+        DogLog.log("DogLogSwerve/isAimed", isAimed);
 
-        BaseStatusSignal.refreshAll(mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4, mAbsEnc1, mAbsEnc2, mAbsEnc3, mAbsEnc4);
-
+        BaseStatusSignal.refreshAll(
+            mCurrentDraw1, mCurrentDraw2, mCurrentDraw3, mCurrentDraw4,
+            mAbsEnc1, mAbsEnc2, mAbsEnc3, mAbsEnc4
+        );
 
         DogLog.log("DogLogSwerve/CurrentDrawFL", mCurrentDraw1.getValueAsDouble());
         DogLog.log("DogLogSwerve/CurrentDrawFR", mCurrentDraw2.getValueAsDouble());
@@ -253,30 +256,44 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         DogLog.log("DogLogSwerve/BLabsEncoderPos", mAbsEnc3.getValueAsDouble());
         DogLog.log("DogLogSwerve/BRabsEncoderPos", mAbsEnc4.getValueAsDouble());
 
-        // ── Connection monitoring ──────────────────────────────────────
-        boolean allModulesConnected = true;
+        // ── Connection monitoring — throttled to once per second ───────
+        // isConnected() is slow (CAN status check); calling it 12x every loop
+        // can cost several milliseconds of loop budget on a busy bus.
+        if (++connectionCheckCounter >= CONNECTION_CHECK_PERIOD_LOOPS) {
+            connectionCheckCounter = 0;
+            checkModuleConnections();
+        }
 
-        for (int i = 0; i < 4; i++) {
-        boolean driveConnected = getModule(i).getDriveMotor().isConnected(2.0);
-        boolean steerConnected = getModule(i).getSteerMotor().isConnected(2.0);
-        boolean encoderConnected = getModule(i).getEncoder().isConnected(2.0);
+        DogLog.log("DogLogSwerve/AllModulesConnected", mAllModulesConnected);
 
-        DogLog.log("DogLogSwerve/Module" + i + "/DriveConnected",   driveConnected);
-        DogLog.log("DogLogSwerve/Module" + i + "/SteerConnected",   steerConnected);
-        DogLog.log("DogLogSwerve/Module" + i + "/EncoderConnected", encoderConnected);
-
-        if (!driveConnected || !steerConnected || !encoderConnected) {
-        allModulesConnected = false;
+        if (!mAllModulesConnected) {
+            DogLog.logFault("RIO: Swerve Component Disconnected", AlertType.kError);
+        } else {
+            DogLog.clearFault("RIO: Swerve Component Disconnected");
         }
     }
 
-        DogLog.log("DogLogSwerve/AllModulesConnected", allModulesConnected);
+    /**
+     * Checks all swerve module drive, steer, and encoder connections and caches the result.
+     * Called at reduced frequency (~1 Hz) to avoid CAN overhead in the main loop.
+     */
+    private void checkModuleConnections() {
+        boolean allConnected = true;
+        for (int i = 0; i < 4; i++) {
+            boolean driveConnected   = getModule(i).getDriveMotor().isConnected(2.0);
+            boolean steerConnected   = getModule(i).getSteerMotor().isConnected(2.0);
+            boolean encoderConnected = getModule(i).getEncoder().isConnected(2.0);
 
-        if (!allModulesConnected) { DogLog.logFault("RIO: Swerve Component Disconnected", AlertType.kError); }
-        else                      { DogLog.clearFault("RIO: Swerve Component Disconnected"); }
+            DogLog.log("DogLogSwerve/Module" + i + "/DriveConnected",   driveConnected);
+            DogLog.log("DogLogSwerve/Module" + i + "/SteerConnected",   steerConnected);
+            DogLog.log("DogLogSwerve/Module" + i + "/EncoderConnected", encoderConnected);
 
+            if (!driveConnected || !steerConnected || !encoderConnected) {
+                allConnected = false;
+            }
+        }
+        mAllModulesConnected = allConnected;
     }
-
 
     public Distance hubDistInMeters() {
         return Units.Meters.of(getState().Pose.getTranslation().getDistance(FieldConstants.Locations.hubPosition()));
@@ -284,20 +301,20 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     public boolean isAimedAtHub() {
         final Rotation2d targetHeading = getShooterDirectionToHub();
-        
+
         // Get current heading in Blue Alliance perspective (standard field coordinates)
         final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
-        
+
         // Convert to Operator Perspective to match the request's frame of reference
         final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
-        
+
         return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
     }
 
     public boolean isAimedAtVirtualTarget(Rotation2d virtualTargetAngle) {
-    final Rotation2d currentHeading = getState().Pose.getRotation()
-        .rotateBy(getOperatorForwardDirection());
-    return GeometryUtil.isNear(virtualTargetAngle, currentHeading, kAimTolerance);
+        final Rotation2d currentHeading = getState().Pose.getRotation()
+            .rotateBy(getOperatorForwardDirection());
+        return GeometryUtil.isNear(virtualTargetAngle, currentHeading, kAimTolerance);
     }
 
     public Rotation2d getShooterDirectionToHub() {
@@ -306,25 +323,24 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         Pose2d launcherPosition = robotPose.transformBy(GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
         final Translation2d shooterPos = launcherPosition.getTranslation();
 
-        
         // Calculate angle in standard field coordinates (Blue Alliance origin)
         final Rotation2d hubDirectionInBlueAlliancePerspective = hubPosition.minus(shooterPos).getAngle();
-        
+
         // Adjust for the driver's perspective (Red vs Blue alliance)
         final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
-        
+
         return hubDirectionInOperatorPerspective;
     }
 
     public boolean isAimedAtShuttle() {
         final Rotation2d targetHeading = getShooterDirectionToShuttle();
-        
+
         // Get current heading in Blue Alliance perspective (standard field coordinates)
         final Rotation2d currentHeadingInBlueAlliancePerspective = this.getState().Pose.getRotation();
-        
+
         // Convert to Operator Perspective to match the request's frame of reference
         final Rotation2d currentHeadingInOperatorPerspective = currentHeadingInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
-        
+
         return GeometryUtil.isNear(targetHeading, currentHeadingInOperatorPerspective, kAimTolerance);
     }
 
@@ -334,12 +350,11 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         final Translation2d shooterPos = launcherPosition.getTranslation();
         Translation2d closestShuttlingPos = FieldConstants.Locations.getClosestShuttlingPosition(getState().Pose).getTranslation();
         final Rotation2d hubDirectionInBlueAlliancePerspective = closestShuttlingPos.minus(shooterPos).getAngle();
-        
+
         // Adjust for the driver's perspective (Red vs Blue alliance)
         final Rotation2d hubDirectionInOperatorPerspective = hubDirectionInBlueAlliancePerspective.rotateBy(this.getOperatorForwardDirection());
-        
-        return hubDirectionInOperatorPerspective;
 
+        return hubDirectionInOperatorPerspective;
     }
 
     /**
@@ -376,12 +391,10 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
     }
 
-
     // Returns distance in meters
     public double getDistanceToHub() {
         final Translation2d hubPosition = FieldConstants.Locations.hubPosition();
         final Pose2d robotPose = this.getState().Pose;
-
         return robotPose.getTranslation().getDistance(hubPosition);
     }
 
@@ -399,28 +412,19 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Command finalClimbLineupCommand() {
         return Commands.sequence(
             this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
-                new ChassisSpeeds(0, 
-                Settings.ClimbLineupSettings.SIDELINEUP_VELOCITY, 
-                0)
+                new ChassisSpeeds(0, Settings.ClimbLineupSettings.SIDELINEUP_VELOCITY, 0)
             )).withTimeout(Settings.ClimbLineupSettings.SIDEWAYS_LINEUP_TIMEOUT),
             this.applyRequestCommand(() -> robotSpeedsRequest.withSpeeds(
-                new ChassisSpeeds(
-                Settings.ClimbLineupSettings.FORWLINEUP_VELOCITY,
-                0,
-                0)
+                new ChassisSpeeds(Settings.ClimbLineupSettings.FORWLINEUP_VELOCITY, 0, 0)
             )).withTimeout(Settings.ClimbLineupSettings.FORWARD_LINEUP_TIMEOUT)
-            );
+        );
     }
 
     public Command pushIntoOutpostCmd() {
         return Commands.sequence(
             this.applyRequestCommand(
                 () -> robotSpeedsRequest.withSpeeds(
-                    new ChassisSpeeds(
-                        Settings.OutpostLineupSettings.FORWLINEUP_VELOCITY,
-                        0,
-                        0
-                    )
+                    new ChassisSpeeds(Settings.OutpostLineupSettings.FORWLINEUP_VELOCITY, 0, 0)
                 )
             ).withTimeout(Settings.OutpostLineupSettings.FORWARD_LINEUP_TIMEOUT)
         );
@@ -429,42 +433,31 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     public Command alignToPoint(Supplier<Pose2d> target) {
         return Commands.sequence(
             Commands.runOnce(() -> {
-                // Reset speeds of the controller
                 aligned = false;
-
                 ChassisSpeeds speeds = getFieldRelativeSpeeds();
-
                 translationController.reset(-Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
                 angleController.reset(this.getState().Pose.getRotation().getRadians());
             }),
             Commands.run(() -> {
-                // Update the contraints of the controller
                 Pose2d robotPose = this.getState().Pose;
                 Rotation2d rot = robotPose.getRotation();
                 Pose2d targetPose = target.get();
 
-                
                 double xDiff = targetPose.getX() - robotPose.getX();
                 double yDiff = targetPose.getY() - robotPose.getY();
-
                 double totalDiff = Math.hypot(xDiff, yDiff);
 
                 double speed = Math.abs(translationController.calculate(totalDiff, 0.0));
-        
-                double omega =
-                angleController.calculate(
-                    robotPose.getRotation().getRadians(), targetPose.getRotation().getRadians());
-                                            
-                // Trig cacl for converting back to field relative
+                double omega = angleController.calculate(
+                    robotPose.getRotation().getRadians(), targetPose.getRotation().getRadians()
+                );
+
                 double speedX = speed * (xDiff / totalDiff);
                 double speedY = speed * (yDiff / totalDiff);
-
-
 
                 this.setControl(robotSpeedsRequest.withSpeeds(
                     ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, omega, rot)
                 ));
-                
 
                 DogLog.log("AutoAlign/Target", targetPose);
                 DogLog.log("AutoAlign/SpeedOutput", speed);
@@ -477,37 +470,37 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
             Pose2d targetPose = target.get();
 
             Angle difference = AlignHelper.rotationDifference(targetPose.getRotation(), robotPose.getRotation());
-
-            Distance distance = Units.Meters.of(Math.hypot(robotPose.getX() - targetPose.getX(), robotPose.getY() - targetPose.getY()));
-
+            Distance distance = Units.Meters.of(Math.hypot(
+                robotPose.getX() - targetPose.getX(),
+                robotPose.getY() - targetPose.getY()
+            ));
             ChassisSpeeds speeds = this.getState().Speeds;
-            LinearVelocity robotSpeed = Units.MetersPerSecond.of(Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond));
+            LinearVelocity robotSpeed = Units.MetersPerSecond.of(
+                Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond)
+            );
 
             DogLog.log("AutoAlign/Distance To Alignment [cm]", distance.in(Units.Centimeters));
             DogLog.log("AutoAlign/Angle To Alignment [degrees]", difference.in(Units.Degrees));
             DogLog.log("AutoAlign/Velocity [m per s]", robotSpeed.in(Units.MetersPerSecond));
-        
-            if (DriverStation.isAutonomous())
-                return
-                    distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
-                    difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
-                    robotSpeed.lte(kAutoAlign.VELOCITY_TOLERANCE);
-            else
-                return
-                    distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
-                    difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
-                    robotSpeed.lte(kAutoAlign.AUTO_VELOCITY_TOLERANCE);
-        }
-    ).andThen(
-        Commands.runOnce(() -> {
-            this.stop();
-            aligned = true;
-        }, this)
-    );
+
+            if (DriverStation.isAutonomous()) {
+                return distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
+                       difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
+                       robotSpeed.lte(kAutoAlign.VELOCITY_TOLERANCE);
+            } else {
+                return distance.lte(kAutoAlign.TRANSLATION_TOLERANCE) &&
+                       difference.lte(kAutoAlign.ROTATION_TOLERANCE) &&
+                       robotSpeed.lte(kAutoAlign.AUTO_VELOCITY_TOLERANCE);
+            }
+        }).andThen(
+            Commands.runOnce(() -> {
+                this.stop();
+                aligned = true;
+            }, this)
+        );
     }
 
-
-     /**
+    /**
      * Seeds the Kalman Filter with a reasonable initial pose estimate based on the driver's perspective.
      * This can help correct for any significant odometry drift that may have occurred since the last time the operator perspective was applied.
      */

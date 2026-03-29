@@ -82,7 +82,7 @@ public class IntakePivot extends SubsystemBase {
     public Command retractCommand() {
         return runEnd(
             () -> {
-                mIntakePivot.setControl(pivotVoltageOut.withOutput(-Settings.IntakePivotSettings.INTAKE_DEPLOYMENT_DUTYCYCLE * 12));
+                mIntakePivot.setControl(pivotVoltageOut.withOutput(Settings.IntakePivotSettings.INTAKE_TELEOP_RETRACT_DUTYCYCLE * 12));
             },
             () -> {
                 mIntakePivot.set(0);
