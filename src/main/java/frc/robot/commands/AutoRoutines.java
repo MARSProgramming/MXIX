@@ -5,6 +5,10 @@
 package frc.robot.commands;
 
 
+import static frc.robot.util.ChoreoTraj.B_TEST$0;
+import static frc.robot.util.ChoreoTraj.B_TEST$1;
+import static frc.robot.util.ChoreoTraj.B_TEST$2;
+import static frc.robot.util.ChoreoTraj.B_TEST$3;
 import static frc.robot.util.ChoreoTraj.C_CLIMB_NEARD$0;
 import static frc.robot.util.ChoreoTraj.C_CLIMB_NEARD$1;
 import static frc.robot.util.ChoreoTraj.C_DEPOT_AND_CLIMB$0;
@@ -108,6 +112,7 @@ public final class AutoRoutines {
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
         autoChooser.addRoutine("Depot Bump Sweep Return", this::CContinuousSweep);
+        autoChooser.addRoutine("Outpost Bump Sweep Return", this::BContinuousSweep);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
         
@@ -149,30 +154,44 @@ public final class AutoRoutines {
             .alongWith(intakePivot.slamtake())
         );
 
-        
-        /*
-
-        prepSweepTraj.done().onTrue(
-            getBallsAndPrepBumpTraversal.cmd().alongWith(intakeRollers.intakeCommand())
-        );
-
-        getBallsAndPrepBumpTraversal.done().onTrue(
-            bumpTraversalAndPreAim.cmd()
-        );
-
-        bumpTraversalAndPreAim.done().onTrue(
-            Commands.parallel(
-                new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup),
-                intakePivot.slamtake()
-            ).withTimeout(8)
-            .andThen(
-                returnToNeutralZone.cmd().alongWith(intakeRollers.intakeCommand())
-            )
-        );
-        */
-
         return routine;
     }
+
+    
+    private AutoRoutine BContinuousSweep() {
+        final AutoRoutine routine = autoFactory.newRoutine("C_SWEEP_ROUTINE");
+        final AutoTrajectory goOverBump = B_TEST$0.asAutoTraj(routine);
+        final AutoTrajectory prepSweep = B_TEST$1.asAutoTraj(routine);
+        final AutoTrajectory sweep = B_TEST$2.asAutoTraj(routine);
+        final AutoTrajectory bumpTraversal = B_TEST$3.asAutoTraj(routine);
+        
+
+        routine.active().onTrue(
+            Commands.sequence(
+                goOverBump.resetOdometry(),
+                goOverBump.cmd().alongWith(intakePivot.timedDeployCommand())
+            )
+        );
+
+        goOverBump.done().onTrue(prepSweep.cmd());
+
+        prepSweep.done().onTrue(
+            sweep.cmd().alongWith(intakeRollers.intakeCommand())
+            .until(() -> sweep.done().getAsBoolean())
+        );
+
+        sweep.done().onTrue(
+            bumpTraversal.cmd()
+        );
+
+        bumpTraversal.done().onTrue(
+            new AimAndShoot(swerve, cowl, flywheel, feeder, floor, intakeRollers, shotSetup)
+            .alongWith(intakePivot.slamtake())
+        );
+        
+        return routine;
+    }
+    
     
     
 

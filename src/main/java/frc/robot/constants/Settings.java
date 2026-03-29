@@ -27,7 +27,7 @@ public class Settings {
     }
 
     public static class IntakeSystemSettings {
-        public static double INTAKING_STANDARD_DUTYCYCLE = 0.9;
+        public static double INTAKING_STANDARD_DUTYCYCLE = 1.0;
         public static double INTAKING_FLOOR_DUTYCYCLE = 0.05;
         public static double INTAKING_FEEDER_DUTYCYCLE = -0.05;
     }

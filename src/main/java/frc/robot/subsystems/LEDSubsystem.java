@@ -127,7 +127,7 @@ public class LEDSubsystem extends SubsystemBase {
         candle.setControl(
             new StrobeAnimation(start, end)
                 .withColor(RGBWColor.fromHex(Color.kGreen.toHexString()).get())
-                .withFrameRate(25)
+                .withFrameRate(10)
                 .withSlot(0)
         );
     }
