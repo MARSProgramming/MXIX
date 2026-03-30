@@ -51,9 +51,83 @@ import frc.robot.subsystems.Swerve;
 
 /**
  * Handles autonomous routine selection and configuration using Choreo.
- * This class manages the creation of auto routines and publishes the selector to the dashboard.
+ *
+ * <p>Path Naming Convention:
+ * <ul>
+ *   <li>B = OutpostBump (Red alliance starting position near outpost)</li>
+ *   <li>C = DepotBump (Blue alliance starting position near depot)</li>
+ *   <li>X = Middle (Center starting position)</li>
+ *   <li>BEELINE = Direct path over terrain bump to scoring position</li>
+ *   <li>CLIMB = Path to climbing position</li>
+ *   <li>DEPOT_AND_CLIMB = Score at depot then climb</li>
+ *   <li>NEARD = Near depot (climbing position)</li>
+ * </ul>
+ *
+ * <p>Example: C_DEPOT_AND_CLIMB = Blue alliance (DepotBump) path that scores at depot and then climbs
+ *
+ * <p>This class manages the creation of auto routines and publishes the selector to the dashboard.
  */
 public final class AutoRoutines {
+
+    /**
+     * Starting positions for autonomous modes.
+     * These correspond to the robot's initial position on the field for each alliance.
+     */
+    public enum StartingPosition {
+        /** Center field start position - X paths */
+        MIDDLE("Middle", "X"),
+
+        /** Blue alliance depot side start position - C paths */
+        BLUE_DEPOT_BUMP("DepotBump", "C"),
+
+        /** Red alliance outpost side start position - B paths */
+        RED_OUTPOST_BUMP("OutpostBump", "B");
+
+        private final String dashboardName;
+        private final String pathPrefix;
+
+        StartingPosition(String dashboardName, String pathPrefix) {
+            this.dashboardName = dashboardName;
+            this.pathPrefix = pathPrefix;
+        }
+
+        /** Gets the display name shown on the dashboard */
+        public String getDashboardName() {
+            return dashboardName;
+        }
+
+        /** Gets the path prefix used in Choreo trajectory names */
+        public String getPathPrefix() {
+            return pathPrefix;
+        }
+    }
+
+    /**
+     * Auto routine types describing the main action of the path.
+     */
+    public enum AutoRoutineType {
+        /** Direct path over bump to scoring position */
+        BEELINE("Score Beeline"),
+
+        /** Score preloaded game piece then climb */
+        SCORE_PRELOAD_CLIMB("Score Preload Climb"),
+
+        /** Score at depot then climb */
+        SCORE_DEPOT_CLIMB("Score Depot Climb"),
+
+        /** Reset odometry without movement */
+        RESET_ODOM("Reset Odom");
+
+        private final String dashboardName;
+
+        AutoRoutineType(String dashboardName) {
+            this.dashboardName = dashboardName;
+        }
+
+        public String getDashboardName() {
+            return dashboardName;
+        }
+    }
     private final Swerve swerve;
     private final Cowl cowl;
     private final FastClimber fastClimber;
@@ -105,14 +179,26 @@ public final class AutoRoutines {
     /**
      * Configures the autonomous routines and publishes the chooser to SmartDashboard.
      * Binds the selected routine to run when autonomous mode is enabled.
+     *
+     * <p>Available Auto Modes:
+     * <ul>
+     *   <li>DepotBump (Blue Alliance) - Start near depot side</li>
+     *   <li>Middle (Center) - Start at center field</li>
+     *   <li>OutpostBump (Red Alliance) - Start near outpost side</li>
+     * </ul>
      */
     public void configure() {
+        // Blue Alliance (DepotBump) routines
         autoChooser.addRoutine("DepotBump Score Beeline", this::CBeeline);
         autoChooser.addRoutine("DepotBump Score Preload Climb", this::CClimbNearDepot);
         autoChooser.addRoutine("DepotBump Score Depot Climb", this::CScoreDepotClimb);
+
+        // Center (Middle) routines
         autoChooser.addRoutine("Middle Score Preload Climb", this::XClimbNearDepot);
         autoChooser.addRoutine("Middle Score Depot Climb", this::XScoreDepotClimb);
         autoChooser.addRoutine("Middle Reset Odom", this::XClimbResetOdom);
+
+        // Red Alliance (OutpostBump) routines
         autoChooser.addRoutine("OutpostBump Score Beeline", this::BBeeline);
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -128,8 +214,13 @@ public final class AutoRoutines {
 
 
     
+    /**
+     * Blue Alliance (DepotBump) Beeline Routine.
+     * Scores preloaded game piece, then crosses bump and collects game pieces.
+     * Returns to scoring position for final shot.
+     */
     private AutoRoutine CBeeline() {
-        final AutoRoutine routine = autoFactory.newRoutine("C_BEELINE_ROUTINE");
+        final AutoRoutine routine = autoFactory.newRoutine("BLUE_DEPOT_BUMP_BEELINE");
         final AutoTrajectory goOverBumpTraj = C_BEELINE_OLD$0.asAutoTraj(routine);
         final AutoTrajectory prepSweep = C_BEELINE_OLD$1.asAutoTraj(routine);
         final AutoTrajectory sweepBallsTraj = C_BEELINE_OLD$2.asAutoTraj(routine);
@@ -163,8 +254,13 @@ public final class AutoRoutines {
 
 
     
+    /**
+     * Red Alliance (OutpostBump) Beeline Routine.
+     * Mirror of blue alliance beeline - scores preloaded game piece,
+     * crosses bump to collect game pieces, returns for final shot.
+     */
     private AutoRoutine BBeeline() {
-        final AutoRoutine routine = autoFactory.newRoutine("B_BEELINE_ROUTINE");
+        final AutoRoutine routine = autoFactory.newRoutine("RED_OUTPOST_BUMP_BEELINE");
         final AutoTrajectory goOverBumpTraj = B_BEELINE_OLD$0.asAutoTraj(routine);
         final AutoTrajectory prepSweep = B_BEELINE_OLD$1.asAutoTraj(routine);
         final AutoTrajectory sweepBallsTraj = B_BEELINE_OLD$2.asAutoTraj(routine);

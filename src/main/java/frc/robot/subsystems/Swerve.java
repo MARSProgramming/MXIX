@@ -60,9 +60,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     /** Swerve request to apply during field-centric path following */
     private final SwerveRequest.ApplyFieldSpeeds pathFieldSpeedsRequest = new SwerveRequest.ApplyFieldSpeeds()
     .withDriveRequestType(DriveRequestType.Velocity);
-    private final PIDController pathXController = new PIDController(10, 0, 0);
-    private final PIDController pathYController = new PIDController(10, 0, 0);
-    private final PIDController pathThetaController = new PIDController(7, 0, 0);
+    private final PIDController pathXController = new PIDController(PATH_X_KP, PATH_KI, PATH_KD);
+    private final PIDController pathYController = new PIDController(PATH_Y_KP, PATH_KI, PATH_KD);
+    private final PIDController pathThetaController = new PIDController(PATH_THETA_KP, PATH_KI, PATH_KD);
 
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds()
     .withDriveRequestType(DriveRequestType.Velocity);
@@ -92,12 +92,30 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
 
     private static final Angle kAimTolerance = Units.Degrees.of(5);
 
+    // Driver control constants
     private static final double DEADBAND = 0.1;
     private static final double TRIGGER_DEADBAND = 0.05;
+
+    // Angle controller constants for rotation control
     private static final double ANGLE_KP = 5.0;
     private static final double ANGLE_KD = 0;
     private static final double ANGLE_MAX_VELOCITY = 2.0;
     private static final double ANGLE_MAX_ACCELERATION = 5.0;
+
+    // Path following PID controller constants
+    private static final double PATH_X_KP = 10.0; // Proportional gain for X path following
+    private static final double PATH_Y_KP = 10.0; // Proportional gain for Y path following
+    private static final double PATH_THETA_KP = 7.0; // Proportional gain for theta path following
+    private static final double PATH_KI = 0.0; // Integral gain (disabled for path following)
+    private static final double PATH_KD = 0.0; // Derivative gain (disabled for path following)
+
+    // Odometry and vision measurement standard deviations (uncertainty in meters and radians)
+    private static final double ODOMETRY_STD_DEV = 0.1; // Odometry measurement uncertainty
+    private static final double VISION_STD_DEV = 0.1; // Vision measurement uncertainty
+
+    // Hardware update frequencies (Hz)
+    private static final double CURRENT_UPDATE_FREQUENCY = 20.0; // Motor current measurement frequency
+    private static final double CONNECTION_TIMEOUT_SECONDS = 2.0; // Device connection timeout
 
     private final StatusSignal<Current> mCurrentDraw1;
     private final StatusSignal<Current> mCurrentDraw2;
@@ -130,18 +148,18 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
      */
     public Swerve() {
         super(
-            TunerConstants.DrivetrainConstants, 
+            TunerConstants.DrivetrainConstants,
             0,
-            VecBuilder.fill(0.1, 0.1, 0.1),
-            VecBuilder.fill(0.1, 0.1, 0.1),
-            TunerConstants.FrontLeft, 
-            TunerConstants.FrontRight, 
-            TunerConstants.BackLeft, 
+            VecBuilder.fill(ODOMETRY_STD_DEV, ODOMETRY_STD_DEV, ODOMETRY_STD_DEV),
+            VecBuilder.fill(VISION_STD_DEV, VISION_STD_DEV, VISION_STD_DEV),
+            TunerConstants.FrontLeft,
+            TunerConstants.FrontRight,
+            TunerConstants.BackLeft,
             TunerConstants.BackRight
         );
 
         for (int i = 0; i < 4; i++) {
-        getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(20);
+        getModule(i).getDriveMotor().getSupplyCurrent().setUpdateFrequency(CURRENT_UPDATE_FREQUENCY);
         }   
 
       mCurrentDraw1 = getModule(0).getDriveMotor().getSupplyCurrent();
@@ -274,9 +292,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         boolean allModulesConnected = true;
 
         for (int i = 0; i < 4; i++) {
-        boolean driveConnected = getModule(i).getDriveMotor().isConnected(2.0);
-        boolean steerConnected = getModule(i).getSteerMotor().isConnected(2.0);
-        boolean encoderConnected = getModule(i).getEncoder().isConnected(2.0);
+        boolean driveConnected = getModule(i).getDriveMotor().isConnected(CONNECTION_TIMEOUT_SECONDS);
+        boolean steerConnected = getModule(i).getSteerMotor().isConnected(CONNECTION_TIMEOUT_SECONDS);
+        boolean encoderConnected = getModule(i).getEncoder().isConnected(CONNECTION_TIMEOUT_SECONDS);
 
         DogLog.log(DRIVE_CONNECTED_LOG_KEYS[i],   driveConnected);
         DogLog.log(STEER_CONNECTED_LOG_KEYS[i],   steerConnected);

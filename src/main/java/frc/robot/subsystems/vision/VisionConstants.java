@@ -25,16 +25,36 @@ public class VisionConstants {
   public static String camera0Name = "limelight-shooter";
   public static String camera1Name = "limelight-back";
 
+  // Named constants for magic numbers (defined first to avoid forward references)
+
+  // Standard deviation baseline constants
+  private static final double LINEAR_STD_DEV_BASE = 0.35; // Base linear std dev in meters
+  private static final double ANGULAR_STD_DEV_BASE = 0.36; // Base angular std dev in radians
+  private static final double STD_DEV_SAFETY_MULTIPLIER = 2.0; // Safety multiplier for uncertainty
+
+  // MegaTag 2 multipliers
+  public static final double MEGATAG_2_LINEAR_MULTIPLIER = 0.2; // MegaTag 2 provides more stable linear estimates
+  public static final double MEGATAG_2_NO_ROTATION_DATA = Double.POSITIVE_INFINITY; // MegaTag 2 has no rotation data
+
+  // Tag trust multipliers based on field location
+  public static final double HUB_TAG_TRUST = 1.0; // High trust for hub tags (center field)
+  public static final double OUTPOST_TAG_TRUST = 3.5; // Medium trust for outpost/tower tags
+  public static final double TRENCH_NEUTRAL_TRUST = 1.0; // High trust for neutral zone trench tags
+  public static final double TRENCH_ALLIANCE_TRUST = 9.0; // Low trust for alliance zone trench tags (poor angle)
+
+  // Limelight IMU configuration
+  public static final int LIMELIGHT_IMU_MODE = 4; // IMU mode 4: Extended Kalman Filter with vision update
+  public static final double IMU_ASSIST_ALPHA = 0.001; // Complementary filter coefficient (low = trust gyro more)
+
+  // Standard deviation baselines, for 1 meter distance and 1 tag
+  // (Adjusted automatically based on distance and # of tags)
+  public static double linearStdDevBaseline = LINEAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Meters
+  public static double angularStdDevBaseline = ANGULAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Radians
 
   // Basic filtering thresholds
   public static double maxAmbiguityMt1 = 0.1;
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
-
-  // Standard deviation baselines, for 1 meter distance and 1 tag
-  // (Adjusted automatically based on distance and # of tags)
-  public static double linearStdDevBaseline = 0.35 * 2; // Meters
-  public static double angularStdDevBaseline = 0.36 * 2; // Radians
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)
@@ -45,28 +65,26 @@ public class VisionConstants {
       };
 
   // Multipliers to apply for MegaTag 2 observations
-  public static double linearStdDevMegatag2Factor = 0.2; // More stable than full 3D solve
-  public static double angularStdDevMegatag2Factor = 9999999; // No rotation data available
+  public static double linearStdDevMegatag2Factor = MEGATAG_2_LINEAR_MULTIPLIER; // More stable than full 3D solve
+  public static double angularStdDevMegatag2Factor = MEGATAG_2_NO_ROTATION_DATA; // No rotation data available
 
   // Multipliers for dynamic standard deviation scaling
   public static double angularVelocityStdDevScale = 0.5; // Multiply variance by (1 + omega * scale)
   public static double zErrorStdDevScale = 2.0; // Multiply variance by (1 + zError * scale)
 
-  // variant trust based on tag ID.
-
-    public static double getTagStdevMultiplier(int tag) {
+  // Tag trust multipliers based on tag ID
+  public static double getTagStdevMultiplier(int tag) {
     switch (tag) {
       case 9, 10, 11, 2, 8, 5, 4, 3, 19, 20, 21, 24, 18, 27, 26, 25: // HUB TAGS
-        return 1.0;
+        return HUB_TAG_TRUST;
       case 14, 13, 15, 16, 29, 30, 31, 32: // OUTPOST, TOWER TAGS
-        return 3.5;
+        return OUTPOST_TAG_TRUST;
       case 1, 6, 22, 17: // TRENCH TAGS SEEN FROM NEUTRAL ZONE
-        return 1.0;
+        return TRENCH_NEUTRAL_TRUST;
       case 12, 7, 28, 23:
-        return 9.0; // TRENCH TAGS SEEN FROM ALLIANCE ZONE
+        return TRENCH_ALLIANCE_TRUST; // TRENCH TAGS SEEN FROM ALLIANCE ZONE
       default:
         return Double.POSITIVE_INFINITY; // Unknown tag, reject
     }
   }
-
 }

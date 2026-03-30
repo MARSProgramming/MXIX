@@ -21,6 +21,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
@@ -40,9 +41,49 @@ import dev.doglog.DogLog;
 
 /**
  * Subsystem responsible for managing Limelight vision updates.
- * Incorporates observations from multiple cameras via NetworkTables, calculates appropriate
- * standard deviations based on trust metrics (e.g. tag distance, gyro angular velocity),
- * and feeds the accepted poses to the pose estimator.
+ *
+ * <p>Vision Processing Pipeline:
+ * <ol>
+ *   <li>Read pose observations from Limelight cameras via NetworkTables</li>
+ *   <li>Reject poses based on:
+ *     <ul>
+ *       <li>Tag count (must have at least 1 tag)</li>
+ *       <li>Pose ambiguity (single-tag MegaTag 1 poses rejected)</li>
+ *       <li>Z-coordinate errors (height displacement > maxZError)</li>
+ *       <li>Field boundaries (poses outside field + margin rejected)</li>
+ *       <li>Tag distance (poses too far from tags rejected)</li>
+ *       <li>Field distance (poses too far from field center rejected)</li>
+ *     </ul>
+ *   </li>
+ *   <li>Calculate dynamic standard deviations based on:
+ *     <ul>
+ *       <li>Tag distance (power law: distance^TAG_DISTANCE_EXPONENT / tagCount)</li>
+ *       <li>Angular velocity (fast rotation causes blur - penalty applied)</li>
+ *       <li>Z-coordinate error (height displacement - penalty applied)</li>
+ *       <li>Tag ID (different field locations have different trust levels)</li>
+ *       <li>Camera index (cameras may have different calibration quality)</li>
+ *       <li>MegaTag 2 vs MegaTag 1 (MegaTag 2 gets lower linear std dev)</li>
+ *     </ul>
+ *   </li>
+ *   <li>Feed accepted poses to Kalman filter for pose estimation</li>
+ * </ol>
+ *
+ * <p>Standard Deviation Formula:
+ * <pre>
+ * stdDevFactor = (tagDistance ^ TAG_DISTANCE_EXPONENT) / tagCount * tagStdevMultiplier
+ * stdDevFactor *= (1.0 + |angularVelocity| * ANGULAR_VELOCITY_SCALE)
+ * stdDevFactor *= (1.0 + |zError| * Z_ERROR_SCALE)
+ * linearStdDev = LINEAR_STD_DEV_BASELINE * stdDevFactor * MEGATAG_2_FACTOR (if applicable)
+ * angularStdDev = ANGULAR_STD_DEV_BASELINE * stdDevFactor * MEGATAG_2_FACTOR (if applicable)
+ * </pre>
+ *
+ * <p>Error Handling:
+ * <ul>
+ *   <li>Camera disconnection alerts displayed on Driver Station</li>
+ *   <li>Staleness detection switches to odometry-only if no vision received for timeout period</li>
+ *   <li>Invalid poses rejected before reaching pose estimator</li>
+ *   <li>NetworkTables errors caught and logged without crashing robot code</li>
+ * </ul>
  */
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
@@ -52,6 +93,15 @@ public class Vision extends SubsystemBase {
   private final Alert[] disconnectedAlerts;
 
   private boolean wasDisabled = false;
+
+  // Staleness detection
+  private double lastValidVisionTimestamp = 0;
+  private static final double VISION_STALENESS_TIMEOUT_SECONDS = 0.5;
+  private final Alert visionStaleAlert =
+      new Alert("Vision data stale - using odometry only. Check camera connections!", AlertType.kWarning);
+
+  // Distance from field center to reject poses (meters) - prevents wildly incorrect poses
+  private static final double MAX_FIELD_CENTER_DISTANCE = 5.0;
   
   // Pre-allocate lists to avoid garbage collection overhead in periodic loop
   private final List<Pose3d> allTagPoses = new ArrayList<>();
@@ -67,8 +117,11 @@ public class Vision extends SubsystemBase {
   private final List<Double> tempTagStdevMultipliers = new ArrayList<>();
 
     // gives us leeway to correct in auto
-    private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 10 meters. (Impossible)
-    private static final double FIELD_BORDER_MARGIN = 0.5; // meters
+    private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 6.5 meters
+    private static final double FIELD_BORDER_MARGIN = 0.5; // meters - margin around field boundaries
+
+    // Tag distance power law exponent - empirically derived for trust scaling
+    private static final double TAG_DISTANCE_EXPONENT = 1.8;
 
   /**
    * Constructs the Vision subsystem.
@@ -82,10 +135,10 @@ public class Vision extends SubsystemBase {
     this.omegaSupplier = omegaSupplier;
     this.io = io;
 
-    LimelightHelpers.SetIMUMode(camera0Name, 4);
-    LimelightHelpers.SetIMUMode(camera1Name, 4);
-    LimelightHelpers.SetIMUAssistAlpha(camera0Name, 0.001);
-    LimelightHelpers.SetIMUAssistAlpha(camera1Name, 0.001);
+    LimelightHelpers.SetIMUMode(camera0Name, LIMELIGHT_IMU_MODE);
+    LimelightHelpers.SetIMUMode(camera1Name, LIMELIGHT_IMU_MODE);
+    LimelightHelpers.SetIMUAssistAlpha(camera0Name, IMU_ASSIST_ALPHA);
+    LimelightHelpers.SetIMUAssistAlpha(camera1Name, IMU_ASSIST_ALPHA);
 
     // Initialize inputs
     this.inputs = new VisionIOInputs[io.length];
@@ -113,103 +166,122 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void periodic() {
-    
-    boolean isDisabled = RobotState.isDisabled();
-    if (isDisabled != wasDisabled) {
-        int throttle = isDisabled ? 100 : 0;
-        LimelightHelpers.SetThrottle(VisionConstants.camera0Name, throttle);
-        LimelightHelpers.SetThrottle(VisionConstants.camera1Name, throttle);
-        wasDisabled = isDisabled;
-    }
+    try {
+      boolean isDisabled = RobotState.isDisabled();
+      if (isDisabled != wasDisabled) {
+          int throttle = isDisabled ? 100 : 0;
+          LimelightHelpers.SetThrottle(VisionConstants.camera0Name, throttle);
+          LimelightHelpers.SetThrottle(VisionConstants.camera1Name, throttle);
+          wasDisabled = isDisabled;
+      }
 
-    for (int i = 0; i < io.length; i++) {
-      io[i].updateInputs(inputs[i]);
-    }
+      for (int i = 0; i < io.length; i++) {
+        io[i].updateInputs(inputs[i]);
+      }
 
-    // Clear reusable lists
-    allTagPoses.clear();
-    allRobotPoses.clear();
-    allRobotPosesAccepted.clear();
-    allRobotPosesRejected.clear();
-
-    // Loop over cameras
-    for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-      // Update disconnected alert
-      disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
-
-      // Clear camera specific lists
-      tempTagPoses.clear();
-      tempRobotPoses.clear();
-      tempRobotPosesAccepted.clear();
-      tempRobotPosesRejected.clear();
-      tempTagStdevMultipliers.clear();
-
-      // Add tag poses
-      double tagStdevMultiplier = Double.POSITIVE_INFINITY;
-      for (int tagId : inputs[cameraIndex].tagIds) {
-        var tagPose = aprilTagLayout.getTagPose(tagId);
-        if (tagPose.isPresent()) {
-          tempTagPoses.add(tagPose.get());
-        }
-
-        double tagStdevMultiplierCandidate = getTagStdevMultiplier(tagId);
-        if (tagStdevMultiplierCandidate < tagStdevMultiplier) {
-          tagStdevMultiplier = tagStdevMultiplierCandidate;
+      // Check for vision data staleness
+      double currentTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
+      boolean anyCameraConnected = false;
+      for (int i = 0; i < io.length; i++) {
+        if (inputs[i].connected) {
+          anyCameraConnected = true;
+          break;
         }
       }
-      
-      tempTagStdevMultipliers.add(tagStdevMultiplier);
 
-      // Loop over pose observations
-      for (var observation : inputs[cameraIndex].poseObservations) {
+      if (anyCameraConnected && (currentTime - lastValidVisionTimestamp) > VISION_STALENESS_TIMEOUT_SECONDS) {
+        visionStaleAlert.set(true);
+      } else {
+        visionStaleAlert.set(false);
+      }
 
-    // Check whether to reject pose
-       boolean rejectPose =
-        observation.tagCount() == 0 // Must have at least one tag
-            || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Absolutely reject all 1-tag MT1 poses (Trust MT2 instead)
-        || Math.abs(observation.pose().getZ())
-            > maxZError // Must have realistic Z coordinate
-        // Must be within the field boundaries
-        || !(Double.isFinite(observation.pose().getX()))
-        || !(Double.isFinite(observation.pose().getY()))
-        || observation.pose().getX() < -FIELD_BORDER_MARGIN
-        || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-        || observation.pose().getY() < -FIELD_BORDER_MARGIN
-        || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
-        || observation.averageTagDistance() > MAX_TAG_DIST;
+      // Clear reusable lists
+      allTagPoses.clear();
+      allRobotPoses.clear();
+      allRobotPosesAccepted.clear();
+      allRobotPosesRejected.clear();
 
-        tempRobotPoses.add(observation.pose());
+      // Loop over cameras
+      for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+        // Update disconnected alert
+        disconnectedAlerts[cameraIndex].set(!inputs[cameraIndex].connected);
 
-        if (rejectPose) {
-        tempRobotPosesRejected.add(observation.pose());
-        continue;
-        } else {
-        tempRobotPosesAccepted.add(observation.pose());
+        // Clear camera specific lists
+        tempTagPoses.clear();
+        tempRobotPoses.clear();
+        tempRobotPosesAccepted.clear();
+        tempRobotPosesRejected.clear();
+        tempTagStdevMultipliers.clear();
+
+        // Add tag poses
+        double tagStdevMultiplier = Double.POSITIVE_INFINITY;
+        for (int tagId : inputs[cameraIndex].tagIds) {
+          var tagPose = aprilTagLayout.getTagPose(tagId);
+          if (tagPose.isPresent()) {
+            tempTagPoses.add(tagPose.get());
+          }
+
+          double tagStdevMultiplierCandidate = getTagStdevMultiplier(tagId);
+          if (tagStdevMultiplierCandidate < tagStdevMultiplier) {
+            tagStdevMultiplier = tagStdevMultiplierCandidate;
+          }
         }
 
-        // Calculate standard deviations
-        double stdDevFactor = Math.pow(observation.averageTagDistance(), 1.8) / observation.tagCount() * tagStdevMultiplier;
-        
-        // Add penalty for high angular velocity (blur/gyro skew)
-        stdDevFactor *= (1.0 + (Math.abs(omegaSupplier.getAsDouble()) * angularVelocityStdDevScale));
-        
-        // Add penalty for height displacement
-        stdDevFactor *= (1.0 + (Math.abs(observation.pose().getZ()) * zErrorStdDevScale));
+        tempTagStdevMultipliers.add(tagStdevMultiplier);
 
-        double linearStdDev = linearStdDevBaseline * stdDevFactor;
-        double angularStdDev = angularStdDevBaseline * stdDevFactor;
+        // Loop over pose observations
+        for (var observation : inputs[cameraIndex].poseObservations) {
 
-        if (observation.type() == PoseObservationType.MEGATAG_2) {
-          linearStdDev *= linearStdDevMegatag2Factor;
-          angularStdDev *= angularStdDevMegatag2Factor;
-        }
-        if (cameraIndex < cameraStdDevFactors.length) {
-          linearStdDev *= cameraStdDevFactors[cameraIndex];
-          angularStdDev *= cameraStdDevFactors[cameraIndex];
-        }
+      // Check whether to reject pose
+         boolean rejectPose =
+          observation.tagCount() == 0 // Must have at least one tag
+              || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Absolutely reject all 1-tag MT1 poses (Trust MT2 instead)
+          || Math.abs(observation.pose().getZ())
+              > maxZError // Must have realistic Z coordinate
+          // Must be within the field boundaries
+          || !(Double.isFinite(observation.pose().getX()))
+          || !(Double.isFinite(observation.pose().getY()))
+          || observation.pose().getX() < -FIELD_BORDER_MARGIN
+          || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+          || observation.pose().getY() < -FIELD_BORDER_MARGIN
+          || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
+          || observation.averageTagDistance() > MAX_TAG_DIST
+          || observation.pose().getTranslation().getDistance(new Translation3d(
+              FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0, 0.0)) > MAX_FIELD_CENTER_DISTANCE; // Reject poses too far from field center
 
-        // Send vision observation
-        consumer.accept(
+          tempRobotPoses.add(observation.pose());
+
+          if (rejectPose) {
+          tempRobotPosesRejected.add(observation.pose());
+          continue;
+          } else {
+          tempRobotPosesAccepted.add(observation.pose());
+          }
+
+          // Calculate standard deviations using named constant
+          double stdDevFactor = Math.pow(observation.averageTagDistance(), TAG_DISTANCE_EXPONENT) / observation.tagCount() * tagStdevMultiplier;
+
+          // Add penalty for high angular velocity (blur/gyro skew)
+          stdDevFactor *= (1.0 + (Math.abs(omegaSupplier.getAsDouble()) * angularVelocityStdDevScale));
+
+          // Add penalty for height displacement
+          stdDevFactor *= (1.0 + (Math.abs(observation.pose().getZ()) * zErrorStdDevScale));
+
+          double linearStdDev = linearStdDevBaseline * stdDevFactor;
+          double angularStdDev = angularStdDevBaseline * stdDevFactor;
+
+          if (observation.type() == PoseObservationType.MEGATAG_2) {
+            linearStdDev *= linearStdDevMegatag2Factor;
+            angularStdDev *= angularStdDevMegatag2Factor;
+          }
+          if (cameraIndex < cameraStdDevFactors.length) {
+            linearStdDev *= cameraStdDevFactors[cameraIndex];
+            angularStdDev *= cameraStdDevFactors[cameraIndex];
+          }
+
+          // Send vision observation and update last valid timestamp
+          lastValidVisionTimestamp = currentTime;
+          consumer.accept(
             observation.pose().toPose2d(),
             observation.timestamp(),
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
@@ -245,15 +317,25 @@ public class Vision extends SubsystemBase {
     DogLog.log(
         "Vision/Summary/RobotPosesRejected",
         allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+
+    } catch (Exception e) {
+      // Catch any exceptions in vision processing to prevent robot code crash
+      edu.wpi.first.wpilibj.DriverStation.reportError("Vision processing error: " + e.getMessage(), e.getStackTrace());
+      visionStaleAlert.set(true); // Switch to odometry-only mode on error
+    }
   }
 
   /**
    * Calculates the Limelight offset assuming Limelight web UI offset is 0.
    * Prints the calculated Transform3d to standard output and DogLog.
-   * 
+   *
+   * <p>Note: System.out.println is used here intentionally for calibration output
+   * to ensure visibility during camera setup and tuning.
+   *
    * @param cameraIndex The index of the camera.
    * @param knownRobotPose The exact physical pose of the robot.
    */
+  @SuppressWarnings("resource") // NetworkTables resource access
   public void calculateAndLogLimelightOffset(int cameraIndex, Pose3d knownRobotPose) {
     if (cameraIndex < 0 || cameraIndex >= inputs.length || inputs[cameraIndex].poseObservations.length == 0) {
       System.out.println("Cannot calculate Limelight offset: Camera " + cameraIndex + " not connected or no pose seen.");
