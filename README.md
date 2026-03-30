@@ -35,3 +35,25 @@ Time:
 - 2 code deployments (20-60 seconds)
 - Bevel alignment, Setting offset to 0 in code, reading offset from dashboard: (10-20 seconds)
 ---
+
+
+# MT2 IMU Failsafe
+```
+    drivePilot.back().onTrue(
+    Commands.sequence(
+        Commands.runOnce(() -> {
+            LimelightHelpers.SetIMUMode(VisionConstants.camera0Name, 1);
+            LimelightHelpers.SetIMUMode(VisionConstants.camera1Name, 1);
+        }),
+        Commands.waitSeconds(0.1), // give NT time to propagate + LL to process
+        Commands.runOnce(() -> {
+            manualDriveCommand.seedFieldCentric();
+        }),
+        Commands.waitSeconds(0.1), // give LL time to ingest the seeded heading
+        Commands.runOnce(() -> {
+            LimelightHelpers.SetIMUMode(VisionConstants.camera0Name, 4);
+            LimelightHelpers.SetIMUMode(VisionConstants.camera1Name, 4);
+        })
+    )
+);
+```
