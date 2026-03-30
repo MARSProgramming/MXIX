@@ -84,7 +84,6 @@ public class ShootOnly extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        CommandScheduler.getInstance().schedule(cowl.home());
         flywheel.setRPM(0);
     }
 
