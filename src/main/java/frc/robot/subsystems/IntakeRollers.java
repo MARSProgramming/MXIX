@@ -24,6 +24,10 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Floor intake mechanism.
  * Controls the rollers used to intake game pieces from the floor.
  */
+/**
+ * Subsystem: IntakeRollers
+ * Responsible for controlling the IntakeRollers mechanism.
+ */
 public class IntakeRollers extends SubsystemBase {
 
     private TalonFX mIntakeRollers;

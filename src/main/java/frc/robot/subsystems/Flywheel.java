@@ -27,6 +27,10 @@ import edu.wpi.first.wpilibj.DriverStation;
  * Subsystem representing the Flywheel (Shooter) mechanism.
  * Controls the four motors (2 masters, 2 followers) used to launch game pieces.
  */
+/**
+ * Subsystem: Flywheel
+ * Responsible for controlling the Flywheel mechanism.
+ */
 public class Flywheel extends SubsystemBase {
 
     private TalonFX rm;

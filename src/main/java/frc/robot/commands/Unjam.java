@@ -34,6 +34,10 @@ import frc.robot.util.ShotSetup;
  * Command that allows the driver to translate the robot field-centrically while the robot
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
+/**
+ * Command: Unjam
+ * Executes the Unjam action.
+ */
 public class Unjam extends Command {
 
     private final Feeder feeder;

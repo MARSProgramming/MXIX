@@ -23,6 +23,10 @@ import edu.wpi.first.wpilibj.DriverStation;
  * Subsystem representing the Intake Pivot mechanism.
  * This subsystem controls the deployment and retraction of the intake arm.
  */
+/**
+ * Subsystem: IntakePivot
+ * Responsible for controlling the IntakePivot mechanism.
+ */
 public class IntakePivot extends SubsystemBase {
     TalonFX mIntakePivot;
 

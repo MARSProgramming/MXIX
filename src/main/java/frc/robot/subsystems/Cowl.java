@@ -27,6 +27,10 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Cowl mechanism.
  * This subsystem controls the position of the cowl using a TalonFX motor.
  */
+/**
+ * Subsystem: Cowl
+ * Responsible for controlling the Cowl mechanism.
+ */
 public class Cowl extends SubsystemBase {
     TalonFX mCowl;
 

@@ -29,6 +29,10 @@ import frc.robot.util.Stopwatch;
  * The application of locking the heading will allow us to force the robot into a diagonal orientation for bump traversal.
  */
 
+/**
+ * Command: ManualDriveCommand
+ * Executes the ManualDriveCommand action.
+ */
 public class ManualDriveCommand extends Command {
     private enum State {
         IDLING,

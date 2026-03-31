@@ -23,6 +23,10 @@ import edu.wpi.first.wpilibj.DriverStation;
  * Subsystem representing the Floor intake mechanism.
  * Controls the rollers used to intake game pieces from the floor.
  */
+/**
+ * Subsystem: Floor
+ * Responsible for controlling the Floor mechanism.
+ */
 public class Floor extends SubsystemBase {
 
     private TalonFX mFloor;

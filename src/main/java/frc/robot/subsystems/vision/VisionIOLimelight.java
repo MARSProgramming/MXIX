@@ -19,13 +19,17 @@ import edu.wpi.first.wpilibj.RobotController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import frc.robot.util.LimelightHelpers;
 
 /**
  * IO implementation for real Limelight hardware.
  * Handles NetworkTable data fetching, telemetry updates, and pose observation parsing.
  */
 public class VisionIOLimelight implements VisionIO {
+  private final String name;
   private final Supplier<Rotation2d> rotationSupplier;
+  // Use DoubleArrayPublisher from NT for direct array writing (if we choose to)
+  // but we will primarily use LimelightHelpers.SetRobotOrientation.
   private final DoubleArrayPublisher orientationPublisher;
 
   private final DoubleSubscriber latencySubscriber;
@@ -41,9 +45,10 @@ public class VisionIOLimelight implements VisionIO {
    * Creates a new VisionIOLimelight.
    *
    * @param name The configured name of the Limelight.
-   * @param rotationSupplier Supplier for the current estimated rotation, used for MegaTag 2.
+   * @param rotationSupplier Supplier for the current estimated rotation from the drivetrain (used for MegaTag 2).
    */
   public VisionIOLimelight(String name, Supplier<Rotation2d> rotationSupplier) {
+    this.name = name;
     var table = NetworkTableInstance.getDefault().getTable(name);
     this.rotationSupplier = rotationSupplier;
     orientationPublisher = table.getDoubleArrayTopic("robot_orientation_set").publish();
@@ -73,9 +78,15 @@ public class VisionIOLimelight implements VisionIO {
         new TargetObservation(
             Rotation2d.fromDegrees(txSubscriber.get()), Rotation2d.fromDegrees(tySubscriber.get()));
 
-    // Update orientation for MegaTag 2
-    orientationPublisher.accept(
-        new double[] {rotationSupplier.get().getDegrees(), 0.0, 0.0, 0.0, 0.0, 0.0});
+    // --- CRITICAL MEGATAG 2 UPDATE ---
+    // Feed the drivetrain IMU yaw into the Limelight.
+    // This is required for MegaTag 2 to resolve ambiguity with a single tag.
+    // The Limelight 4's internal gyro can drift independently of the swerve modules.
+    double currentYawDegrees = rotationSupplier.get().getDegrees();
+
+    // We update via LimelightHelpers to ensure the exact format Limelight expects.
+    // Assuming 0 for yawRate, pitch, pitchRate, roll, rollRate since typical 2D odometry handles yaw primarily.
+    LimelightHelpers.SetRobotOrientation(name, currentYawDegrees, 0, 0, 0, 0, 0);
 
     // Read new pose observations from NetworkTables
     tempTagIds.clear();
@@ -121,7 +132,7 @@ public class VisionIOLimelight implements VisionIO {
               // 3D pose estimate
               parsePose(rawSample.value),
 
-              // Ambiguity, zeroed because the pose is already disambiguated
+              // Ambiguity, zeroed because the pose is already disambiguated by MegaTag2/IMU
               0.0,
 
               // Tag count

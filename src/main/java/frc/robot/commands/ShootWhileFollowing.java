@@ -19,6 +19,10 @@ import frc.robot.util.ShotSetup;
  *
  * Does NOT require swerve — safe to run alongside any path-following command.
  */
+/**
+ * Command: ShootWhileFollowing
+ * Executes the ShootWhileFollowing action.
+ */
 public class ShootWhileFollowing extends Command {
 
     private boolean mReadyToShoot = false;

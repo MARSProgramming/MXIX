@@ -22,6 +22,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Subsystem responsible for managing robot LED animations via CANdle.
  * Supports different segments (Left Bar, Right Bar, CANdle LEDs) and various effects.
  */
+/**
+ * Subsystem: LEDSubsystem
+ * Responsible for controlling the LEDSubsystem mechanism.
+ */
 public class LEDSubsystem extends SubsystemBase {
 
     private final CANdle candle = new CANdle(24, "CAN2");

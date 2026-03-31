@@ -21,6 +21,10 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Fast Climber mechanism.
  * Uses a TalonFX to control a hooked climber for the endgame.
  */
+/**
+ * Subsystem: FastClimber
+ * Responsible for controlling the FastClimber mechanism.
+ */
 public class FastClimber extends SubsystemBase {
     TalonFX mFastClimber;
 

@@ -24,6 +24,10 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Feeder mechanism.
  * This subsystem controls the motor responsible for feeding game pieces into the shooter/flywheel.
  */
+/**
+ * Subsystem: Feeder
+ * Responsible for controlling the Feeder mechanism.
+ */
 public class Feeder extends SubsystemBase {
 
     private TalonFX mFeeder;
