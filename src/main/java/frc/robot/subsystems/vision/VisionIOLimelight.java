@@ -16,6 +16,7 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
+import dev.doglog.DogLog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -70,6 +71,7 @@ public class VisionIOLimelight implements VisionIO {
   public void updateInputs(VisionIOInputs inputs) {
     // Update connection status based on whether an update has been seen in the last
     // 250ms
+    DogLog.log("Vision/Camera/" + name + "/Connected", inputs.connected);
     inputs.connected =
         ((RobotController.getFPGATime() - latencySubscriber.getLastChange()) / 1000) < 250;
 

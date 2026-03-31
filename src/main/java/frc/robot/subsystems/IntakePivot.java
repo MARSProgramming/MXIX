@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -45,7 +46,7 @@ public class IntakePivot extends SubsystemBase {
      * Initializes the pivot motor and applies the system configuration.
      */
     public IntakePivot() {
-        mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot, "CAN2");
+        mIntakePivot = new TalonFX(Ports.Intake.kIntakePivot, new CANBus("CAN2"));
         mIntakePivot.getConfigurator().apply(SystemConstants.Intake.pivotConfig);
 
         mIntakePivot.optimizeBusUtilization();

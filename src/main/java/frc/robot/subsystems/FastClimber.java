@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -39,7 +40,7 @@ public class FastClimber extends SubsystemBase {
     double cTunableOutput = climbPercentDoubleSubscriber.get();
 
     public FastClimber() {
-        mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber, "CAN2");
+        mFastClimber = new TalonFX(Ports.FastClimber.kHookClimber, new CANBus("CAN2"));
         mFastClimber.getConfigurator().apply(SystemConstants.FastClimber.fastClimberConfig);
 
         mFastClimber.optimizeBusUtilization();

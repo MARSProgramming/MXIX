@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.StatusLedWhenActiveValue;
 
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import dev.doglog.DogLog;
 
 /**
  * Subsystem responsible for managing robot LED animations via CANdle.
@@ -250,5 +251,10 @@ public class LEDSubsystem extends SubsystemBase {
                 .withFrameRate(20)
                 .withSlot(0)
         );
+    }
+
+    @Override
+    public void periodic() {
+        DogLog.log("LEDSubsystem/Status", "Active");
     }
 }
