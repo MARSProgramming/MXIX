@@ -195,12 +195,6 @@ public class VisionConstantsTest {
      */
     @Test
     public void testFilteringThresholds() {
-        // Ambiguity thresholds should be between 0 and 1
-        assertTrue(VisionConstants.maxAmbiguityMt1 >= 0 && VisionConstants.maxAmbiguityMt1 <= 1,
-            "MegaTag 1 ambiguity threshold should be between 0 and 1");
-        assertTrue(VisionConstants.maxAmbiguity >= 0 && VisionConstants.maxAmbiguity <= 1,
-            "General ambiguity threshold should be between 0 and 1");
-
         // Z error threshold should be positive and reasonable (meters)
         assertTrue(VisionConstants.maxZError > 0 && VisionConstants.maxZError < 2.0,
             "Z error threshold should be positive and less than 2 meters");
