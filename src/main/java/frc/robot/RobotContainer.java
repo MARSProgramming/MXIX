@@ -4,31 +4,17 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
-import java.util.Optional;
-
-import dev.doglog.DogLog;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AimAndShoot;
-import frc.robot.commands.AimAndShootOnTheMove;
 import frc.robot.commands.AimAndShuttle;
 import frc.robot.commands.AutoRoutines;
 import frc.robot.commands.ManualDriveCommand;
@@ -37,8 +23,6 @@ import frc.robot.commands.ShootOnly;
 import frc.robot.commands.Unjam;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.Settings;
-import frc.robot.constants.SystemConstants;
-import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.FastClimber;
 import frc.robot.subsystems.Feeder;
@@ -53,7 +37,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionConstants;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.LEDSubsystem.LEDSegment;
-import frc.robot.util.LimelightHelpers.RawFiducial;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -63,9 +46,6 @@ import frc.robot.util.ShotSetup;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    // Maximum speed of the robot in meters per second, derived from TunerConstants.
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-
     
 
     private final CommandXboxController drivePilot = new CommandXboxController(0);
@@ -103,6 +83,11 @@ public class RobotContainer {
         vision = new Vision(
             swerve::addVisionMeasurement,
             () -> swerve.getState().Speeds.omegaRadiansPerSecond,
+            () -> {
+                var speeds = swerve.getState().Speeds;
+                return Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
+            },
+            () -> swerve.getState().Pose,
             new VisionIOLimelight(VisionConstants.camera0Name, 
             () -> swerve.getState().Pose.getRotation()),
             new VisionIOLimelight(VisionConstants.camera1Name, 

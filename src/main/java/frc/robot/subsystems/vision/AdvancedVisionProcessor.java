@@ -53,15 +53,9 @@ public class AdvancedVisionProcessor {
      */
     private static class PoseSnapshot {
         final Pose2d pose;
-        final double timestamp;
-        final double confidence;
-        final int cameraIndex;
 
         PoseSnapshot(Pose2d pose, double timestamp, double confidence, int cameraIndex) {
             this.pose = pose;
-            this.timestamp = timestamp;
-            this.confidence = confidence;
-            this.cameraIndex = cameraIndex;
         }
     }
 

@@ -245,14 +245,6 @@ public class RobotCodeIntegrationTest {
      */
     @Test
     public void testFilteringThresholds() {
-        assertTrue(VisionConstants.maxAmbiguityMt1 >= 0 &&
-            VisionConstants.maxAmbiguityMt1 <= 1.0,
-            "MegaTag 1 ambiguity threshold should be between 0 and 1");
-
-        assertTrue(VisionConstants.maxAmbiguity >= 0 &&
-            VisionConstants.maxAmbiguity <= 1.0,
-            "General ambiguity threshold should be between 0 and 1");
-
         assertTrue(VisionConstants.maxZError > 0,
             "Z error threshold should be positive");
     }

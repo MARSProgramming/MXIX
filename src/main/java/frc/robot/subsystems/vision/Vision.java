@@ -36,6 +36,7 @@ import frc.robot.util.LimelightHelpers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
 
@@ -89,10 +90,13 @@ public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final VisionIO[] io;
   private final DoubleSupplier omegaSupplier;
+  private final DoubleSupplier speedSupplier;
+  private final Supplier<Pose2d> odometryPoseSupplier;
   private final VisionIOInputs[] inputs;
   private final Alert[] disconnectedAlerts;
 
   private boolean wasDisabled = false;
+  private boolean wasAuto = false;
 
   // Staleness detection
   private double lastValidVisionTimestamp = 0;
@@ -102,6 +106,22 @@ public class Vision extends SubsystemBase {
 
   // Distance from field center to reject poses (meters) - prevents wildly incorrect poses
   private static final double MAX_FIELD_CENTER_DISTANCE = 5.0;
+
+  // Pre-allocated field center to avoid per-observation Translation3d allocation
+  private static final Translation3d FIELD_CENTER = new Translation3d(
+      FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0, 0.0);
+
+  // Pre-allocated log key strings to avoid per-cycle string concatenation GC
+  private static final String[][] CAMERA_LOG_KEYS = {
+      {"Vision/Camera0/TagPoses", "Vision/Camera0/RobotPoses",
+       "Vision/Camera0/RobotPosesAccepted", "Vision/Camera0/RobotPosesRejected"},
+      {"Vision/Camera1/TagPoses", "Vision/Camera1/RobotPoses",
+       "Vision/Camera1/RobotPosesAccepted", "Vision/Camera1/RobotPosesRejected"},
+  };
+
+  // Throttle logging to reduce array allocation GC pressure
+  private int logCounter = 0;
+  private static final int LOG_INTERVAL = 5; // Log every 5 cycles (100ms)
   
   // Pre-allocate lists to avoid garbage collection overhead in periodic loop
   private final List<Pose3d> allTagPoses = new ArrayList<>();
@@ -114,7 +134,6 @@ public class Vision extends SubsystemBase {
   private final List<Pose3d> tempRobotPoses = new ArrayList<>();
   private final List<Pose3d> tempRobotPosesAccepted = new ArrayList<>();
   private final List<Pose3d> tempRobotPosesRejected = new ArrayList<>();
-  private final List<Double> tempTagStdevMultipliers = new ArrayList<>();
 
     // gives us leeway to correct in auto
     private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 6.5 meters
@@ -128,11 +147,17 @@ public class Vision extends SubsystemBase {
    *
    * @param consumer Consumer to accept standard deviation tagged pose updates.
    * @param omegaSupplier Supplier for the robot's angular velocity in radians per second.
+   * @param speedSupplier Supplier for the robot's linear speed in meters per second.
+   * @param odometryPoseSupplier Supplier for the current odometry pose (for pose-jump gating).
    * @param io Instances of VisionIO representing the physical cameras.
    */
-  public Vision(VisionConsumer consumer, DoubleSupplier omegaSupplier, VisionIO... io) {
+  public Vision(VisionConsumer consumer, DoubleSupplier omegaSupplier,
+                DoubleSupplier speedSupplier, Supplier<Pose2d> odometryPoseSupplier,
+                VisionIO... io) {
     this.consumer = consumer;
     this.omegaSupplier = omegaSupplier;
+    this.speedSupplier = speedSupplier;
+    this.odometryPoseSupplier = odometryPoseSupplier;
     this.io = io;
 
     LimelightHelpers.SetIMUMode(camera0Name, LIMELIGHT_IMU_MODE);
@@ -165,15 +190,33 @@ public class Vision extends SubsystemBase {
   }
 
   @Override
+  @SuppressWarnings("null")
   public void periodic() {
     try {
       boolean isDisabled = RobotState.isDisabled();
+      boolean isAuto = RobotState.isAutonomous();
+
+      // Mode transitions: adjust throttle and pipeline
       if (isDisabled != wasDisabled) {
           int throttle = isDisabled ? 100 : 0;
           LimelightHelpers.SetThrottle(VisionConstants.camera0Name, throttle);
           LimelightHelpers.SetThrottle(VisionConstants.camera1Name, throttle);
           wasDisabled = isDisabled;
       }
+
+      // Pipeline switching: higher resolution in auto, lower in teleop
+      if (isAuto != wasAuto && !isDisabled) {
+          // Pipeline 0 = high-res auto, Pipeline 1 = standard teleop
+          int pipeline = isAuto ? 0 : 1;
+          LimelightHelpers.setPipelineIndex(VisionConstants.camera0Name, pipeline);
+          LimelightHelpers.setPipelineIndex(VisionConstants.camera1Name, pipeline);
+          wasAuto = isAuto;
+      }
+
+      // Cache supplier values once per cycle to avoid multiple NT reads
+      double currentOmega = Math.abs(omegaSupplier.getAsDouble());
+      double currentSpeed = speedSupplier.getAsDouble();
+      Pose2d currentOdometryPose = odometryPoseSupplier.get();
 
       for (int i = 0; i < io.length; i++) {
         io[i].updateInputs(inputs[i]);
@@ -211,7 +254,7 @@ public class Vision extends SubsystemBase {
         tempRobotPoses.clear();
         tempRobotPosesAccepted.clear();
         tempRobotPosesRejected.clear();
-        tempTagStdevMultipliers.clear();
+
 
         // Add tag poses
         double tagStdevMultiplier = Double.POSITIVE_INFINITY;
@@ -227,45 +270,78 @@ public class Vision extends SubsystemBase {
           }
         }
 
-        tempTagStdevMultipliers.add(tagStdevMultiplier);
+
 
         // Loop over pose observations
         for (var observation : inputs[cameraIndex].poseObservations) {
 
-      // Check whether to reject pose
-         boolean rejectPose =
-          observation.tagCount() == 0 // Must have at least one tag
-          || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Reject 1-tag MT1 poses (Trust MT2 instead)
-          || (observation.type() == PoseObservationType.MEGATAG_2 && observation.tagCount() > 1) // Reject multi-tag MT2 poses (MT1 is better for multi-tag)
-          || Math.abs(observation.pose().getZ()) > maxZError // Must have realistic Z coordinate
-          // Must be within the field boundaries
-          || !(Double.isFinite(observation.pose().getX()))
-          || !(Double.isFinite(observation.pose().getY()))
-          || observation.pose().getX() < -FIELD_BORDER_MARGIN
-          || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
-          || observation.pose().getY() < -FIELD_BORDER_MARGIN
-          || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN
-          || observation.averageTagDistance() > MAX_TAG_DIST
-          || observation.pose().getTranslation().getDistance(new Translation3d(
-              FieldConstants.fieldLength / 2.0, FieldConstants.fieldWidth / 2.0, 0.0)) > MAX_FIELD_CENTER_DISTANCE; // Reject poses too far from field center
+          // === REJECTION FILTER WITH REASON TRACKING ===
+          String rejectionReason = null;
+
+          if (observation.tagCount() == 0) {
+            rejectionReason = "no_tags";
+          } else if (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) {
+            rejectionReason = "single_tag_mt1";
+          } else if (observation.type() == PoseObservationType.MEGATAG_2 && observation.tagCount() > 1) {
+            rejectionReason = "multi_tag_mt2";
+          } else if (Math.abs(observation.pose().getZ()) > maxZError) {
+            rejectionReason = "z_error";
+          } else if (!Double.isFinite(observation.pose().getX()) || !Double.isFinite(observation.pose().getY())) {
+            rejectionReason = "non_finite";
+          } else if (observation.pose().getX() < -FIELD_BORDER_MARGIN
+              || observation.pose().getX() > FieldConstants.fieldLength + FIELD_BORDER_MARGIN
+              || observation.pose().getY() < -FIELD_BORDER_MARGIN
+              || observation.pose().getY() > FieldConstants.fieldWidth + FIELD_BORDER_MARGIN) {
+            rejectionReason = "out_of_field";
+          } else if (observation.averageTagDistance() > MAX_TAG_DIST) {
+            rejectionReason = "tag_too_far";
+          } else if (observation.pose().getTranslation().getDistance(FIELD_CENTER) > MAX_FIELD_CENTER_DISTANCE) {
+            rejectionReason = "far_from_center";
+          } else if (currentOmega > maxOmegaForVision) {
+            rejectionReason = "high_omega";
+          } else if (currentOdometryPose != null) {
+            // Pose-jump gating: reject if vision disagrees too much with odometry
+            double visionOdoDistance = observation.pose().toPose2d().getTranslation()
+                .getDistance(currentOdometryPose.getTranslation());
+            if (visionOdoDistance > maxVisionOdometryDiscrepancy) {
+              rejectionReason = "odometry_jump";
+            }
+          }
+
+          boolean rejectPose = (rejectionReason != null);
 
           tempRobotPoses.add(observation.pose());
 
           if (rejectPose) {
-          tempRobotPosesRejected.add(observation.pose());
-          continue;
+            tempRobotPosesRejected.add(observation.pose());
+            // Log rejection reason (throttled with other logging)
+            if (logCounter == 0 && cameraIndex < CAMERA_LOG_KEYS.length) {
+              DogLog.log(CAMERA_LOG_KEYS[cameraIndex][0].replace("TagPoses", "RejectionReason"), rejectionReason);
+            }
+            continue;
           } else {
-          tempRobotPosesAccepted.add(observation.pose());
+            tempRobotPosesAccepted.add(observation.pose());
           }
 
-          // Calculate standard deviations using named constant
-          double stdDevFactor = Math.pow(observation.averageTagDistance(), TAG_DISTANCE_EXPONENT) / observation.tagCount() * tagStdevMultiplier;
+          // === DYNAMIC STANDARD DEVIATION CALCULATION ===
+          double stdDevFactor = Math.pow(observation.averageTagDistance(), TAG_DISTANCE_EXPONENT)
+              / observation.tagCount() * tagStdevMultiplier;
 
-          // Add penalty for high angular velocity (blur/gyro skew)
-          stdDevFactor *= (1.0 + (Math.abs(omegaSupplier.getAsDouble()) * angularVelocityStdDevScale));
+          // Penalty for high angular velocity (motion blur / gyro skew)
+          stdDevFactor *= (1.0 + (currentOmega * angularVelocityStdDevScale));
 
-          // Add penalty for height displacement
+          // Penalty for high linear velocity (motion blur)
+          stdDevFactor *= (1.0 + (currentSpeed * linearVelocityStdDevScale));
+
+          // Penalty for height displacement
           stdDevFactor *= (1.0 + (Math.abs(observation.pose().getZ()) * zErrorStdDevScale));
+
+          // Penalty for steep viewing angle (ty-based)
+          double tyDeg = Math.abs(inputs[cameraIndex].latestTargetObservation.ty().getDegrees());
+          stdDevFactor *= (1.0 + (tyDeg * tyPenaltyScale));
+
+          // Mode-based trust: trust vision more in auto
+          stdDevFactor *= RobotState.isAutonomous() ? autoModeStdDevMultiplier : teleopModeStdDevMultiplier;
 
           double linearStdDev = linearStdDevBaseline * stdDevFactor;
           double angularStdDev = angularStdDevBaseline * stdDevFactor;
@@ -287,36 +363,37 @@ public class Vision extends SubsystemBase {
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
-      // Log camera data
-      DogLog.log(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
-          tempTagPoses.toArray(new Pose3d[tempTagPoses.size()]));
-      DogLog.log(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
-          tempRobotPoses.toArray(new Pose3d[tempRobotPoses.size()]));
-      DogLog.log(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
-          tempRobotPosesAccepted.toArray(new Pose3d[tempRobotPosesAccepted.size()]));
-      DogLog.log(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
-          tempRobotPosesRejected.toArray(new Pose3d[tempRobotPosesRejected.size()]));
+      // Accumulate for summary logging
       allTagPoses.addAll(tempTagPoses);
       allRobotPoses.addAll(tempRobotPoses);
       allRobotPosesAccepted.addAll(tempRobotPosesAccepted);
       allRobotPosesRejected.addAll(tempRobotPosesRejected);
+
+      // Throttled per-camera logging to reduce GC pressure from array allocations
+      if (logCounter == 0 && cameraIndex < CAMERA_LOG_KEYS.length) {
+        DogLog.log(CAMERA_LOG_KEYS[cameraIndex][0],
+            tempTagPoses.toArray(new Pose3d[0]));
+        DogLog.log(CAMERA_LOG_KEYS[cameraIndex][1],
+            tempRobotPoses.toArray(new Pose3d[0]));
+        DogLog.log(CAMERA_LOG_KEYS[cameraIndex][2],
+            tempRobotPosesAccepted.toArray(new Pose3d[0]));
+        DogLog.log(CAMERA_LOG_KEYS[cameraIndex][3],
+            tempRobotPosesRejected.toArray(new Pose3d[0]));
+      }
     }
 
-    // Log summary data
-    DogLog.log(
-        "Vision/Summary/TagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
-    DogLog.log(
-        "Vision/Summary/RobotPoses", allRobotPoses.toArray(new Pose3d[allRobotPoses.size()]));
-    DogLog.log(
-        "Vision/Summary/RobotPosesAccepted",
-        allRobotPosesAccepted.toArray(new Pose3d[allRobotPosesAccepted.size()]));
-    DogLog.log(
-        "Vision/Summary/RobotPosesRejected",
-        allRobotPosesRejected.toArray(new Pose3d[allRobotPosesRejected.size()]));
+    // Throttled summary logging
+    if (logCounter == 0) {
+      DogLog.log("Vision/Summary/TagPoses",
+          allTagPoses.toArray(new Pose3d[0]));
+      DogLog.log("Vision/Summary/RobotPoses",
+          allRobotPoses.toArray(new Pose3d[0]));
+      DogLog.log("Vision/Summary/RobotPosesAccepted",
+          allRobotPosesAccepted.toArray(new Pose3d[0]));
+      DogLog.log("Vision/Summary/RobotPosesRejected",
+          allRobotPosesRejected.toArray(new Pose3d[0]));
+    }
+    logCounter = (logCounter + 1) % LOG_INTERVAL;
 
     } catch (Exception e) {
       // Catch any exceptions in vision processing to prevent robot code crash

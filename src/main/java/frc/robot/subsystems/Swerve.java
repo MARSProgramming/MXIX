@@ -68,7 +68,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.ApplyRobotSpeeds robotSpeedsRequest = new SwerveRequest.ApplyRobotSpeeds()
     .withDriveRequestType(DriveRequestType.Velocity);
     
-    private static boolean aligned = false;
+
 
     // Pre-allocated array keys for telemetry to prevent periodic string allocations
     private static final String[] DRIVE_CONNECTED_LOG_KEYS = {
@@ -94,8 +94,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private static final Angle kAimTolerance = Units.Degrees.of(5);
 
     // Driver control constants
-    private static final double DEADBAND = 0.1;
-    private static final double TRIGGER_DEADBAND = 0.05;
+
 
     // Angle controller constants for rotation control
     private static final double ANGLE_KP = 5.0;
@@ -496,7 +495,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
         return Commands.sequence(
             Commands.runOnce(() -> {
                 // Reset speeds of the controller
-                aligned = false;
+
 
                 ChassisSpeeds speeds = getFieldRelativeSpeeds();
 
@@ -567,7 +566,7 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     ).andThen(
         Commands.runOnce(() -> {
             this.stop();
-            aligned = true;
+
         }, this)
     );
     }

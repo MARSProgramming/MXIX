@@ -2,17 +2,11 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.ctre.phoenix6.swerve.SwerveRequest.ForwardPerspectiveValue;
-
 import dev.doglog.DogLog;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.Settings;
-import frc.robot.constants.SystemConstants.Drive;
 import frc.robot.subsystems.Cowl;
 import frc.robot.subsystems.Feeder;
 import frc.robot.subsystems.Floor;
@@ -20,8 +14,6 @@ import frc.robot.subsystems.Flywheel;
 import frc.robot.subsystems.IntakeRollers;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.Swerve;
-import frc.robot.util.DriveInputSmoother;
-import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
 
 /**
@@ -41,20 +33,8 @@ public class Shoot extends Command {
     private final Feeder feeder;
     private final IntakeRollers intakeRollers;
     private final Floor floor;
-    private final LEDSubsystem ledsubsystem;
-
 
     private final ShotSetup shotSetup;
-    private final DriveInputSmoother inputSmoother;
-
-    // Request to drive field-centric while facing a specific angle
-    private final SwerveRequest.FieldCentricFacingAngle fieldCentricFacingAngleRequest = new SwerveRequest.FieldCentricFacingAngle()
-        .withRotationalDeadband(Drive.kPIDRotationDeadband)
-        .withMaxAbsRotationalRate(Drive.kMaxRotationalRate)
-        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-        .withSteerRequestType(SteerRequestType.MotionMagicExpo)
-        .withForwardPerspective(ForwardPerspectiveValue.OperatorPerspective)
-        .withHeadingPID(5, 0, 0);
 
 
     public Shoot(
@@ -74,11 +54,9 @@ public class Shoot extends Command {
         this.floor = floor;
         this.intakeRollers = intakeRollers;
         this.flywheel = flywheel;
-        this.ledsubsystem = ledsubsystem;
 
         shotSetup = new ShotSetup();
 
-        this.inputSmoother = new DriveInputSmoother(forwardInput, leftInput);
         addRequirements(swerve, cowl, flywheel, feeder, floor, intakeRollers);
     }
 
@@ -95,8 +73,6 @@ public class Shoot extends Command {
 
     @Override
     public void execute() {
-        // Get smoothed joystick inputs
-        final ManualDriveInput input = inputSmoother.getSmoothedInput();
         
         // Get shooting parameters
 

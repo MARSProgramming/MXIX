@@ -29,6 +29,7 @@ import dev.doglog.DogLog;
  */
 public class LEDSubsystem extends SubsystemBase {
 
+    @SuppressWarnings("removal")
     private final CANdle candle = new CANdle(24, "CAN2");
 
     /**

@@ -18,12 +18,12 @@ import edu.wpi.first.apriltag.AprilTagFields;
 
 public class VisionConstants {
   // AprilTag layout
-  public static AprilTagFieldLayout aprilTagLayout =
+  public static final AprilTagFieldLayout aprilTagLayout =
       AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
   // Camera names, must match names configured on coprocessor
-  public static String camera0Name = "limelight-shooter";
-  public static String camera1Name = "limelight-back";
+  public static final String camera0Name = "limelight-shooter";
+  public static final String camera1Name = "limelight-back";
 
   // Named constants for magic numbers (defined first to avoid forward references)
 
@@ -48,29 +48,37 @@ public class VisionConstants {
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)
-  public static double linearStdDevBaseline = LINEAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Meters
-  public static double angularStdDevBaseline = ANGULAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Radians
+  public static final double linearStdDevBaseline = LINEAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Meters
+  public static final double angularStdDevBaseline = ANGULAR_STD_DEV_BASE * STD_DEV_SAFETY_MULTIPLIER; // Radians
 
   // Basic filtering thresholds
-  public static double maxAmbiguityMt1 = 0.1;
-  public static double maxAmbiguity = 0.3;
-  public static double maxZError = 0.75;
+  public static final double maxZError = 0.75;
 
   // Standard deviation multipliers for each camera
   // (Adjust to trust some cameras more than others)
-  public static double[] cameraStdDevFactors =
+  public static final double[] cameraStdDevFactors =
       new double[] {
-        1.0 * 1, // Camera 0
-        1.0 * 1.2 // Camera 1
+        1.0, // Camera 0
+        1.2  // Camera 1
       };
 
   // Multipliers to apply for MegaTag 2 observations
-  public static double linearStdDevMegatag2Factor = MEGATAG_2_LINEAR_MULTIPLIER; // More stable than full 3D solve
-  public static double angularStdDevMegatag2Factor = MEGATAG_2_NO_ROTATION_DATA; // No rotation data available
+  public static final double linearStdDevMegatag2Factor = MEGATAG_2_LINEAR_MULTIPLIER; // More stable than full 3D solve
+  public static final double angularStdDevMegatag2Factor = MEGATAG_2_NO_ROTATION_DATA; // No rotation data available
 
   // Multipliers for dynamic standard deviation scaling
-  public static double angularVelocityStdDevScale = 0.5; // Multiply variance by (1 + omega * scale)
-  public static double zErrorStdDevScale = 2.0; // Multiply variance by (1 + zError * scale)
+  public static final double angularVelocityStdDevScale = 0.5; // Multiply variance by (1 + omega * scale)
+  public static final double zErrorStdDevScale = 2.0; // Multiply variance by (1 + zError * scale)
+  public static final double linearVelocityStdDevScale = 0.3; // Multiply variance by (1 + speed * scale)
+  public static final double tyPenaltyScale = 0.02; // Multiply variance by (1 + |ty| * scale)
+
+  // Hard rejection thresholds
+  public static final double maxOmegaForVision = 2.0; // rad/s (~115°/s) — reject all vision above this
+  public static final double maxVisionOdometryDiscrepancy = 1.5; // meters — reject poses that disagree with odometry
+
+  // Mode-based trust multipliers
+  public static final double autoModeStdDevMultiplier = 0.7; // Trust vision more in autonomous
+  public static final double teleopModeStdDevMultiplier = 1.0; // Normal trust in teleop
 
   // Tag trust multipliers based on tag ID
   public static double getTagStdevMultiplier(int tag) {

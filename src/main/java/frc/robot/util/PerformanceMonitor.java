@@ -33,7 +33,7 @@ public class PerformanceMonitor {
     private final Alert cpuUsageAlert;
 
     private int loopOverrunCount = 0;
-    private static final int LOOP_OVERRUN_ALERT_THRESHOLD = 5; // Alert after 5 overruns
+
 
     /**
      * Creates a new PerformanceMonitor.
