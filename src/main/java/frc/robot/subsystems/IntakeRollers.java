@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -24,6 +25,10 @@ import frc.robot.constants.SystemConstants;
  * Subsystem representing the Floor intake mechanism.
  * Controls the rollers used to intake game pieces from the floor.
  */
+/**
+ * Subsystem: IntakeRollers
+ * Responsible for controlling the IntakeRollers mechanism.
+ */
 public class IntakeRollers extends SubsystemBase {
 
     private TalonFX mIntakeRollers;
@@ -43,7 +48,7 @@ public class IntakeRollers extends SubsystemBase {
      * Initializes the motor and applies configuration.
      */
     public IntakeRollers() {
-        mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers, "CAN2");
+        mIntakeRollers = new TalonFX(Ports.Intake.kIntakeRollers, new CANBus("CAN2"));
         mIntakeRollers.getConfigurator().apply(SystemConstants.Intake.rollerConfig);
 
         mIntakeRollers.optimizeBusUtilization();

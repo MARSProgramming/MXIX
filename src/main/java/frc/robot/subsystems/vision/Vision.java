@@ -235,9 +235,9 @@ public class Vision extends SubsystemBase {
       // Check whether to reject pose
          boolean rejectPose =
           observation.tagCount() == 0 // Must have at least one tag
-              || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Absolutely reject all 1-tag MT1 poses (Trust MT2 instead)
-          || Math.abs(observation.pose().getZ())
-              > maxZError // Must have realistic Z coordinate
+          || (observation.type() == PoseObservationType.MEGATAG_1 && observation.tagCount() == 1) // Reject 1-tag MT1 poses (Trust MT2 instead)
+          || (observation.type() == PoseObservationType.MEGATAG_2 && observation.tagCount() > 1) // Reject multi-tag MT2 poses (MT1 is better for multi-tag)
+          || Math.abs(observation.pose().getZ()) > maxZError // Must have realistic Z coordinate
           // Must be within the field boundaries
           || !(Double.isFinite(observation.pose().getX()))
           || !(Double.isFinite(observation.pose().getY()))

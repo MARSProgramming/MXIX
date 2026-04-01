@@ -33,6 +33,10 @@ import frc.robot.util.ShotSetup;
  * Command that allows the driver to translate the robot field-centrically while the robot
  * automatically rotates to face a specific target (the Hub/Speaker).
  */
+/**
+ * Command: ShootOnly
+ * Executes the ShootOnly action.
+ */
 public class ShootOnly extends Command {
     private boolean readyToShootBoolean = false;
 

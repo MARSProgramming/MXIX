@@ -5,6 +5,7 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.util.GeometryUtil;
 
@@ -26,6 +27,10 @@ import frc.robot.constants.SystemConstants;
 /**
  * Subsystem representing the Cowl mechanism.
  * This subsystem controls the position of the cowl using a TalonFX motor.
+ */
+/**
+ * Subsystem: Cowl
+ * Responsible for controlling the Cowl mechanism.
  */
 public class Cowl extends SubsystemBase {
     TalonFX mCowl;
@@ -53,7 +58,7 @@ public class Cowl extends SubsystemBase {
      * Initializes the motor and applies the configuration.
      */
     public Cowl() {
-        mCowl = new TalonFX(Ports.Cowl.kCowlMotor, "CAN2");
+        mCowl = new TalonFX(Ports.Cowl.kCowlMotor, new CANBus("CAN2"));
         mCowl.getConfigurator().apply(SystemConstants.Cowl.cowlConfig);
 
         mCowl.optimizeBusUtilization();

@@ -24,6 +24,10 @@ import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
 
+/**
+ * Command: AimAndShootOnTheMove
+ * Executes the AimAndShootOnTheMove action.
+ */
 public class AimAndShootOnTheMove extends Command {
 
     private boolean mReadyToShoot = false;

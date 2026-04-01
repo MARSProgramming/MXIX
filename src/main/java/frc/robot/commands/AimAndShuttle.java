@@ -24,6 +24,10 @@ import frc.robot.util.DriveInputSmoother;
 import frc.robot.util.ManualDriveInput;
 import frc.robot.util.ShotSetup;
 
+/**
+ * Command: AimAndShuttle
+ * Executes the AimAndShuttle action.
+ */
 public class AimAndShuttle extends Command {
 
     private boolean mReadyToShoot = false;

@@ -6,6 +6,7 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import dev.doglog.DogLog;
@@ -23,6 +24,10 @@ import frc.robot.constants.SystemConstants;
 /**
  * Subsystem representing the Feeder mechanism.
  * This subsystem controls the motor responsible for feeding game pieces into the shooter/flywheel.
+ */
+/**
+ * Subsystem: Feeder
+ * Responsible for controlling the Feeder mechanism.
  */
 public class Feeder extends SubsystemBase {
 
@@ -45,7 +50,7 @@ public class Feeder extends SubsystemBase {
      * Initializes the motor and applies configuration.
      */
     public Feeder() {
-        mFeeder = new TalonFX(Ports.Feeder.kFeederMotor, "CAN2");
+        mFeeder = new TalonFX(Ports.Feeder.kFeederMotor, new CANBus("CAN2"));
         // Apply the configuration.
         mFeeder.getConfigurator().apply(SystemConstants.Feeder.feederConfig);
 

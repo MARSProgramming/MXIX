@@ -7,6 +7,7 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 
@@ -26,6 +27,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 /**
  * Subsystem representing the Flywheel (Shooter) mechanism.
  * Controls the four motors (2 masters, 2 followers) used to launch game pieces.
+ */
+/**
+ * Subsystem: Flywheel
+ * Responsible for controlling the Flywheel mechanism.
  */
 public class Flywheel extends SubsystemBase {
 
@@ -56,10 +61,10 @@ public class Flywheel extends SubsystemBase {
      * Initializes motors, applies configurations, and sets up follower relationships.
      */
     public Flywheel() {
-        rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster, "CAN2");
-        rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower, "CAN2");
-        lm = new TalonFX(Ports.Flywheel.kLeftFlywheelMaster, "CAN2");
-        lf = new TalonFX(Ports.Flywheel.kLeftFlywheelFollower, "CAN2");
+        rm = new TalonFX(Ports.Flywheel.kRightFlywheelMaster, new CANBus("CAN2"));
+        rf = new TalonFX(Ports.Flywheel.kRightFlywheelFollower, new CANBus("CAN2"));
+        lm = new TalonFX(Ports.Flywheel.kLeftFlywheelMaster, new CANBus("CAN2"));
+        lf = new TalonFX(Ports.Flywheel.kLeftFlywheelFollower, new CANBus("CAN2"));
 
         rm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
         lm.getConfigurator().apply(SystemConstants.Flywheel.masterConfig);
