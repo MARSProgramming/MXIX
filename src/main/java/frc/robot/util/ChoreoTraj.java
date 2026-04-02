@@ -24,7 +24,42 @@ public record ChoreoTraj(
     Pose2d initialPoseBlue,
     Pose2d endPoseBlue
 ) {
-    public static final ChoreoTraj C_CLIMB_NEARD = new ChoreoTraj(
+    public static final ChoreoTraj B_TEST = new ChoreoTraj(
+	    "B_TEST",
+	    OptionalInt.empty(),
+	    10.58787,
+	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
+	);
+	public static final ChoreoTraj B_TEST$0 = new ChoreoTraj(
+	    "B_TEST",
+	    OptionalInt.of(0),
+	    2.65898,
+	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj B_TEST$1 = new ChoreoTraj(
+	    "B_TEST",
+	    OptionalInt.of(1),
+	    1.7701299999999995,
+	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571))
+	);
+	public static final ChoreoTraj B_TEST$2 = new ChoreoTraj(
+	    "B_TEST",
+	    OptionalInt.of(2),
+	    3.627690000000001,
+	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571)),
+	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj B_TEST$3 = new ChoreoTraj(
+	    "B_TEST",
+	    OptionalInt.of(3),
+	    2.5310699999999997,
+	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0)),
+	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
+	);
+	public static final ChoreoTraj C_CLIMB_NEARD = new ChoreoTraj(
 	    "C_CLIMB_NEARD",
 	    OptionalInt.empty(),
 	    2.32118,
@@ -72,6 +107,41 @@ public record ChoreoTraj(
 	    1.63788,
 	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.827)),
 	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_TEST = new ChoreoTraj(
+	    "C_TEST",
+	    OptionalInt.empty(),
+	    10.58445,
+	    new Pose2d(3.534, 5.643, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(2, 5.643, Rotation2d.fromRadians(-0.569))
+	);
+	public static final ChoreoTraj C_TEST$0 = new ChoreoTraj(
+	    "C_TEST",
+	    OptionalInt.of(0),
+	    2.65898,
+	    new Pose2d(3.534, 5.643, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(3.142))
+	);
+	public static final ChoreoTraj C_TEST$1 = new ChoreoTraj(
+	    "C_TEST",
+	    OptionalInt.of(1),
+	    1.7699799999999999,
+	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(3.142)),
+	    new Pose2d(7.82, 7.276, Rotation2d.fromRadians(-1.571))
+	);
+	public static final ChoreoTraj C_TEST$2 = new ChoreoTraj(
+	    "C_TEST",
+	    OptionalInt.of(2),
+	    3.6277799999999996,
+	    new Pose2d(7.82, 7.276, Rotation2d.fromRadians(-1.571)),
+	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(0))
+	);
+	public static final ChoreoTraj C_TEST$3 = new ChoreoTraj(
+	    "C_TEST",
+	    OptionalInt.of(3),
+	    2.527710000000001,
+	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(0)),
+	    new Pose2d(2, 5.643, Rotation2d.fromRadians(-0.569))
 	);
 	public static final ChoreoTraj X_CLIMB_NEARD = new ChoreoTraj(
 	    "X_CLIMB_NEARD",
@@ -122,106 +192,36 @@ public record ChoreoTraj(
 	    new Pose2d(2.461, 5.9, Rotation2d.fromRadians(-0.643)),
 	    new Pose2d(1.225, 5.019, Rotation2d.fromRadians(3.142))
 	);
-	public static final ChoreoTraj C_TEST = new ChoreoTraj(
-	    "C_TEST",
-	    OptionalInt.empty(),
-	    10.58445,
-	    new Pose2d(3.534, 5.643, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2, 5.643, Rotation2d.fromRadians(-0.569))
-	);
-	public static final ChoreoTraj C_TEST$0 = new ChoreoTraj(
-	    "C_TEST",
-	    OptionalInt.of(0),
-	    2.65898,
-	    new Pose2d(3.534, 5.643, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj C_TEST$1 = new ChoreoTraj(
-	    "C_TEST",
-	    OptionalInt.of(1),
-	    1.7699799999999999,
-	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(7.82, 7.276, Rotation2d.fromRadians(-1.571))
-	);
-	public static final ChoreoTraj C_TEST$2 = new ChoreoTraj(
-	    "C_TEST",
-	    OptionalInt.of(2),
-	    3.6277799999999996,
-	    new Pose2d(7.82, 7.276, Rotation2d.fromRadians(-1.571)),
-	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj C_TEST$3 = new ChoreoTraj(
-	    "C_TEST",
-	    OptionalInt.of(3),
-	    2.527710000000001,
-	    new Pose2d(6.5, 5.643, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 5.643, Rotation2d.fromRadians(-0.569))
-	);
-	public static final ChoreoTraj B_TEST = new ChoreoTraj(
-	    "B_TEST",
-	    OptionalInt.empty(),
-	    10.58787,
-	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
-	);
-	public static final ChoreoTraj B_TEST$0 = new ChoreoTraj(
-	    "B_TEST",
-	    OptionalInt.of(0),
-	    2.65898,
-	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142))
-	);
-	public static final ChoreoTraj B_TEST$1 = new ChoreoTraj(
-	    "B_TEST",
-	    OptionalInt.of(1),
-	    1.7701299999999995,
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571))
-	);
-	public static final ChoreoTraj B_TEST$2 = new ChoreoTraj(
-	    "B_TEST",
-	    OptionalInt.of(2),
-	    3.627690000000001,
-	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571)),
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0))
-	);
-	public static final ChoreoTraj B_TEST$3 = new ChoreoTraj(
-	    "B_TEST",
-	    OptionalInt.of(3),
-	    2.5310699999999997,
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0)),
-	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
-	);
 
     /**
      * A map between trajectory names and their corresponding data.
      * This allows for trajectory data to be looked up with strings during runtime.
      */
     public static final Map<String, ChoreoTraj> ALL_TRAJECTORIES = Map.ofEntries(
-    	Map.entry("C_CLIMB_NEARD", C_CLIMB_NEARD),
+    	Map.entry("B_TEST", B_TEST),
+		Map.entry("B_TEST$0", B_TEST$0),
+		Map.entry("B_TEST$1", B_TEST$1),
+		Map.entry("B_TEST$2", B_TEST$2),
+		Map.entry("B_TEST$3", B_TEST$3),
+		Map.entry("C_CLIMB_NEARD", C_CLIMB_NEARD),
 		Map.entry("C_CLIMB_NEARD$0", C_CLIMB_NEARD$0),
 		Map.entry("C_CLIMB_NEARD$1", C_CLIMB_NEARD$1),
 		Map.entry("C_DEPOT_AND_CLIMB", C_DEPOT_AND_CLIMB),
 		Map.entry("C_DEPOT_AND_CLIMB$0", C_DEPOT_AND_CLIMB$0),
 		Map.entry("C_DEPOT_AND_CLIMB$1", C_DEPOT_AND_CLIMB$1),
 		Map.entry("C_DEPOT_AND_CLIMB$2", C_DEPOT_AND_CLIMB$2),
+		Map.entry("C_TEST", C_TEST),
+		Map.entry("C_TEST$0", C_TEST$0),
+		Map.entry("C_TEST$1", C_TEST$1),
+		Map.entry("C_TEST$2", C_TEST$2),
+		Map.entry("C_TEST$3", C_TEST$3),
 		Map.entry("X_CLIMB_NEARD", X_CLIMB_NEARD),
 		Map.entry("X_CLIMB_NEARD$0", X_CLIMB_NEARD$0),
 		Map.entry("X_CLIMB_NEARD$1", X_CLIMB_NEARD$1),
 		Map.entry("X_DEPOT_AND_CLIMB", X_DEPOT_AND_CLIMB),
 		Map.entry("X_DEPOT_AND_CLIMB$0", X_DEPOT_AND_CLIMB$0),
 		Map.entry("X_DEPOT_AND_CLIMB$1", X_DEPOT_AND_CLIMB$1),
-		Map.entry("X_DEPOT_AND_CLIMB$2", X_DEPOT_AND_CLIMB$2),
-		Map.entry("C_TEST", C_TEST),
-		Map.entry("C_TEST$0", C_TEST$0),
-		Map.entry("C_TEST$1", C_TEST$1),
-		Map.entry("C_TEST$2", C_TEST$2),
-		Map.entry("C_TEST$3", C_TEST$3),
-		Map.entry("B_TEST", B_TEST),
-		Map.entry("B_TEST$0", B_TEST$0),
-		Map.entry("B_TEST$1", B_TEST$1),
-		Map.entry("B_TEST$2", B_TEST$2),
-		Map.entry("B_TEST$3", B_TEST$3)
+		Map.entry("X_DEPOT_AND_CLIMB$2", X_DEPOT_AND_CLIMB$2)
     );
 
     /**
