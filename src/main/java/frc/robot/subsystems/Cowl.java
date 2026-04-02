@@ -151,6 +151,12 @@ public Command home() {
         return runOnce(() -> mCowl.setPosition(0));
     }
 
+    public Command setZeroOut() {
+        return runOnce(() -> {
+            mCowl.set(0);
+        });
+    }
+
     @Override
     public void periodic() {
         // Update local tunable variable from NetworkTables

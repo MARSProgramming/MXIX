@@ -106,6 +106,7 @@ public class AimAndShootOnTheMove extends Command {
         floor.setPercentOut(0);
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
+        cowl.setZeroOut();
     }
 
     @Override
