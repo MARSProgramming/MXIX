@@ -83,7 +83,7 @@ public class ShootOnly extends Command {
     @Override
     public void end(boolean interrupted) {
         flywheel.setRPM(0);
-        cowl.setZeroOut();
+        cowl.setPercentOut(0);
         
     }
 

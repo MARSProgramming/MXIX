@@ -151,8 +151,11 @@ public Command home() {
         return runOnce(() -> mCowl.setPosition(0));
     }
 
-    public Command setZeroOut() {
-        return runOnce(() -> {
+
+    public Command setPercentOut(double percout) {
+        return runEnd(() -> {
+            mCowl.set(percout);
+        }, () -> {
             mCowl.set(0);
         });
     }

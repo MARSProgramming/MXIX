@@ -47,18 +47,21 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  *   - MatchState/SecondsRemainingInShift
  *   - MatchState/ShiftWarning            → true for one cycle at 5s left
  *   - MatchState/ShiftStart              → true for one cycle at shift start
+ *   - MatchState/RawGameData             → raw FMS game data string
+ *   - MatchState/AlliancePresent         → confirms alliance is known
+ *   - MatchState/AutoResultLocked        → confirms auto result was captured
  * ================================================================
  */
 public class MatchStateSubsystem extends SubsystemBase {
 
     // ── Shift boundaries (elapsed seconds from teleop start) ──────────────
-    private static final double TRANSITION_END        = 10.0;
-    private static final double SHIFT_1_END           = 35.0;
-    private static final double SHIFT_2_END           = 60.0;
-    private static final double SHIFT_3_END           = 85.0;
-    private static final double SHIFT_4_END           = 110.0;
-    private static final double MATCH_END             = 140.0;
-    private static final double SHIFT_WARNING_THRESHOLD = 5.0;
+    private static final double TRANSITION_END           = 10.0;
+    private static final double SHIFT_1_END              = 35.0;
+    private static final double SHIFT_2_END              = 60.0;
+    private static final double SHIFT_3_END              = 85.0;
+    private static final double SHIFT_4_END              = 110.0;
+    private static final double MATCH_END                = 140.0;
+    private static final double SHIFT_WARNING_THRESHOLD  = 5.0;
 
     // ── Timer ──────────────────────────────────────────────────────────────
     private final Timer mTeleopTimer = new Timer();
@@ -76,7 +79,7 @@ public class MatchStateSubsystem extends SubsystemBase {
     private boolean mShiftStartFired    = false;
 
     private boolean mShouldRumbleWarning = false;
-    private boolean mShouldRumbleStart = false;
+    private boolean mShouldRumbleStart   = false;
 
     public enum Shift {
         AUTO,
@@ -96,19 +99,26 @@ public class MatchStateSubsystem extends SubsystemBase {
     /** Must be called from Robot.teleopInit() */
     public void onTeleopInit() {
         mTeleopTimer.restart();
+        tryLockAutoResult(); // eagerly grab game data at teleop init before first periodic
     }
 
     // ── Auto result ────────────────────────────────────────────────────────
 
+    // FIX: Removed the isTeleopEnabled() guard — during a real FMS match, game
+    // data can arrive before teleop is fully reported as enabled, causing this
+    // method to bail out early and never lock the result. Alliance returning
+    // Empty for the first cycle or two was the root cause of "always Red/null".
     private void tryLockAutoResult() {
         if (mAutoResultLocked) return;
-        if (!DriverStation.isTeleopEnabled()) return;
 
         String gameData = DriverStation.getGameSpecificMessage();
         if (gameData.isEmpty()) return;
 
         Optional<Alliance> alliance = DriverStation.getAlliance();
         if (alliance.isEmpty()) return;
+
+        if (gameData.isEmpty() || (gameData.charAt(0) != 'R' && gameData.charAt(0) != 'B')) return;
+
 
         boolean redWonAuto = gameData.charAt(0) == 'R';
 
@@ -204,12 +214,13 @@ public class MatchStateSubsystem extends SubsystemBase {
     // ── Rumble: shift ending warning ───────────────────────────────────────
 
     public boolean shouldRumbleShiftWarning() {
-    return mShouldRumbleWarning;
+        return mShouldRumbleWarning;
     }
 
     public boolean shouldRumbleShiftStart() {
-    return mShouldRumbleStart;
+        return mShouldRumbleStart;
     }
+
     // ── Periodic ───────────────────────────────────────────────────────────
 
     @Override
@@ -225,30 +236,29 @@ public class MatchStateSubsystem extends SubsystemBase {
             mShiftStartFired   = false;
         }
 
-        
         mShouldRumbleWarning = false;
-        mShouldRumbleStart = false;
+        mShouldRumbleStart   = false;
 
         if (currentShift != Shift.DISABLED
             && currentShift != Shift.AUTO
             && currentShift != Shift.ENDGAME) {
 
-        double remaining = getSecondsRemainingInShift();
+            double remaining = getSecondsRemainingInShift();
 
-        if (!mShiftWarningFired && remaining <= SHIFT_WARNING_THRESHOLD && remaining > 0) {
-            mShiftWarningFired = true;
-            mShouldRumbleWarning = true;
-        }
+            if (!mShiftWarningFired && remaining <= SHIFT_WARNING_THRESHOLD && remaining > 0) {
+                mShiftWarningFired   = true;
+                mShouldRumbleWarning = true;
+            }
         }
 
         if (currentShift != Shift.DISABLED
             && currentShift != Shift.AUTO
             && currentShift != Shift.TRANSITION) {
 
-        if (!mShiftStartFired && mShiftChanged) {
-            mShiftStartFired = true;
-            mShouldRumbleStart = true;
-        }
+            if (!mShiftStartFired && mShiftChanged) {
+                mShiftStartFired   = true;
+                mShouldRumbleStart = true;
+            }
         }
 
         DogLog.log("MatchState/SecondsRemainingInShift", getSecondsRemainingInShift());
@@ -257,6 +267,10 @@ public class MatchStateSubsystem extends SubsystemBase {
         DogLog.log("MatchState/CurrentShift",            currentShift.toString());
         DogLog.log("MatchState/ShiftWarning",            shouldRumbleShiftWarning());
         DogLog.log("MatchState/ShiftStart",              shouldRumbleShiftStart());
+        // Diagnostic logs — verify these in DogLog if hub state seems wrong
+        DogLog.log("MatchState/RawGameData",             DriverStation.getGameSpecificMessage());
+        DogLog.log("MatchState/AlliancePresent",         DriverStation.getAlliance().isPresent());
+        DogLog.log("MatchState/AutoResultLocked",        mAutoResultLocked);
     }
 
 }

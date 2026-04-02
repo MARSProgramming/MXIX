@@ -35,7 +35,7 @@ public class Settings {
 
 
     public static class ClimbLineupSettings {
-        public static double SIDELINEUP_VELOCITY = 0.3; // M/s
+        public static double SIDELINEUP_VELOCITY = 0.4; // M/s
         public static double FORWLINEUP_VELOCITY = 0.2; // M/s
 
         // probably slwo this down, particularly the forwards one, the forwards one can't
