@@ -36,12 +36,12 @@ public class Settings {
 
     public static class ClimbLineupSettings {
         public static double SIDELINEUP_VELOCITY = 0.4; // M/s
-        public static double FORWLINEUP_VELOCITY = 0.2; // M/s
+        public static double FORWLINEUP_VELOCITY = 0.25; // M/s
 
         // probably slwo this down, particularly the forwards one, the forwards one can't
         // dealign the climber.
-        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.3;
-        public static double FORWARD_LINEUP_TIMEOUT = 1.7;
+        public static double SIDEWAYS_LINEUP_TIMEOUT = 2.1;
+        public static double FORWARD_LINEUP_TIMEOUT = 1.9;
     }
 
     public static class OutpostLineupSettings {

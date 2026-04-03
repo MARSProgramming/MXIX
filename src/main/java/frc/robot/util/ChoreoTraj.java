@@ -27,35 +27,35 @@ public record ChoreoTraj(
     public static final ChoreoTraj B_TEST = new ChoreoTraj(
 	    "B_TEST",
 	    OptionalInt.empty(),
-	    10.58787,
+	    10.90885,
 	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
 	);
 	public static final ChoreoTraj B_TEST$0 = new ChoreoTraj(
 	    "B_TEST",
 	    OptionalInt.of(0),
-	    2.65898,
+	    2.9248,
 	    new Pose2d(3.534, 2.461, Rotation2d.fromRadians(3.142)),
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142))
+	    new Pose2d(7, 2.461, Rotation2d.fromRadians(3.142))
 	);
 	public static final ChoreoTraj B_TEST$1 = new ChoreoTraj(
 	    "B_TEST",
 	    OptionalInt.of(1),
-	    1.7701299999999995,
-	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(3.142)),
+	    1.8252799999999998,
+	    new Pose2d(7, 2.461, Rotation2d.fromRadians(3.142)),
 	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571))
 	);
 	public static final ChoreoTraj B_TEST$2 = new ChoreoTraj(
 	    "B_TEST",
 	    OptionalInt.of(2),
-	    3.627690000000001,
+	    3.6276900000000003,
 	    new Pose2d(7.82, 0.828, Rotation2d.fromRadians(1.571)),
 	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0))
 	);
 	public static final ChoreoTraj B_TEST$3 = new ChoreoTraj(
 	    "B_TEST",
 	    OptionalInt.of(3),
-	    2.5310699999999997,
+	    2.5310799999999993,
 	    new Pose2d(6.5, 2.461, Rotation2d.fromRadians(0)),
 	    new Pose2d(2, 2.461, Rotation2d.fromRadians(0.582))
 	);
