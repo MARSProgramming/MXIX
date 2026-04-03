@@ -27,7 +27,7 @@ public class VisionConstants {
 
 
   // Basic filtering thresholds
-  public static double maxAmbiguityMt1 = 0.25;
+  public static double maxAmbiguityMt1 = 0.12;
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
 
