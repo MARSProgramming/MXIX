@@ -69,7 +69,7 @@ public class TunerConstants {
     .withCurrentLimits(
         new CurrentLimitsConfigs()
         .withStatorCurrentLimit(120)
-        .withSupplyCurrentLimit(45)
+        .withSupplyCurrentLimit(70)
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimitEnable(true)
     );

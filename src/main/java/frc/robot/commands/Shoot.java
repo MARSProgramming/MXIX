@@ -39,6 +39,7 @@ public class Shoot extends Command {
     private final Floor floor;
     private final LEDSubsystem ledsubsystem;
 
+    private final SwerveRequest.SwerveDriveBrake BRAKE = new SwerveRequest.SwerveDriveBrake();
 
     private final ShotSetup shotSetup;
     private final DriveInputSmoother inputSmoother;
@@ -120,6 +121,10 @@ public class Shoot extends Command {
             feeder.setPercentOut(Settings.FeedSystemSettings.FEEDER_FEED_DUTYCYCLE);
             intakeRollers.setPercentOut(Settings.FeedSystemSettings.INTAKEROLLER_FEED_DUTYCYCLE);
             floor.setPercentOut(Settings.FeedSystemSettings.FLOOR_FEED_DUTYCYCLE);
+
+            swerve.applyRequest(
+                () -> BRAKE
+            );
         }
     }
 
@@ -130,6 +135,7 @@ public class Shoot extends Command {
         flywheel.setRPM(0);
         intakeRollers.setPercentOut(0);
         cowl.setPercentOut(0);
+        swerve.stop();
     }
 
     @Override
