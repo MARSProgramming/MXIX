@@ -15,6 +15,7 @@ package frc.robot.subsystems.vision;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -22,25 +23,31 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.FieldConstants;
+import frc.robot.subsystems.vision.VisionIO.PoseObservation;
 import frc.robot.subsystems.vision.VisionIO.PoseObservationType;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.LimelightHelpers;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 import dev.doglog.DogLog;
 
 public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
+  private final Supplier<Rotation2d> rotationSupplier;
   private final VisionIO[] io;
   private final DoubleSupplier omegaSupplier;
   private final VisionIOInputs[] inputs;
@@ -52,8 +59,13 @@ public class Vision extends SubsystemBase {
     private static final double MAX_TAG_DIST = 6.5; // reject poses further away than 10 meters. (Impossible)
     private static final double FIELD_BORDER_MARGIN = 0.5; // meters
 
-  public Vision(VisionConsumer consumer, DoubleSupplier omegaSupplier, VisionIO... io) {
+  public Vision(
+      VisionConsumer consumer,
+      Supplier<Rotation2d> rotationSupplier,
+      DoubleSupplier omegaSupplier,
+      VisionIO... io) {
     this.consumer = consumer;
+    this.rotationSupplier = rotationSupplier;
     this.omegaSupplier = omegaSupplier;
     this.io = io;
 
@@ -135,26 +147,58 @@ public class Vision extends SubsystemBase {
       
       tagStdevMultipliers.add(tagStdevMultiplier);
 
-      // Check if MegaTag 2 observations are present in this camera's inputs
-      boolean hasMegatag2 = false;
-      for (var observation : inputs[cameraIndex].poseObservations) {
-        if (observation.type() == PoseObservationType.MEGATAG_2) {
-          hasMegatag2 = true;
-          break;
+      // Group observations by timestamp to process frames individually
+      // (Since we have MT1 and MT2 for the same frames, they will have matching timestamps)
+      List<PoseObservation> frameObservations = new ArrayList<>();
+      
+      Set<Double> timestamps = new HashSet<>();
+      for (var obs : inputs[cameraIndex].poseObservations) {
+        timestamps.add(obs.timestamp());
+      }
+
+      for (double timestamp : timestamps) {
+        PoseObservation mt1 = null;
+        PoseObservation mt2 = null;
+        for (var obs : inputs[cameraIndex].poseObservations) {
+          if (Math.abs(obs.timestamp() - timestamp) < 1e-4) {
+            if (obs.type() == PoseObservationType.MEGATAG_1) {
+              mt1 = obs;
+            } else if (obs.type() == PoseObservationType.MEGATAG_2) {
+              mt2 = obs;
+            }
+          }
+        }
+
+        if (RobotState.isDisabled()) {
+          // When disabled, we ONLY use MegaTag 1 to initialize/correct heading and position
+          if (mt1 != null) {
+            frameObservations.add(mt1);
+          }
+        } else {
+          // When enabled:
+          if (mt1 != null && mt2 != null) {
+            // Compare camera-solved yaw (MT1) with our current estimated yaw
+            double currentYaw = rotationSupplier.get().getRadians();
+            double visionYaw = mt1.pose().getRotation().toRotation2d().getRadians();
+            double yawError = Math.abs(MathUtil.angleModulus(visionYaw - currentYaw));
+
+            if (yawError > Units.degreesToRadians(maxYawErrorToUseMegatag2)) {
+              // Large yaw error: use MegaTag 1 to correct the gyro/pose yaw
+              frameObservations.add(mt1);
+            } else {
+              // Yaw is already aligned: use MegaTag 2 for stable translation tracking
+              frameObservations.add(mt2);
+            }
+          } else if (mt2 != null) {
+            frameObservations.add(mt2);
+          } else if (mt1 != null) {
+            frameObservations.add(mt1);
+          }
         }
       }
 
       // Loop over pose observations
-      for (var observation : inputs[cameraIndex].poseObservations) {
-        // When disabled, we ONLY use MegaTag 1 to initialize/correct heading and position
-        if (RobotState.isDisabled() && observation.type() != PoseObservationType.MEGATAG_1) {
-          continue;
-        }
-
-        // When enabled, if MegaTag 2 is available, we ignore MegaTag 1 to prevent double counting
-        if (RobotState.isEnabled() && hasMegatag2 && observation.type() == PoseObservationType.MEGATAG_1) {
-          continue;
-        }
+      for (var observation : frameObservations) {
 
     // Check whether to reject pose
        boolean rejectPose =

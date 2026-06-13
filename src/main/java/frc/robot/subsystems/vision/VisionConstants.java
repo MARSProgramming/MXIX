@@ -30,6 +30,7 @@ public class VisionConstants {
   public static double maxAmbiguityMt1 = 0.12;
   public static double maxAmbiguity = 0.3;
   public static double maxZError = 0.75;
+  public static double maxYawErrorToUseMegatag2 = 10.0; // Degrees
 
   // Standard deviation baselines, for 1 meter distance and 1 tag
   // (Adjusted automatically based on distance and # of tags)

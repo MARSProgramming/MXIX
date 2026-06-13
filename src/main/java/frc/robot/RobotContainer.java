@@ -100,6 +100,7 @@ public class RobotContainer {
 
         vision = new Vision(
             swerve::addVisionMeasurement,
+            () -> swerve.getState().Pose.getRotation(),
             () -> swerve.getState().Speeds.omegaRadiansPerSecond,
             new VisionIOLimelight(VisionConstants.camera0Name, 
             () -> swerve.getState().Pose.getRotation()),
