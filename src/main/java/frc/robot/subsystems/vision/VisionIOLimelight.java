@@ -31,6 +31,7 @@ public class VisionIOLimelight implements VisionIO {
   private final DoubleSubscriber txSubscriber;
   private final DoubleSubscriber tySubscriber;
   private final DoubleArraySubscriber megatag1Subscriber;
+  private final DoubleArraySubscriber megatag2Subscriber;
 
   /**
    * Creates a new VisionIOLimelight.
@@ -46,6 +47,7 @@ public class VisionIOLimelight implements VisionIO {
     txSubscriber = table.getDoubleTopic("tx").subscribe(0.0);
     tySubscriber = table.getDoubleTopic("ty").subscribe(0.0);
     megatag1Subscriber = table.getDoubleArrayTopic("botpose_wpiblue").subscribe(new double[] {});
+    megatag2Subscriber = table.getDoubleArrayTopic("botpose_orb_wpiblue").subscribe(new double[] {});
   }
 
   @Override
@@ -96,10 +98,57 @@ public class VisionIOLimelight implements VisionIO {
               PoseObservationType.MEGATAG_1));
     }
 
+    // Read MegaTag 2 observations
+    for (var rawSample : megatag2Subscriber.readQueue()) {
+      if (rawSample.value.length < 11) continue;
+      for (int i = 11; i < rawSample.value.length; i += 7) {
+        tagIds.add((int) rawSample.value[i]);
+      }
+      poseObservations.add(
+          new PoseObservation(
+              // Timestamp, based on server timestamp of publish and latency
+              rawSample.timestamp * 1.0e-6 - rawSample.value[6] * 1.0e-3,
+
+              // 3D pose estimate
+              parsePose(rawSample.value),
+
+              // Ambiguity, zeroed because the pose is already disambiguated
+              0.0,
+
+              // Tag count
+              (int) rawSample.value[7],
+
+              // Average tag distance
+              rawSample.value[9],
+
+              // Observation type
+              PoseObservationType.MEGATAG_2));
+    }
+
+    // Deduplicate: if we have both MT1 and MT2 observations for the same timestamp, keep MT2
+    List<PoseObservation> filteredObservations = new LinkedList<>();
+    for (PoseObservation obs : poseObservations) {
+      if (obs.type() == PoseObservationType.MEGATAG_2) {
+        filteredObservations.add(obs);
+      } else {
+        // It's MT1. Only add if there is no MT2 observation with the same timestamp
+        boolean hasMegatag2 = false;
+        for (PoseObservation other : poseObservations) {
+          if (other.type() == PoseObservationType.MEGATAG_2 && Math.abs(other.timestamp() - obs.timestamp()) < 1e-4) {
+            hasMegatag2 = true;
+            break;
+          }
+        }
+        if (!hasMegatag2) {
+          filteredObservations.add(obs);
+        }
+      }
+    }
+
     // Save pose observations to inputs object
-    inputs.poseObservations = new PoseObservation[poseObservations.size()];
-    for (int i = 0; i < poseObservations.size(); i++) {
-      inputs.poseObservations[i] = poseObservations.get(i);
+    inputs.poseObservations = new PoseObservation[filteredObservations.size()];
+    for (int i = 0; i < filteredObservations.size(); i++) {
+      inputs.poseObservations[i] = filteredObservations.get(i);
     }
 
     // Save tag IDs to inputs objects

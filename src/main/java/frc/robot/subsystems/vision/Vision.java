@@ -156,8 +156,9 @@ public class Vision extends SubsystemBase {
 
         robotPoses.add(observation.pose());
 
-        // Reject if rotating too fast
-        boolean omegaRejected = Math.abs(omegaSupplier.getAsDouble()) > 2.0;
+        // Reject if rotating too fast (only apply to MegaTag 1)
+        boolean omegaRejected = (observation.type() == PoseObservationType.MEGATAG_1) 
+            && Math.abs(omegaSupplier.getAsDouble()) > 2.0;
 
         if (rejectPose || omegaRejected) {
         robotPosesRejected.add(observation.pose());
