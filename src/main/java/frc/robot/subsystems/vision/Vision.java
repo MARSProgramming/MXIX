@@ -135,8 +135,26 @@ public class Vision extends SubsystemBase {
       
       tagStdevMultipliers.add(tagStdevMultiplier);
 
+      // Check if MegaTag 2 observations are present in this camera's inputs
+      boolean hasMegatag2 = false;
+      for (var observation : inputs[cameraIndex].poseObservations) {
+        if (observation.type() == PoseObservationType.MEGATAG_2) {
+          hasMegatag2 = true;
+          break;
+        }
+      }
+
       // Loop over pose observations
       for (var observation : inputs[cameraIndex].poseObservations) {
+        // When disabled, we ONLY use MegaTag 1 to initialize/correct heading and position
+        if (RobotState.isDisabled() && observation.type() != PoseObservationType.MEGATAG_1) {
+          continue;
+        }
+
+        // When enabled, if MegaTag 2 is available, we ignore MegaTag 1 to prevent double counting
+        if (RobotState.isEnabled() && hasMegatag2 && observation.type() == PoseObservationType.MEGATAG_1) {
+          continue;
+        }
 
     // Check whether to reject pose
        boolean rejectPose =

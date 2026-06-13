@@ -125,30 +125,10 @@ public class VisionIOLimelight implements VisionIO {
               PoseObservationType.MEGATAG_2));
     }
 
-    // Deduplicate: if we have both MT1 and MT2 observations for the same timestamp, keep MT2
-    List<PoseObservation> filteredObservations = new LinkedList<>();
-    for (PoseObservation obs : poseObservations) {
-      if (obs.type() == PoseObservationType.MEGATAG_2) {
-        filteredObservations.add(obs);
-      } else {
-        // It's MT1. Only add if there is no MT2 observation with the same timestamp
-        boolean hasMegatag2 = false;
-        for (PoseObservation other : poseObservations) {
-          if (other.type() == PoseObservationType.MEGATAG_2 && Math.abs(other.timestamp() - obs.timestamp()) < 1e-4) {
-            hasMegatag2 = true;
-            break;
-          }
-        }
-        if (!hasMegatag2) {
-          filteredObservations.add(obs);
-        }
-      }
-    }
-
     // Save pose observations to inputs object
-    inputs.poseObservations = new PoseObservation[filteredObservations.size()];
-    for (int i = 0; i < filteredObservations.size(); i++) {
-      inputs.poseObservations[i] = filteredObservations.get(i);
+    inputs.poseObservations = new PoseObservation[poseObservations.size()];
+    for (int i = 0; i < poseObservations.size(); i++) {
+      inputs.poseObservations[i] = poseObservations.get(i);
     }
 
     // Save tag IDs to inputs objects
