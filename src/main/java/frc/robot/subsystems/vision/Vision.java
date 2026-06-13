@@ -21,6 +21,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
@@ -49,7 +50,7 @@ public class Vision extends SubsystemBase {
   private final VisionConsumer consumer;
   private final Supplier<Rotation2d> rotationSupplier;
   private final VisionIO[] io;
-  private final DoubleSupplier omegaSupplier;
+  private final Supplier<ChassisSpeeds> speedsSupplier;
   private final VisionIOInputs[] inputs;
   private final Alert[] disconnectedAlerts;
 
@@ -62,11 +63,11 @@ public class Vision extends SubsystemBase {
   public Vision(
       VisionConsumer consumer,
       Supplier<Rotation2d> rotationSupplier,
-      DoubleSupplier omegaSupplier,
+      Supplier<ChassisSpeeds> speedsSupplier,
       VisionIO... io) {
     this.consumer = consumer;
     this.rotationSupplier = rotationSupplier;
-    this.omegaSupplier = omegaSupplier;
+    this.speedsSupplier = speedsSupplier;
     this.io = io;
 
     LimelightHelpers.SetIMUMode(camera0Name, 4);
@@ -182,11 +183,22 @@ public class Vision extends SubsystemBase {
             double visionYaw = mt1.pose().getRotation().toRotation2d().getRadians();
             double yawError = Math.abs(MathUtil.angleModulus(visionYaw - currentYaw));
 
-            if (yawError > Units.degreesToRadians(maxYawErrorToUseMegatag2)) {
-              // Large yaw error: use MegaTag 1 to correct the gyro/pose yaw
+            // Check if the robot is stationary (speeds are low)
+            ChassisSpeeds speeds = speedsSupplier.get();
+            boolean isStationary = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond) < VisionConstants.maxSpeedToCorrectYaw
+                && Math.abs(speeds.omegaRadiansPerSecond) < VisionConstants.maxOmegaToCorrectYaw;
+
+            // Check if the observation is high confidence and close range
+            boolean isHighConfidence = mt1.averageTagDistance() < VisionConstants.maxDistanceToCorrectYaw
+                && (mt1.tagCount() > 1 || mt1.ambiguity() < maxAmbiguityMt1);
+
+            if (yawError > Units.degreesToRadians(maxYawErrorToUseMegatag2) && isStationary && isHighConfidence) {
+              // Large yaw error while stationary and seeing a clear close-range tag: 
+              // use MegaTag 1 to correct the gyro/pose yaw
               frameObservations.add(mt1);
             } else {
-              // Yaw is already aligned: use MegaTag 2 for stable translation tracking
+              // Yaw is already aligned, or robot is moving, or tag is too far/low-confidence:
+              // use MegaTag 2 for stable translation tracking
               frameObservations.add(mt2);
             }
           } else if (mt2 != null) {
@@ -220,7 +232,7 @@ public class Vision extends SubsystemBase {
 
         // Reject if rotating too fast (only apply to MegaTag 1)
         boolean omegaRejected = (observation.type() == PoseObservationType.MEGATAG_1) 
-            && Math.abs(omegaSupplier.getAsDouble()) > 2.0;
+            && Math.abs(speedsSupplier.get().omegaRadiansPerSecond) > 2.0;
 
         if (rejectPose || omegaRejected) {
         robotPosesRejected.add(observation.pose());
