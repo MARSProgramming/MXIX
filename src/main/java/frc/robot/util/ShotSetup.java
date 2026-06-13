@@ -71,12 +71,7 @@ public class ShotSetup {
         TOF_MAP.put(5.6,  1.350);
     }
 
-    // ── Cache — one per target type ───────────────────────────────────────
-    private SOTMInfo mCachedHubInfo     = null;
-    private double   mLastHubDist       = -1;
 
-    private SOTMInfo mCachedShuttleInfo = null;
-    private double   mLastShuttleDist   = -1;
 
     // ─────────────────────────────────────────────────────────────────────
     // Public API
@@ -96,35 +91,16 @@ public class ShotSetup {
      */
     public SOTMInfo getSOTMInfoHub(Swerve swerve) {
         Translation2d target = FieldConstants.Locations.hubPosition();
-        double currentDist   = target.getDistance(swerve.getState().Pose.getTranslation());
-
-        if (mCachedHubInfo != null
-                && Math.abs(currentDist - mLastHubDist) < RECOMPUTE_THRESHOLD) {
-            return mCachedHubInfo;
-        }
-
-        mLastHubDist    = currentDist;
-        mCachedHubInfo  = computeSOTM(swerve, target, true);
-        return mCachedHubInfo;
+        return computeSOTM(swerve, target, true);
     }
 
     /**
-     * SOTM shot info for the shuttle target. Cached — only recomputes when
-     * distance changes by more than RECOMPUTE_THRESHOLD.
+     * SOTM shot info for the shuttle target.
      */
     public SOTMInfo getSOTMInfoShuttle(Swerve swerve) {
         Translation2d target = FieldConstants.Locations
             .getClosestShuttlingPosition(swerve.getState().Pose).getTranslation();
-        double currentDist   = target.getDistance(swerve.getState().Pose.getTranslation());
-
-        if (mCachedShuttleInfo != null
-                && Math.abs(currentDist - mLastShuttleDist) < RECOMPUTE_THRESHOLD) {
-            return mCachedShuttleInfo;
-        }
-
-        mLastShuttleDist    = currentDist;
-        mCachedShuttleInfo  = computeSOTM(swerve, target, false);
-        return mCachedShuttleInfo;
+        return computeSOTM(swerve, target, false);
     }
 
     // ─────────────────────────────────────────────────────────────────────
