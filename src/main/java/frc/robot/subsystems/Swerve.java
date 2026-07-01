@@ -280,9 +280,9 @@ public class Swerve extends TunerSwerveDrivetrain implements Subsystem {
     private void checkModuleConnections() {
         boolean allConnected = true;
         for (int i = 0; i < 4; i++) {
-            boolean driveConnected   = getModule(i).getDriveMotor().isConnected(0.0);
-            boolean steerConnected   = getModule(i).getSteerMotor().isConnected(0.0);
-            boolean encoderConnected = getModule(i).getEncoder().isConnected(0.0);
+            boolean driveConnected   = getModule(i).getDriveMotor().isConnected(0.5);
+            boolean steerConnected   = getModule(i).getSteerMotor().isConnected(0.5);
+            boolean encoderConnected = getModule(i).getEncoder().isConnected(0.5);
 
             DogLog.log("DogLogSwerve/Module" + i + "/DriveConnected",   driveConnected);
             DogLog.log("DogLogSwerve/Module" + i + "/SteerConnected",   steerConnected);
