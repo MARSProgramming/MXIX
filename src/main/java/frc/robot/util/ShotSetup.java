@@ -25,6 +25,10 @@ public class ShotSetup {
     private static final double MIN_TOF              = 0.05;
     private static final double MAX_TOF              = 1.5;
 
+    // ── Tuning Modifiers ────────────────────────────────────────────────
+    private static final double VELOCITY_MODIFIER = 0.98;
+    private static final double COWL_MODIFIER = 1.02;
+
     // ── Shot map ──────────────────────────────────────────────────────────
     private static final InterpolatingTreeMap<Double, ShotInfo> SHOT_MAP =
         new InterpolatingTreeMap<>(
@@ -43,25 +47,17 @@ public class ShotSetup {
         );
 
     static {
+        // Distances to populate in meters
+        double[] distances = {
+            1.24, 2.0, 2.2, 2.5, 3.0, 3.2, 3.4, 3.63, 3.80, 
+            4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.2, 5.4, 5.6
+        };
         // ── Shot map entries ──────────────────────────────────────────────
-        SHOT_MAP.put(1.24, new ShotInfo(new Shot(3350), 0.50));
-        SHOT_MAP.put(2.0,  new ShotInfo(new Shot(3400), 0.70));
-        SHOT_MAP.put(2.2,  new ShotInfo(new Shot(3450), 0.80));
-        SHOT_MAP.put(2.5,  new ShotInfo(new Shot(3500), 0.95));
-        SHOT_MAP.put(3.0,  new ShotInfo(new Shot(3550), 1.10));
-        SHOT_MAP.put(3.2,  new ShotInfo(new Shot(3600), 1.15));
-        SHOT_MAP.put(3.4,  new ShotInfo(new Shot(3650), 1.20));
-        SHOT_MAP.put(3.63, new ShotInfo(new Shot(3700), 1.25));
-        SHOT_MAP.put(3.80, new ShotInfo(new Shot(3750), 1.30));
-        SHOT_MAP.put(4.0,  new ShotInfo(new Shot(3800), 1.35));
-        SHOT_MAP.put(4.2,  new ShotInfo(new Shot(3850), 1.40));
-        SHOT_MAP.put(4.4,  new ShotInfo(new Shot(3900), 1.45));
-        SHOT_MAP.put(4.6,  new ShotInfo(new Shot(3950), 1.50));
-        SHOT_MAP.put(4.8,  new ShotInfo(new Shot(4000), 1.55));
-        SHOT_MAP.put(5.0,  new ShotInfo(new Shot(4050), 1.60));
-        SHOT_MAP.put(5.2,  new ShotInfo(new Shot(4100), 1.65));
-        SHOT_MAP.put(5.4,  new ShotInfo(new Shot(4150), 1.70));
-        SHOT_MAP.put(5.6,  new ShotInfo(new Shot(4200), 1.75));
+        for (double distance : distances) {
+            SHOT_MAP.put(distance, new ShotInfo(
+                    new Shot(calculateRPM(distance)),
+                    calculateCowlPosition(distance)));
+        }
 
         // ── Time of flight entries ─────────────────────────────────────────
         TOF_MAP.put(1.24, 1.310);
@@ -69,6 +65,30 @@ public class ShotSetup {
         TOF_MAP.put(3.0,  1.335);
         TOF_MAP.put(4.0,  1.340);
         TOF_MAP.put(5.6,  1.350);
+    }
+
+    private static double calculateRPM(double distance) {
+        double baselineRPM;
+        if (distance <= 2.0) {
+            baselineRPM = 3350 + ((distance - 1.24) * 65.79);
+        } else if (distance <= 4.0) {
+            baselineRPM = (225.0 * distance) + 2950.0; 
+        } else {
+            baselineRPM = 3800 + ((distance - 4.0) * 250.0);
+        }
+        return baselineRPM * VELOCITY_MODIFIER;
+    }
+
+    private static double calculateCowlPosition(double distance) {
+        double baselineCowl;
+        if (distance <= 2.0) {
+            baselineCowl = 0.50 + ((distance - 1.24) * 0.263);
+        } else if (distance <= 4.0) {
+            baselineCowl = (0.325 * distance) + 0.05;
+        } else {
+            baselineCowl = 1.35 + ((distance - 4.0) * 0.25);
+        }
+        return baselineCowl * COWL_MODIFIER;
     }
 
     // ── Cache — one per target type ───────────────────────────────────────
