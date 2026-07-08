@@ -26,7 +26,7 @@ public class ShotSetup {
     private static final double MAX_TOF              = 1.5;
 
     // ── Tuning Modifiers ────────────────────────────────────────────────
-    private static final double VELOCITY_MODIFIER = 0.98;
+    private static final double VELOCITY_MODIFIER = 0.95;
     private static final double COWL_MODIFIER = 1.02;
 
     // ── Shot map ──────────────────────────────────────────────────────────
