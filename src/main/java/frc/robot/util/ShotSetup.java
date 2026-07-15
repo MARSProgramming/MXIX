@@ -1,5 +1,6 @@
 package frc.robot.util;
 
+import dev.doglog.DogLog;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,6 +10,7 @@ import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.interpolation.Interpolator;
 import edu.wpi.first.math.interpolation.InverseInterpolator;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.units.Units;
 import frc.robot.constants.FieldConstants;
 import frc.robot.constants.SystemConstants;
@@ -17,40 +19,35 @@ import frc.robot.subsystems.Swerve;
 
 public class ShotSetup {
 
-    private static final double PHASE_DELAY          = 0.05;
-    private static final double MAX_COWL_POSITION    = 1.8;
-    private static final double RECOMPUTE_THRESHOLD  = 0.05; // meters
-    private static final int    CONVERGENCE_ITERS    = 5;
-    private static final double CONVERGENCE_EPSILON  = 0.01;
-    private static final double MIN_TOF              = 0.05;
-    private static final double MAX_TOF              = 1.5;
+    private static final double PHASE_DELAY = 0.05;
+    private static final double MAX_COWL_POSITION = 1.8;
+    private static final double RECOMPUTE_THRESHOLD = 0.05; // meters
+    private static final int CONVERGENCE_ITERS = 5;
+    private static final double CONVERGENCE_EPSILON = 0.01;
+    private static final double MIN_TOF = 0.05;
+    private static final double MAX_TOF = 1.5;
 
     // ── Tuning Modifiers ────────────────────────────────────────────────
-    private static final double VELOCITY_MODIFIER = 0.95;
-    private static final double COWL_MODIFIER = 1.02;
+    private static final DoubleSubscriber VELOCITY_MODIFIER = DogLog.tunable("ShotSetup/VelocityModifier", 0.95);
+    private static final DoubleSubscriber COWL_MODIFIER = DogLog.tunable("ShotSetup/CowlModifier", 1.02);
 
     // ── Shot map ──────────────────────────────────────────────────────────
-    private static final InterpolatingTreeMap<Double, ShotInfo> SHOT_MAP =
-        new InterpolatingTreeMap<>(
+    private static final InterpolatingTreeMap<Double, ShotInfo> SHOT_MAP = new InterpolatingTreeMap<>(
             (s, e, q) -> InverseInterpolator.forDouble().inverseInterpolate(s, e, q),
             (s, e, t) -> new ShotInfo(
-                new Shot(Interpolator.forDouble().interpolate(s.shot.shooterRPM, e.shot.shooterRPM, t)),
-                Interpolator.forDouble().interpolate(s.cowlPosition, e.cowlPosition, t)
-            )
-        );
+                    new Shot(Interpolator.forDouble().interpolate(s.shot.shooterRPM, e.shot.shooterRPM, t)),
+                    Interpolator.forDouble().interpolate(s.cowlPosition, e.cowlPosition, t)));
 
     // ── Time of flight map ────────────────────────────────────────────────
-    private static final InterpolatingTreeMap<Double, Double> TOF_MAP =
-        new InterpolatingTreeMap<>(
+    private static final InterpolatingTreeMap<Double, Double> TOF_MAP = new InterpolatingTreeMap<>(
             (s, e, q) -> InverseInterpolator.forDouble().inverseInterpolate(s, e, q),
-            (s, e, t) -> Interpolator.forDouble().interpolate(s, e, t)
-        );
+            (s, e, t) -> Interpolator.forDouble().interpolate(s, e, t));
 
     static {
         // Distances to populate in meters
         double[] distances = {
-            1.24, 2.0, 2.2, 2.5, 3.0, 3.2, 3.4, 3.63, 3.80, 
-            4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.2, 5.4, 5.6
+                1.24, 2.0, 2.2, 2.5, 3.0, 3.2, 3.4, 3.63, 3.80,
+                4.0, 4.2, 4.4, 4.6, 4.8, 5.0, 5.2, 5.4, 5.6
         };
         // ── Shot map entries ──────────────────────────────────────────────
         for (double distance : distances) {
@@ -61,10 +58,10 @@ public class ShotSetup {
 
         // ── Time of flight entries ─────────────────────────────────────────
         TOF_MAP.put(1.24, 1.310);
-        TOF_MAP.put(2.0,  1.330);
-        TOF_MAP.put(3.0,  1.335);
-        TOF_MAP.put(4.0,  1.340);
-        TOF_MAP.put(5.6,  1.350);
+        TOF_MAP.put(2.0, 1.330);
+        TOF_MAP.put(3.0, 1.335);
+        TOF_MAP.put(4.0, 1.340);
+        TOF_MAP.put(5.6, 1.350);
     }
 
     private static double calculateRPM(double distance) {
@@ -72,11 +69,11 @@ public class ShotSetup {
         if (distance <= 2.0) {
             baselineRPM = 3350 + ((distance - 1.24) * 65.79);
         } else if (distance <= 4.0) {
-            baselineRPM = (225.0 * distance) + 2950.0; 
+            baselineRPM = (225.0 * distance) + 2950.0;
         } else {
             baselineRPM = 3800 + ((distance - 4.0) * 250.0);
         }
-        return baselineRPM * VELOCITY_MODIFIER;
+        return baselineRPM;
     }
 
     private static double calculateCowlPosition(double distance) {
@@ -88,7 +85,7 @@ public class ShotSetup {
         } else {
             baselineCowl = 1.35 + ((distance - 4.0) * 0.25);
         }
-        return baselineCowl * COWL_MODIFIER;
+        return baselineCowl;
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -117,7 +114,7 @@ public class ShotSetup {
      */
     public SOTMInfo getSOTMInfoShuttle(Swerve swerve) {
         Translation2d target = FieldConstants.Locations
-            .getClosestShuttlingPosition(swerve.getState().Pose).getTranslation();
+                .getClosestShuttlingPosition(swerve.getState().Pose).getTranslation();
         return computeSOTM(swerve, target, false);
     }
 
@@ -130,43 +127,42 @@ public class ShotSetup {
 
         // ── Phase-delay compensated pose ──────────────────────────────────
         Pose2d robotPose = state.Pose.exp(new Twist2d(
-            state.Speeds.vxMetersPerSecond * PHASE_DELAY,
-            state.Speeds.vyMetersPerSecond * PHASE_DELAY,
-            state.Speeds.omegaRadiansPerSecond * PHASE_DELAY
-        ));
+                state.Speeds.vxMetersPerSecond * PHASE_DELAY,
+                state.Speeds.vyMetersPerSecond * PHASE_DELAY,
+                state.Speeds.omegaRadiansPerSecond * PHASE_DELAY));
 
         Pose2d shotPose = robotPose.plus(
-            GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
+                GeometryUtil.toTransform2d(SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM));
 
         // ── Field-relative shooter velocity (robot + rotational component) ─
         ChassisSpeeds fieldSpeeds = ChassisSpeeds.fromRobotRelativeSpeeds(
-            state.Speeds, robotPose.getRotation());
+                state.Speeds, robotPose.getRotation());
 
         var shooterTransform = SystemConstants.Flywheel.ROBOT_TO_SHOOTER_TRANSFORM;
         double cosH = robotPose.getRotation().getCos();
         double sinH = robotPose.getRotation().getSin();
-        double offsetX =  shooterTransform.getX() * cosH - shooterTransform.getY() * sinH;
-        double offsetY =  shooterTransform.getX() * sinH + shooterTransform.getY() * cosH;
-        double omega   = fieldSpeeds.omegaRadiansPerSecond;
+        double offsetX = shooterTransform.getX() * cosH - shooterTransform.getY() * sinH;
+        double offsetY = shooterTransform.getX() * sinH + shooterTransform.getY() * cosH;
+        double omega = fieldSpeeds.omegaRadiansPerSecond;
 
         double velX = fieldSpeeds.vxMetersPerSecond + (-offsetY) * omega;
-        double velY = fieldSpeeds.vyMetersPerSecond + ( offsetX) * omega;
+        double velY = fieldSpeeds.vyMetersPerSecond + (offsetX) * omega;
 
         // ── Iterative convergence ─────────────────────────────────────────
-        Pose2d  lookaheadPose = shotPose;
-        double  lookaheadDist = target.getDistance(shotPose.getTranslation());
+        Pose2d lookaheadPose = shotPose;
+        double lookaheadDist = target.getDistance(shotPose.getTranslation());
 
         for (int i = 0; i < CONVERGENCE_ITERS; i++) {
             double tof = MathUtil.clamp(TOF_MAP.get(lookaheadDist), MIN_TOF, MAX_TOF);
 
             lookaheadPose = new Pose2d(
-                shotPose.getTranslation().plus(
-                    new Translation2d(velX * tof, velY * tof)),
-                shotPose.getRotation()
-            );
+                    shotPose.getTranslation().plus(
+                            new Translation2d(velX * tof, velY * tof)),
+                    shotPose.getRotation());
 
             double newDist = target.getDistance(lookaheadPose.getTranslation());
-            if (Math.abs(newDist - lookaheadDist) < CONVERGENCE_EPSILON) break;
+            if (Math.abs(newDist - lookaheadDist) < CONVERGENCE_EPSILON)
+                break;
             lookaheadDist = newDist;
         }
 
@@ -193,16 +189,15 @@ public class ShotSetup {
 
     private ShotInfo clamp(ShotInfo raw) {
         return new ShotInfo(
-            new Shot(MathUtil.clamp(raw.shot.shooterRPM, 0,
-                Flywheel.kMaxFlywheelSpeed.in(Units.RPM))),
-            MathUtil.clamp(raw.cowlPosition, 0, MAX_COWL_POSITION)
-        );
+                new Shot(MathUtil.clamp(raw.shot.shooterRPM * VELOCITY_MODIFIER.get(), 0,
+                        Flywheel.kMaxFlywheelSpeed.in(Units.RPM))),
+                MathUtil.clamp(raw.cowlPosition * COWL_MODIFIER.get(), 0, MAX_COWL_POSITION));
     }
 
     private Rotation2d getLookaheadDirection(Pose2d lookaheadPose, Swerve swerve, boolean isHub) {
         Translation2d target = isHub
-            ? FieldConstants.Locations.hubPosition()
-            : FieldConstants.Locations.getClosestShuttlingPosition(lookaheadPose).getTranslation();
+                ? FieldConstants.Locations.hubPosition()
+                : FieldConstants.Locations.getClosestShuttlingPosition(lookaheadPose).getTranslation();
 
         Rotation2d directionBlue = target.minus(lookaheadPose.getTranslation()).getAngle();
         return directionBlue.rotateBy(swerve.getOperatorForwardDirection());
@@ -214,25 +209,30 @@ public class ShotSetup {
 
     public static class Shot {
         public final double shooterRPM;
-        public Shot(double shooterRPM) { this.shooterRPM = shooterRPM; }
+
+        public Shot(double shooterRPM) {
+            this.shooterRPM = shooterRPM;
+        }
     }
 
     public static class ShotInfo {
-        public final Shot   shot;
+        public final Shot shot;
         public final double cowlPosition;
+
         public ShotInfo(Shot shot, double cowlPosition) {
-            this.shot         = shot;
+            this.shot = shot;
             this.cowlPosition = cowlPosition;
         }
     }
 
     public static class SOTMInfo {
-        public final ShotInfo  shotInfo;
+        public final ShotInfo shotInfo;
         public final Rotation2d virtualTargetAngle;
-        public final double     angularVelocityRadPerSec;
+        public final double angularVelocityRadPerSec;
+
         public SOTMInfo(ShotInfo shotInfo, Rotation2d virtualTargetAngle, double angularVelocityRadPerSec) {
-            this.shotInfo                = shotInfo;
-            this.virtualTargetAngle      = virtualTargetAngle;
+            this.shotInfo = shotInfo;
+            this.virtualTargetAngle = virtualTargetAngle;
             this.angularVelocityRadPerSec = angularVelocityRadPerSec;
         }
     }
