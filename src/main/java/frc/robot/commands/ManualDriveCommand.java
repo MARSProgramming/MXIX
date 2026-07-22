@@ -30,6 +30,35 @@ import frc.robot.util.Stopwatch;
  */
 
 public class ManualDriveCommand extends Command {
+
+    public enum DriveMode {
+        TRAINING_WHEELS(0.35),
+        SPORT_MODE(0.7),
+        JULIAN(1.00);
+
+        public final double scalar;
+
+        DriveMode(double scalar) {
+            this.scalar = scalar;
+        }
+    }
+
+    private DriveMode driveMode = DriveMode.JULIAN;
+
+    public void cycleDriveMode() {
+        switch (driveMode) {
+            case JULIAN:
+                driveMode = DriveMode.TRAINING_WHEELS;
+                break;
+            case TRAINING_WHEELS:
+                driveMode = DriveMode.SPORT_MODE;
+                break;
+            case SPORT_MODE:
+                driveMode = DriveMode.JULIAN;
+                break;
+        }
+    }
+
     private enum State {
         IDLING,
         DRIVING_WITH_MANUAL_ROTATION,
@@ -165,16 +194,16 @@ public class ManualDriveCommand extends Command {
                 lockHeadingIfRotationStopped(input);
                 swerve.setControl(
                     fieldCentricRequest
-                        .withVelocityX(SystemConstants.Drive.kMaxSpeed.times(input.forward))
-                        .withVelocityY(SystemConstants.Drive.kMaxSpeed.times(input.left))
-                        .withRotationalRate(SystemConstants.Drive.kMaxRotationalRate.times(input.rotation))
+                        .withVelocityX(SystemConstants.Drive.kMaxSpeed.times(input.forward * driveMode.scalar))
+                        .withVelocityY(SystemConstants.Drive.kMaxSpeed.times(input.left * driveMode.scalar))
+                        .withRotationalRate(SystemConstants.Drive.kMaxRotationalRate.times(input.rotation * driveMode.scalar))
                 );
                 break;
             case DRIVING_WITH_LOCKED_HEADING:
                 swerve.setControl(
                     fieldCentricFacingAngleRequest
-                        .withVelocityX(SystemConstants.Drive.kMaxSpeed.times(input.forward))
-                        .withVelocityY(SystemConstants.Drive.kMaxSpeed.times(input.left))
+                        .withVelocityX(SystemConstants.Drive.kMaxSpeed.times(input.forward * driveMode.scalar))
+                        .withVelocityY(SystemConstants.Drive.kMaxSpeed.times(input.left * driveMode.scalar))
                         .withTargetDirection(lockedHeading.get())
                 );
                 break;

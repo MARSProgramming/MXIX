@@ -144,6 +144,7 @@ new Trigger(mMatchStateSystem::shouldRumbleShiftStart)
       // driving commands
       swerve.setDefaultCommand(manualDriveCommand);
       drivePilot.back().onTrue(Commands.runOnce(() -> manualDriveCommand.seedFieldCentric()));
+      drivePilot.start().onTrue(Commands.runOnce(() -> manualDriveCommand.cycleDriveMode()));
 
 
       drivePilot.leftTrigger().whileTrue(mIntakeRollers.intakeCommand().beforeStarting(() -> leds.setColor(Color.kWhite, LEDSubsystem.LEDSegment.ALL)).finallyDo(() -> leds.rainbow(LEDSegment.ALL)));
